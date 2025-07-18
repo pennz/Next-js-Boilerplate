@@ -1,0 +1,1012 @@
+openapi: 3.0.3
+info:
+  title: Health Management API
+  description: Personal health management system API for tracking health records, goals, reminders, and analytics
+  version: 1.0.0
+  contact:
+    name: Health Management API Support
+    email: support@healthmgmt.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.healthmgmt.com/v1
+    description: Production server
+  - url: https://staging-api.healthmgmt.com/v1
+    description: Staging server
+  - url: http://localhost:3000
+    description: Development server
+
+security:
+  - ClerkAuth: []
+
+tags:
+  - name: Health Records
+    description: Operations for managing health records
+  - name: Health Analytics
+    description: Operations for health data analytics and trends
+  - name: Health Goals
+    description: Operations for managing health goals
+  - name: Health Reminders
+    description: Operations for managing health reminders
+
+paths:
+  /api/health/records:
+    get:
+      tags:
+        - Health Records
+      summary: Get health records
+      description: Retrieve a list of health records for the authenticated user with optional filtering
+      parameters:
+        - name: type_id
+          in: query
+          description: Filter by health type ID
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: start_date
+          in: query
+          description: Filter records from this date (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Filter records until this date (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          description: Maximum number of records to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of records to skip
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Health records retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HealthRecord'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Health Records
+      summary: Create health record
+      description: Create a new health record for the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHealthRecord'
+      responses:
+        '201':
+          description: Health record created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health/records/{id}:
+    put:
+      tags:
+        - Health Records
+      summary: Update health record
+      description: Update an existing health record for the authenticated user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Health record ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHealthRecord'
+      responses:
+        '200':
+          description: Health record updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Health Records
+      summary: Delete health record
+      description: Delete a health record for the authenticated user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Health record ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Health record deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health/analytics/{type}:
+    get:
+      tags:
+        - Health Analytics
+      summary: Get health analytics
+      description: Retrieve analytics data for a specific health metric type
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Health type slug (e.g., weight, blood-pressure, steps)
+          schema:
+            type: string
+            pattern: '^[a-z0-9-]+$'
+        - name: start_date
+          in: query
+          description: Analytics start date (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Analytics end date (ISO 8601)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: aggregation
+          in: query
+          description: Data aggregation level
+          required: false
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: daily
+      responses:
+        '200':
+          description: Analytics data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthAnalytics'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health/goals:
+    get:
+      tags:
+        - Health Goals
+      summary: Get health goals
+      description: Retrieve health goals for the authenticated user
+      parameters:
+        - name: status
+          in: query
+          description: Filter by goal status
+          required: false
+          schema:
+            type: string
+            enum: [active, completed, paused]
+        - name: type_id
+          in: query
+          description: Filter by health type ID
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Health goals retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HealthGoal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Health Goals
+      summary: Create health goal
+      description: Create a new health goal for the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHealthGoal'
+      responses:
+        '201':
+          description: Health goal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthGoal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health/goals/{id}:
+    patch:
+      tags:
+        - Health Goals
+      summary: Update health goal
+      description: Update an existing health goal for the authenticated user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Health goal ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHealthGoal'
+      responses:
+        '200':
+          description: Health goal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthGoal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health/reminders:
+    get:
+      tags:
+        - Health Reminders
+      summary: Get health reminders
+      description: Retrieve health reminders for the authenticated user
+      parameters:
+        - name: active
+          in: query
+          description: Filter by active status
+          required: false
+          schema:
+            type: boolean
+        - name: type_id
+          in: query
+          description: Filter by health type ID
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Health reminders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HealthReminder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Health Reminders
+      summary: Create health reminder
+      description: Create a new health reminder for the authenticated user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHealthReminder'
+      responses:
+        '201':
+          description: Health reminder created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthReminder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health/reminders/{id}:
+    patch:
+      tags:
+        - Health Reminders
+      summary: Update health reminder
+      description: Update an existing health reminder for the authenticated user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Health reminder ID
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHealthReminder'
+      responses:
+        '200':
+          description: Health reminder updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthReminder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    ClerkAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk JWT token for user authentication
+
+  schemas:
+    HealthType:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the health type
+          example: 1
+        slug:
+          type: string
+          description: URL-friendly identifier
+          example: "weight"
+        display_name:
+          type: string
+          description: Human-readable name
+          example: "Weight"
+        unit:
+          type: string
+          description: Measurement unit
+          example: "kg"
+        typical_range_low:
+          type: number
+          format: float
+          description: Typical low value for this health type
+          example: 50.0
+        typical_range_high:
+          type: number
+          format: float
+          description: Typical high value for this health type
+          example: 120.0
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - slug
+        - display_name
+        - unit
+        - created_at
+        - updated_at
+
+    HealthRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the health record
+          example: 123
+        user_id:
+          type: string
+          description: Clerk user identifier
+          example: "user_2NiWoBO2hdTHip1VaFVnFONGtOf"
+        type_id:
+          type: integer
+          description: Health type identifier
+          example: 1
+        type:
+          $ref: '#/components/schemas/HealthType'
+        value:
+          type: number
+          format: float
+          description: Measured value
+          example: 75.5
+        unit:
+          type: string
+          description: Measurement unit
+          example: "kg"
+        recorded_at:
+          type: string
+          format: date-time
+          description: When the measurement was taken
+          example: "2024-01-15T10:30:00Z"
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - user_id
+        - type_id
+        - value
+        - unit
+        - recorded_at
+        - created_at
+        - updated_at
+
+    CreateHealthRecord:
+      type: object
+      properties:
+        type_id:
+          type: integer
+          minimum: 1
+          description: Health type identifier
+          example: 1
+        value:
+          type: number
+          format: float
+          minimum: 0
+          description: Measured value
+          example: 75.5
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Measurement unit
+          example: "kg"
+        recorded_at:
+          type: string
+          format: date-time
+          description: When the measurement was taken
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - type_id
+        - value
+        - unit
+        - recorded_at
+
+    UpdateHealthRecord:
+      type: object
+      properties:
+        value:
+          type: number
+          format: float
+          minimum: 0
+          description: Measured value
+          example: 76.0
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Measurement unit
+          example: "kg"
+        recorded_at:
+          type: string
+          format: date-time
+          description: When the measurement was taken
+          example: "2024-01-15T10:30:00Z"
+
+    HealthGoal:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the health goal
+          example: 456
+        user_id:
+          type: string
+          description: Clerk user identifier
+          example: "user_2NiWoBO2hdTHip1VaFVnFONGtOf"
+        type_id:
+          type: integer
+          description: Health type identifier
+          example: 1
+        type:
+          $ref: '#/components/schemas/HealthType'
+        target_value:
+          type: number
+          format: float
+          description: Goal target value
+          example: 70.0
+        target_date:
+          type: string
+          format: date
+          description: Goal deadline
+          example: "2024-06-01"
+        status:
+          type: string
+          enum: [active, completed, paused]
+          description: Goal status
+          example: "active"
+        progress_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Goal completion percentage
+          example: 65.5
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - user_id
+        - type_id
+        - target_value
+        - target_date
+        - status
+        - created_at
+        - updated_at
+
+    CreateHealthGoal:
+      type: object
+      properties:
+        type_id:
+          type: integer
+          minimum: 1
+          description: Health type identifier
+          example: 1
+        target_value:
+          type: number
+          format: float
+          minimum: 0
+          description: Goal target value
+          example: 70.0
+        target_date:
+          type: string
+          format: date
+          description: Goal deadline (must be in the future)
+          example: "2024-06-01"
+      required:
+        - type_id
+        - target_value
+        - target_date
+
+    UpdateHealthGoal:
+      type: object
+      properties:
+        target_value:
+          type: number
+          format: float
+          minimum: 0
+          description: Goal target value
+          example: 68.0
+        target_date:
+          type: string
+          format: date
+          description: Goal deadline
+          example: "2024-07-01"
+        status:
+          type: string
+          enum: [active, completed, paused]
+          description: Goal status
+          example: "completed"
+
+    HealthReminder:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the health reminder
+          example: 789
+        user_id:
+          type: string
+          description: Clerk user identifier
+          example: "user_2NiWoBO2hdTHip1VaFVnFONGtOf"
+        type_id:
+          type: integer
+          description: Health type identifier
+          example: 1
+        type:
+          $ref: '#/components/schemas/HealthType'
+        cron_expr:
+          type: string
+          description: Cron expression for scheduling
+          example: "0 9 * * *"
+        message:
+          type: string
+          description: Reminder message
+          example: "Time to log your weight!"
+        active:
+          type: boolean
+          description: Whether the reminder is active
+          example: true
+        next_run_at:
+          type: string
+          format: date-time
+          description: Next scheduled execution time
+          example: "2024-01-16T09:00:00Z"
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - user_id
+        - type_id
+        - cron_expr
+        - message
+        - active
+        - created_at
+        - updated_at
+
+    CreateHealthReminder:
+      type: object
+      properties:
+        type_id:
+          type: integer
+          minimum: 1
+          description: Health type identifier
+          example: 1
+        cron_expr:
+          type: string
+          pattern: '^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$'
+          description: Valid cron expression for scheduling
+          example: "0 9 * * *"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Reminder message
+          example: "Time to log your weight!"
+        active:
+          type: boolean
+          description: Whether the reminder should be active
+          default: true
+          example: true
+      required:
+        - type_id
+        - cron_expr
+        - message
+
+    UpdateHealthReminder:
+      type: object
+      properties:
+        cron_expr:
+          type: string
+          pattern: '^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$'
+          description: Valid cron expression for scheduling
+          example: "0 18 * * *"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Reminder message
+          example: "Evening weight check!"
+        active:
+          type: boolean
+          description: Whether the reminder should be active
+          example: false
+
+    HealthAnalytics:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/HealthType'
+        period:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+              description: Analytics period start date
+            end_date:
+              type: string
+              format: date
+              description: Analytics period end date
+            aggregation:
+              type: string
+              enum: [daily, weekly, monthly]
+              description: Data aggregation level
+          required:
+            - start_date
+            - end_date
+            - aggregation
+        data_points:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: Data point date
+              value:
+                type: number
+                format: float
+                description: Aggregated value for the period
+              count:
+                type: integer
+                description: Number of records in this period
+            required:
+              - date
+              - value
+              - count
+        statistics:
+          type: object
+          properties:
+            min:
+              type: number
+              format: float
+              description: Minimum value in the period
+            max:
+              type: number
+              format: float
+              description: Maximum value in the period
+            avg:
+              type: number
+              format: float
+              description: Average value in the period
+            trend:
+              type: string
+              enum: [increasing, decreasing, stable]
+              description: Overall trend direction
+            total_records:
+              type: integer
+              description: Total number of records in the period
+          required:
+            - min
+            - max
+            - avg
+            - trend
+            - total_records
+      required:
+        - type
+        - period
+        - data_points
+        - statistics
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+          example: 150
+        limit:
+          type: integer
+          description: Number of items per page
+          example: 20
+        offset:
+          type: integer
+          description: Number of items skipped
+          example: 0
+        has_more:
+          type: boolean
+          description: Whether there are more items available
+          example: true
+      required:
+        - total
+        - limit
+        - offset
+        - has_more
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request parameters"
+        code:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+      required:
+        - error
+        - code
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Validation error message
+          example: "Validation failed"
+        code:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+        details:
+          type: object
+          description: Field-specific validation errors
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            value: ["Value must be a positive number"]
+            recorded_at: ["Date cannot be in the future"]
+      required:
+        - error
+        - code
+        - details
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid request parameters"
+            code: "BAD_REQUEST"
+
+    Unauthorized:
+      description: Unauthorized - authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Resource not found"
+            code: "NOT_FOUND"
+
+    ValidationError:
+      description: Validation error - invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
+            code: "INTERNAL_ERROR"
+
+externalDocs:
+  description: Health Management API Documentation
+  url: https://docs.healthmgmt.com/api

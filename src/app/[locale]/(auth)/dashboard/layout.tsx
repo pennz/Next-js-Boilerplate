@@ -35,6 +35,46 @@ export default async function DashboardLayout(props: {
               {t('user_profile_link')}
             </Link>
           </li>
+          <li>
+            <Link
+              href="/dashboard/health/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('health_overview_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/health/records/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('health_records_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/health/analytics/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('health_analytics_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/health/goals/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('health_goals_link')}
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/health/reminders/"
+              className="border-none text-gray-700 hover:text-gray-900"
+            >
+              {t('health_reminders_link')}
+            </Link>
+          </li>
         </>
       )}
       rightNav={(

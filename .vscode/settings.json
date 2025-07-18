@@ -63,5 +63,6 @@
     "pcss",
     "postcss",
     "github-actions-workflow"
-  ]
+  ],
+  "traycer.enableCommentsHighlighting": true
 }

@@ -7,6 +7,9 @@ export const Env = createEnv({
     CLERK_SECRET_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
+    ENABLE_HEALTH_MGMT: z.string().transform((val) => val === 'true').optional().default('false'),
+    HEALTH_REMINDER_CRON_SECRET: z.string().min(1).optional(),
+    PROMETHEUS_METRICS_ENABLED: z.string().transform((val) => val === 'true').optional().default('false'),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().optional(),
@@ -23,6 +26,9 @@ export const Env = createEnv({
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_STACK_SOURCE_TOKEN: process.env.BETTER_STACK_SOURCE_TOKEN,
+    ENABLE_HEALTH_MGMT: process.env.ENABLE_HEALTH_MGMT,
+    HEALTH_REMINDER_CRON_SECRET: process.env.HEALTH_REMINDER_CRON_SECRET,
+    PROMETHEUS_METRICS_ENABLED: process.env.PROMETHEUS_METRICS_ENABLED,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
