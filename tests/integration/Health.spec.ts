@@ -1,12 +1,22 @@
 import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
+
+// Utility function to handle API requests with auto-generated x-e2e-random-id
+const apiRequest = async (request: any, method: 'get' | 'post' | 'put' | 'patch' | 'delete', endpoint: string, data?: any) => {
+  const e2eRandomId = faker.number.int({ max: 1000000 });
+  return request[method](endpoint, {
+    ...(data && { data }),
+    headers: {
+      'x-e2e-random-id': e2eRandomId.toString(),
+    },
+  });
+};
 
 test.describe('Health Management', () => {
   test.describe('Health Records API', () => {
-    test('should create a new health record with valid data', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const healthRecord = await page.request.post('/api/health/records', {
+    test('should create a new health record with valid data', async ({ request }) => {
+      const healthRecord = await apiRequest(request, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 70.5,
@@ -27,10 +37,8 @@ test.describe('Health Management', () => {
       expect(recordJson.unit).toBe('kg');
     });
 
-    test('shouldn\'t create a health record with invalid type_id', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const healthRecord = await page.request.post('/api/health/records', {
+    test('shouldn\'t create a health record with invalid type_id', async ({ request }) => {
+      const healthRecord = await apiRequest(request, 'post', '/api/health/records', {
         data: {
           type_id: 'invalid',
           value: 70.5,
@@ -45,10 +53,8 @@ test.describe('Health Management', () => {
       expect(healthRecord.status()).toBe(422);
     });
 
-    test('shouldn\'t create a health record with negative value', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const healthRecord = await page.request.post('/api/health/records', {
+    test('shouldn\'t create a health record with negative value', async ({ request }) => {
+      const healthRecord = await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: -10,
@@ -63,12 +69,11 @@ test.describe('Health Management', () => {
       expect(healthRecord.status()).toBe(422);
     });
 
-    test('shouldn\'t create a health record with future date', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
+    test('shouldn\'t create a health record with future date', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
       
-      const healthRecord = await page.request.post('/api/health/records', {
+      const healthRecord = await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 70.5,
@@ -83,11 +88,9 @@ test.describe('Health Management', () => {
       expect(healthRecord.status()).toBe(422);
     });
 
-    test('should retrieve health records for authenticated user', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
+    test('should retrieve health records for authenticated user', async ({ request }) => {
       // Create a record first
-      await page.request.post('/api/health/records', {
+      await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 75.0,
@@ -99,7 +102,7 @@ test.describe('Health Management', () => {
         },
       });
 
-      const records = await page.request.get('/api/health/records', {
+      const records = await apiRequest(request, 'get', '/api/health/records');
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -112,11 +115,9 @@ test.describe('Health Management', () => {
       expect(recordsJson.data.length).toBeGreaterThan(0);
     });
 
-    test('should update an existing health record', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
+    test('should update an existing health record', async ({ request }) => {
       // Create a record first
-      const createResponse = await page.request.post('/api/health/records', {
+      const createResponse = await apiRequest(request, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 70.0,
@@ -131,7 +132,7 @@ test.describe('Health Management', () => {
       const createdRecord = await createResponse.json();
       
       // Update the record
-      const updateResponse = await page.request.put(`/api/health/records/${createdRecord.id}`, {
+      const updateResponse = await apiRequest(request, 'put', `/api/health/records/${createdRecord.id}`, {
         data: {
           value: 72.0,
           unit: 'kg',
@@ -147,11 +148,9 @@ test.describe('Health Management', () => {
       expect(updatedRecord.value).toBe(72.0);
     });
 
-    test('should delete a health record', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
+    test('should delete a health record', async ({ request }) => {
       // Create a record first
-      const createResponse = await page.request.post('/api/health/records', {
+      const createResponse = await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 70.0,
@@ -166,7 +165,7 @@ test.describe('Health Management', () => {
       const createdRecord = await createResponse.json();
       
       // Delete the record
-      const deleteResponse = await page.request.delete(`/api/health/records/${createdRecord.id}`, {
+      const deleteResponse = await request.delete(`/api/health/records/${createdRecord.id}`, {
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -177,12 +176,11 @@ test.describe('Health Management', () => {
   });
 
   test.describe('Health Goals API', () => {
-    test('should create a new health goal with valid data', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
+    test('should create a new health goal with valid data', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
       
-      const healthGoal = await page.request.post('/api/health/goals', {
+      const healthGoal = await apiRequest(request, 'post', '/api/health/goals', {
         data: {
           type_id: 1,
           target_value: 65.0,
@@ -203,12 +201,11 @@ test.describe('Health Management', () => {
       expect(goalJson.status).toBe('active');
     });
 
-    test('shouldn\'t create a health goal with past target date', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
+    test('shouldn\'t create a health goal with past target date', async ({ request }) => {
       const pastDate = new Date();
       pastDate.setMonth(pastDate.getMonth() - 1);
       
-      const healthGoal = await page.request.post('/api/health/goals', {
+      const healthGoal = await apiRequest(request, 'post', '/api/health/goals', {
         data: {
           type_id: 1,
           target_value: 65.0,
@@ -223,12 +220,11 @@ test.describe('Health Management', () => {
       expect(healthGoal.status()).toBe(422);
     });
 
-    test('shouldn\'t create a health goal with invalid status', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
+    test('shouldn\'t create a health goal with invalid status', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
       
-      const healthGoal = await page.request.post('/api/health/goals', {
+      const healthGoal = await apiRequest(page, 'post', '/api/health/goals', {
         data: {
           type_id: 1,
           target_value: 65.0,
@@ -243,13 +239,12 @@ test.describe('Health Management', () => {
       expect(healthGoal.status()).toBe(422);
     });
 
-    test('should retrieve health goals for authenticated user', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
+    test('should retrieve health goals for authenticated user', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
       
       // Create a goal first
-      await page.request.post('/api/health/goals', {
+      await apiRequest(page, 'post', '/api/health/goals', {
         data: {
           type_id: 1,
           target_value: 65.0,
@@ -261,7 +256,7 @@ test.describe('Health Management', () => {
         },
       });
 
-      const goals = await page.request.get('/api/health/goals', {
+      const goals = await apiRequest(request, 'get', '/api/health/goals');
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -274,13 +269,12 @@ test.describe('Health Management', () => {
       expect(goalsJson.data.length).toBeGreaterThan(0);
     });
 
-    test('should update goal status', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
+    test('should update goal status', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
       
       // Create a goal first
-      const createResponse = await page.request.post('/api/health/goals', {
+      const createResponse = await apiRequest(page, 'post', '/api/health/goals', {
         data: {
           type_id: 1,
           target_value: 65.0,
@@ -295,7 +289,7 @@ test.describe('Health Management', () => {
       const createdGoal = await createResponse.json();
       
       // Update the goal status
-      const updateResponse = await page.request.patch(`/api/health/goals/${createdGoal.id}`, {
+      const updateResponse = await apiRequest(request, 'patch', `/api/health/goals/${createdGoal.id}`, {
         data: {
           status: 'completed',
         },
@@ -313,9 +307,7 @@ test.describe('Health Management', () => {
 
   test.describe('Health Reminders API', () => {
     test('should create a new health reminder with valid data', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const healthReminder = await page.request.post('/api/health/reminders', {
+      const healthReminder = await apiRequest(page, 'post', '/api/health/reminders', {
         data: {
           type_id: 1,
           cron_expr: '0 9 * * *',
@@ -338,9 +330,7 @@ test.describe('Health Management', () => {
     });
 
     test('shouldn\'t create a reminder with invalid cron expression', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const healthReminder = await page.request.post('/api/health/reminders', {
+      const healthReminder = await apiRequest(page, 'post', '/api/health/reminders', {
         data: {
           type_id: 1,
           cron_expr: 'invalid cron',
@@ -356,9 +346,7 @@ test.describe('Health Management', () => {
     });
 
     test('shouldn\'t create a reminder with empty message', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const healthReminder = await page.request.post('/api/health/reminders', {
+      const healthReminder = await apiRequest(page, 'post', '/api/health/reminders', {
         data: {
           type_id: 1,
           cron_expr: '0 9 * * *',
@@ -374,10 +362,8 @@ test.describe('Health Management', () => {
     });
 
     test('should retrieve health reminders for authenticated user', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
       // Create a reminder first
-      await page.request.post('/api/health/reminders', {
+      await apiRequest(page, 'post', '/api/health/reminders', {
         data: {
           type_id: 1,
           cron_expr: '0 9 * * *',
@@ -389,7 +375,7 @@ test.describe('Health Management', () => {
         },
       });
 
-      const reminders = await page.request.get('/api/health/reminders', {
+      const reminders = await apiRequest(page, 'get', '/api/health/reminders');
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -403,10 +389,8 @@ test.describe('Health Management', () => {
     });
 
     test('should update reminder activation status', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
       // Create a reminder first
-      const createResponse = await page.request.post('/api/health/reminders', {
+      const createResponse = await apiRequest(page, 'post', '/api/health/reminders', {
         data: {
           type_id: 1,
           cron_expr: '0 9 * * *',
@@ -421,7 +405,7 @@ test.describe('Health Management', () => {
       const createdReminder = await createResponse.json();
       
       // Deactivate the reminder
-      const updateResponse = await page.request.patch(`/api/health/reminders/${createdReminder.id}`, {
+      const updateResponse = await apiRequest(page, 'patch', `/api/health/reminders/${createdReminder.id}`, {
         data: {
           active: false,
         },
@@ -439,14 +423,12 @@ test.describe('Health Management', () => {
 
   test.describe('Health Analytics API', () => {
     test('should retrieve analytics data for a specific health type', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
       // Create some health records first
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
       
-      await page.request.post('/api/health/records', {
+      await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 70.0,
@@ -458,7 +440,7 @@ test.describe('Health Management', () => {
         },
       });
 
-      await page.request.post('/api/health/records', {
+      await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 69.5,
@@ -470,7 +452,7 @@ test.describe('Health Management', () => {
         },
       });
 
-      const analytics = await page.request.get('/api/health/analytics/1', {
+      const analytics = await apiRequest(page, 'get', '/api/health/analytics/1');
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -485,13 +467,11 @@ test.describe('Health Management', () => {
     });
 
     test('should retrieve analytics data with date range filter', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 7);
       const endDate = new Date();
       
-      const analytics = await page.request.get(`/api/health/analytics/1?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`, {
+      const analytics = await apiRequest(page, 'get', `/api/health/analytics/1?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`);
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -506,9 +486,7 @@ test.describe('Health Management', () => {
     });
 
     test('shouldn\'t retrieve analytics for invalid health type', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
-      const analytics = await page.request.get('/api/health/analytics/999', {
+      const analytics = await apiRequest(page, 'get', '/api/health/analytics/999');
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -518,13 +496,11 @@ test.describe('Health Management', () => {
     });
 
     test('shouldn\'t retrieve analytics with invalid date range', async ({ page }) => {
-      const e2eRandomId = faker.number.int({ max: 1000000 });
-      
       const startDate = new Date();
       const endDate = new Date();
       endDate.setDate(endDate.getDate() - 7); // End date before start date
       
-      const analytics = await page.request.get(`/api/health/analytics/1?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`, {
+      const analytics = await apiRequest(page, 'get', `/api/health/analytics/1?start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`);
         headers: {
           'x-e2e-random-id': e2eRandomId.toString(),
         },
@@ -590,44 +566,37 @@ test.describe('Health Management', () => {
 
   test.describe('Data Isolation', () => {
     test('should isolate health records between different users', async ({ page }) => {
-      const user1Id = faker.number.int({ max: 1000000 });
-      const user2Id = faker.number.int({ max: 1000000 });
-      
       // Create record for user 1
-      await page.request.post('/api/health/records', {
+      await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 70.0,
           unit: 'kg',
           recorded_at: new Date().toISOString(),
         },
-        headers: {
-          'x-e2e-random-id': user1Id.toString(),
-        },
+        
       });
 
       // Create record for user 2
-      await page.request.post('/api/health/records', {
+      await apiRequest(page, 'post', '/api/health/records', {
         data: {
           type_id: 1,
           value: 80.0,
           unit: 'kg',
           recorded_at: new Date().toISOString(),
         },
-        headers: {
-          'x-e2e-random-id': user2Id.toString(),
-        },
+        
       });
 
       // Get records for user 1
-      const user1Records = await page.request.get('/api/health/records', {
+      const user1Records = await apiRequest(page, 'get', '/api/health/records');
         headers: {
           'x-e2e-random-id': user1Id.toString(),
         },
       });
 
       // Get records for user 2
-      const user2Records = await page.request.get('/api/health/records', {
+      const user2Records = await apiRequest(page, 'get', '/api/health/records');
         headers: {
           'x-e2e-random-id': user2Id.toString(),
         },

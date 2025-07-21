@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 // Health record validation schema (following the pattern from CounterValidation)
@@ -33,18 +33,18 @@ const HEALTH_TYPES = [
   { id: 8, slug: 'exercise_minutes', display_name: 'Exercise Minutes', unit: 'minutes' },
 ];
 
-interface HealthRecordFormProps {
+type HealthRecordFormProps = {
   initialData?: Partial<HealthRecordFormData>;
   onSuccess?: () => void;
   mode?: 'create' | 'edit';
   recordId?: number;
-}
+};
 
-export const HealthRecordForm = ({ 
-  initialData, 
-  onSuccess, 
+export const HealthRecordForm = ({
+  initialData,
+  onSuccess,
   mode = 'create',
-  recordId 
+  recordId,
 }: HealthRecordFormProps) => {
   const t = useTranslations('HealthManagement');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,10 +87,10 @@ export const HealthRecordForm = ({
     setSubmitSuccess(null);
 
     try {
-      const url = mode === 'edit' && recordId 
-        ? `/api/health/records/${recordId}` 
+      const url = mode === 'edit' && recordId
+        ? `/api/health/records/${recordId}`
         : '/api/health/records';
-      
+
       const method = mode === 'edit' ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -106,12 +106,12 @@ export const HealthRecordForm = ({
         throw new Error(errorData.message || 'Failed to save health record');
       }
 
-      const successMessage = mode === 'edit' 
+      const successMessage = mode === 'edit'
         ? t('success_record_updated')
         : t('success_record_saved');
-      
+
       setSubmitSuccess(successMessage);
-      
+
       if (mode === 'create') {
         form.reset({
           type_id: data.type_id,
@@ -143,10 +143,10 @@ export const HealthRecordForm = ({
             id="type_id"
             className="ml-2 w-full appearance-none rounded-sm border border-gray-200 px-3 py-2 text-sm leading-tight text-gray-700 focus:outline-hidden focus:ring-3 focus:ring-blue-300/50"
             {...form.register('type_id', {
-              onChange: (e) => handleTypeChange(Number(e.target.value))
+              onChange: e => handleTypeChange(Number(e.target.value)),
             })}
           >
-            {HEALTH_TYPES.map((type) => (
+            {HEALTH_TYPES.map(type => (
               <option key={type.id} value={type.id}>
                 {t(`label_${type.slug}` as any) || type.display_name}
               </option>
@@ -230,10 +230,9 @@ export const HealthRecordForm = ({
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting 
-            ? (mode === 'edit' ? 'Updating...' : 'Saving...') 
-            : (mode === 'edit' ? t('button_update_record') : t('button_save_record'))
-          }
+          {isSubmitting
+            ? (mode === 'edit' ? 'Updating...' : 'Saving...')
+            : (mode === 'edit' ? t('button_update_record') : t('button_save_record'))}
         </button>
       </div>
     </form>

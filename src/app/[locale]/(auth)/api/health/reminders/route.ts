@@ -1,15 +1,15 @@
-import { and, eq } from 'drizzle-orm';
 import { currentUser } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
 import { parseExpression } from 'cron-parser';
+import { and, eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 import z from 'zod';
 import { db } from '@/libs/DB';
 import { logger } from '@/libs/Logger';
 import { healthReminderSchema } from '@/models/Schema';
-import { 
-  HealthReminderValidation, 
+import {
+  HealthReminderQueryValidation,
   HealthReminderUpdateValidation,
-  HealthReminderQueryValidation 
+  HealthReminderValidation,
 } from '@/validations/HealthReminderValidation';
 
 export const GET = async (request: Request) => {
@@ -30,11 +30,11 @@ export const GET = async (request: Request) => {
     }
 
     const conditions = [eq(healthReminderSchema.userId, user.id)];
-    
+
     if (queryParse.data.active !== undefined) {
       conditions.push(eq(healthReminderSchema.active, queryParse.data.active));
     }
-    
+
     if (queryParse.data.type_id) {
       conditions.push(eq(healthReminderSchema.typeId, queryParse.data.type_id));
     }
@@ -49,10 +49,10 @@ export const GET = async (request: Request) => {
 
     return NextResponse.json({ reminders });
   } catch (error) {
-    logger.error('Error retrieving health reminders:', error);
+    logger.error('Error retrieving health reminder:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -77,10 +77,10 @@ export const POST = async (request: Request) => {
       const interval = parseExpression(parse.data.cron_expr);
       nextRunAt = interval.next().toDate();
     } catch (cronError) {
-      logger.error('Invalid cron expression:', cronError);
+      logger.error('Invalid cron expression:', { cronError });
       return NextResponse.json(
         { error: 'Invalid cron expression format' },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
@@ -100,10 +100,10 @@ export const POST = async (request: Request) => {
 
     return NextResponse.json({ reminder: reminder[0] }, { status: 201 });
   } catch (error) {
-    logger.error('Error creating health reminder:', error);
+    logger.error('Error creating health reminder:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -121,7 +121,7 @@ export const PATCH = async (request: Request) => {
     if (!id) {
       return NextResponse.json(
         { error: 'Reminder ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -138,10 +138,10 @@ export const PATCH = async (request: Request) => {
         const interval = parseExpression(parse.data.cron_expr);
         nextRunAt = interval.next().toDate();
       } catch (cronError) {
-        logger.error('Invalid cron expression:', cronError);
+        logger.error('Invalid cron expression:', { cronError });
         return NextResponse.json(
           { error: 'Invalid cron expression format' },
-          { status: 422 }
+          { status: 422 },
         );
       }
     }
@@ -157,15 +157,15 @@ export const PATCH = async (request: Request) => {
       .where(
         and(
           eq(healthReminderSchema.id, id),
-          eq(healthReminderSchema.userId, user.id)
-        )
+          eq(healthReminderSchema.userId, user.id),
+        ),
       )
       .returning();
 
     if (!reminder[0]) {
       return NextResponse.json(
         { error: 'Reminder not found or access denied' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -173,10 +173,10 @@ export const PATCH = async (request: Request) => {
 
     return NextResponse.json({ reminder: reminder[0] });
   } catch (error) {
-    logger.error('Error updating health reminder:', error);
+    logger.error('Error updating health reminder:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -194,7 +194,7 @@ export const DELETE = async (request: Request) => {
     if (!id) {
       return NextResponse.json(
         { error: 'Reminder ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -205,29 +205,29 @@ export const DELETE = async (request: Request) => {
       .where(
         and(
           eq(healthReminderSchema.id, Number(id)),
-          eq(healthReminderSchema.userId, user.id)
-        )
+          eq(healthReminderSchema.userId, user.id),
+        ),
       )
       .returning();
 
     if (!reminder[0]) {
       return NextResponse.json(
         { error: 'Reminder not found or access denied' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     logger.info(`Deactivated health reminder ${id} for user ${user.id}`);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Reminder deactivated successfully',
-      reminder: reminder[0] 
+      reminder: reminder[0],
     });
   } catch (error) {
-    logger.error('Error deactivating health reminder:', error);
+    logger.error('Error deactivating health reminder:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

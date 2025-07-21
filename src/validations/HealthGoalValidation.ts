@@ -8,8 +8,8 @@ export const HealthGoalValidation = z.object({
   type_id: z.coerce.number().int().positive('Health type ID must be a positive integer'),
   target_value: z.coerce.number().positive('Target value must be a positive number'),
   target_date: z.coerce.date().refine(
-    (date) => date > new Date(),
-    'Target date must be in the future'
+    date => date > new Date(),
+    'Target date must be in the future',
   ),
   status: GoalStatus.default('active'),
 }).refine(
@@ -28,22 +28,22 @@ export const HealthGoalValidation = z.object({
     if (range) {
       return data.target_value >= range.min && data.target_value <= range.max;
     }
-    
+
     // For unknown health types, allow any positive value
     return data.target_value > 0;
   },
   {
     message: 'Target value is outside reasonable range for this health metric type',
     path: ['target_value'],
-  }
+  },
 );
 
 // Validation for updating existing goals
 export const HealthGoalUpdateValidation = z.object({
   target_value: z.coerce.number().positive('Target value must be a positive number').optional(),
   target_date: z.coerce.date().refine(
-    (date) => date > new Date(),
-    'Target date must be in the future'
+    date => date > new Date(),
+    'Target date must be in the future',
   ).optional(),
   status: GoalStatus.optional(),
 }).refine(
@@ -53,15 +53,15 @@ export const HealthGoalUpdateValidation = z.object({
   },
   {
     message: 'At least one field must be provided for update',
-  }
+  },
 );
 
 // Validation for goal progress tracking
 export const HealthGoalProgressValidation = z.object({
   current_value: z.coerce.number().positive('Current value must be a positive number'),
   progress_date: z.coerce.date().refine(
-    (date) => date <= new Date(),
-    'Progress date cannot be in the future'
+    date => date <= new Date(),
+    'Progress date cannot be in the future',
   ).default(() => new Date()),
 });
 

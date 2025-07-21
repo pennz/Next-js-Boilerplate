@@ -5,7 +5,7 @@ import { z } from 'zod';
 // - Special characters: * / , - ? L #
 // - Named schedules: @yearly, @annually, @monthly, @weekly, @daily, @hourly
 // - @every syntax with time units
-const cronRegex = /^((((\d+,)+\d+|(\d+(\/|-|#)\d+)|\d+L?|\*(\/\d+)?|L(-\d+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5})|(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)$/;
+const cronRegex = /^((((\d+,)+\d+|(\d+([/\-#])\d+)|\d+L?|\*(\/\d+)?|L(-\d+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5})|(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|[smh]))+)$/;
 
 export const HealthReminderValidation = z.object({
   type_id: z.coerce.number().int().positive({
@@ -13,7 +13,7 @@ export const HealthReminderValidation = z.object({
   }),
   cron_expr: z.string().min(1, {
     message: 'Cron expression is required',
-  }).refine((value) => cronRegex.test(value), {
+  }).refine(value => cronRegex.test(value), {
     message: 'Invalid cron expression format. Use standard cron syntax (e.g., "0 9 * * *") or named schedules (e.g., "@daily")',
   }),
   message: z.string().min(1, {

@@ -1,20 +1,20 @@
-import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
 import { currentUser } from '@clerk/nextjs/server';
+import { getTranslations } from 'next-intl/server';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { 
-  LineChart, 
-  Line, 
-  AreaChart, 
-  Area, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 // Valid health metric types
@@ -26,32 +26,32 @@ const VALID_HEALTH_TYPES = [
   'sleep',
   'calories',
   'water_intake',
-  'glucose'
+  'glucose',
 ] as const;
 
 type HealthType = typeof VALID_HEALTH_TYPES[number];
 
-interface HealthAnalyticsPageProps {
-  params: Promise<{ 
-    locale: string; 
-    type: string; 
+type HealthAnalyticsPageProps = {
+  params: Promise<{
+    locale: string;
+    type: string;
   }>;
   searchParams: Promise<{
     start_date?: string;
     end_date?: string;
     aggregation?: 'daily' | 'weekly' | 'monthly';
   }>;
-}
+};
 
-interface HealthDataPoint {
+type HealthDataPoint = {
   date: string;
   value: number;
   goal?: number;
   unit: string;
-}
+};
 
-interface AnalyticsData {
-  trend: HealthDataPoint[];
+type AnalyticsData = {
+  // Removed unused trend variable: HealthDataPoint[];
   summary: {
     current: number;
     average: number;
@@ -66,14 +66,14 @@ interface AnalyticsData {
     percentage: number;
     daysLeft: number;
   };
-}
+};
 
 // Mock data generator for development
 function generateMockData(type: HealthType, aggregation: string = 'daily'): AnalyticsData {
   const now = new Date();
   const days = aggregation === 'monthly' ? 12 : aggregation === 'weekly' ? 12 : 30;
   const trend: HealthDataPoint[] = [];
-  
+
   const baseValues: Record<HealthType, { base: number; unit: string; goal?: number }> = {
     weight: { base: 70, unit: 'kg', goal: 65 },
     blood_pressure: { base: 120, unit: 'mmHg' },
@@ -82,11 +82,11 @@ function generateMockData(type: HealthType, aggregation: string = 'daily'): Anal
     sleep: { base: 7.5, unit: 'hours', goal: 8 },
     calories: { base: 2000, unit: 'kcal', goal: 1800 },
     water_intake: { base: 2.5, unit: 'liters', goal: 3 },
-    glucose: { base: 95, unit: 'mg/dL' }
+    glucose: { base: 95, unit: 'mg/dL' },
   };
 
   const config = baseValues[type];
-  
+
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(now);
     if (aggregation === 'monthly') {
@@ -96,47 +96,46 @@ function generateMockData(type: HealthType, aggregation: string = 'daily'): Anal
     } else {
       date.setDate(date.getDate() - i);
     }
-    
+
     const variance = config.base * 0.1;
     const value = config.base + (Math.random() - 0.5) * variance;
-    
+
     trend.push({
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split('T')[0] || '',
       value: Math.round(value * 100) / 100,
       goal: config.goal,
-      unit: config.unit
+      unit: config.unit,
     });
   }
 
   const values = trend.map(d => d.value);
-  const current = values[values.length - 1];
+  const current = values[values.length - 1] || 0;
   const previous = values[values.length - 2] || current;
-  
+
   return {
-    trend,
+    //   trend,
     summary: {
       current,
       average: Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100,
       min: Math.min(...values),
       max: Math.max(...values),
       change: Math.round(((current - previous) / previous) * 100 * 100) / 100,
-      unit: config.unit
+      unit: config.unit,
     },
-    goalProgress: config.goal ? {
-      target: config.goal,
-      current,
-      percentage: Math.round((current / config.goal) * 100),
-      daysLeft: 30
-    } : undefined
+    goalProgress: config.goal
+      ? {
+          target: config.goal,
+          current,
+          percentage: Math.round((current / config.goal) * 100),
+          daysLeft: 30,
+        }
+      : undefined,
   };
 }
 
 async function getHealthAnalytics(
-  userId: string, 
-  type: HealthType, 
-  startDate?: string, 
-  endDate?: string, 
-  aggregation: string = 'daily'
+  type: HealthType,
+  aggregation: string = 'daily',
 ): Promise<AnalyticsData> {
   // In a real implementation, this would fetch from the database
   // For now, return mock data
@@ -145,12 +144,12 @@ async function getHealthAnalytics(
 
 function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType }) {
   const chartData = data.trend.map(point => ({
-    date: new Date(point.date).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
+    date: new Date(point.date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
     }),
     value: point.value,
-    goal: point.goal
+    goal: point.goal,
   }));
 
   const chartConfig = {
@@ -161,7 +160,7 @@ function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType 
     sleep: { color: '#8dd1e1', chartType: 'area' as const },
     calories: { color: '#d084d0', chartType: 'bar' as const },
     water_intake: { color: '#87d068', chartType: 'area' as const },
-    glucose: { color: '#ffb347', chartType: 'line' as const }
+    glucose: { color: '#ffb347', chartType: 'line' as const },
   };
 
   const config = chartConfig[type];
@@ -176,18 +175,18 @@ function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType 
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="value" 
-              stroke={config.color} 
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke={config.color}
               strokeWidth={2}
               name="Value"
             />
             {chartData[0]?.goal && (
-              <Line 
-                type="monotone" 
-                dataKey="goal" 
-                stroke="#ff4444" 
+              <Line
+                type="monotone"
+                dataKey="goal"
+                stroke="#ff4444"
                 strokeDasharray="5 5"
                 name="Goal"
               />
@@ -201,19 +200,19 @@ function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType 
             <YAxis />
             <Tooltip />
             <Legend />
-            <Area 
-              type="monotone" 
-              dataKey="value" 
-              stroke={config.color} 
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={config.color}
               fill={config.color}
               fillOpacity={0.6}
               name="Value"
             />
             {chartData[0]?.goal && (
-              <Line 
-                type="monotone" 
-                dataKey="goal" 
-                stroke="#ff4444" 
+              <Line
+                type="monotone"
+                dataKey="goal"
+                stroke="#ff4444"
                 strokeDasharray="5 5"
                 name="Goal"
               />
@@ -229,10 +228,10 @@ function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType 
             <Legend />
             <Bar dataKey="value" fill={config.color} name="Value" />
             {chartData[0]?.goal && (
-              <Line 
-                type="monotone" 
-                dataKey="goal" 
-                stroke="#ff4444" 
+              <Line
+                type="monotone"
+                dataKey="goal"
+                stroke="#ff4444"
                 strokeDasharray="5 5"
                 name="Goal"
               />
@@ -244,31 +243,34 @@ function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType 
   );
 }
 
-function StatCard({ 
-  title, 
-  value, 
-  unit, 
-  change, 
-  trend 
-}: { 
-  title: string; 
-  value: number; 
-  unit: string; 
-  change?: number; 
-  trend?: 'up' | 'down' | 'neutral';
+function StatCard({
+  title,
+  value,
+  unit,
+  change,
+}: {
+  title: string;
+  value: number;
+  unit: string;
+  change?: number;
 }) {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-sm font-medium text-gray-500 mb-2">{title}</h3>
       <div className="flex items-baseline">
         <p className="text-2xl font-semibold text-gray-900">
-          {value} <span className="text-sm text-gray-500">{unit}</span>
+          {value}
+          {' '}
+          <span className="text-sm text-gray-500">{unit}</span>
         </p>
         {change !== undefined && (
           <span className={`ml-2 text-sm font-medium ${
             change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
-          }`}>
-            {change > 0 ? '+' : ''}{change}%
+          }`}
+          >
+            {change > 0 ? '+' : ''}
+            {change}
+            %
           </span>
         )}
       </div>
@@ -276,11 +278,11 @@ function StatCard({
   );
 }
 
-function DateRangeSelector({ 
-  startDate, 
-  endDate, 
-  aggregation, 
-  onUpdate 
+function DateRangeSelector({
+  startDate,
+  endDate,
+  aggregation,
+  onUpdate,
 }: {
   startDate?: string;
   endDate?: string;
@@ -297,7 +299,7 @@ function DateRangeSelector({
           <input
             type="date"
             value={startDate || ''}
-            onChange={(e) => onUpdate({ start_date: e.target.value })}
+            onChange={e => onUpdate({ start_date: e.target.value })}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm"
           />
         </div>
@@ -308,7 +310,7 @@ function DateRangeSelector({
           <input
             type="date"
             value={endDate || ''}
-            onChange={(e) => onUpdate({ end_date: e.target.value })}
+            onChange={e => onUpdate({ end_date: e.target.value })}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm"
           />
         </div>
@@ -318,7 +320,7 @@ function DateRangeSelector({
           </label>
           <select
             value={aggregation}
-            onChange={(e) => onUpdate({ aggregation: e.target.value })}
+            onChange={e => onUpdate({ aggregation: e.target.value })}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm"
           >
             <option value="daily">Daily</option>
@@ -330,10 +332,10 @@ function DateRangeSelector({
         <button
           onClick={() => {
             // Export functionality
-            const csvData = 'data:text/csv;charset=utf-8,' + 
-              'Date,Value\n' + 
+            const csvData = 'data:text/csv;charset=utf-8,'
+              + 'Date,Value\n'
               // Add CSV export logic here
-              '';
+              + '';
             const link = document.createElement('a');
             link.href = csvData;
             link.download = `health-${aggregation}-data.csv`;
@@ -370,7 +372,7 @@ export async function generateMetadata(props: HealthAnalyticsPageProps) {
 export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProps) {
   const { locale, type } = await props.params;
   const { start_date, end_date, aggregation = 'daily' } = await props.searchParams;
-  
+
   // Validate health type
   if (!VALID_HEALTH_TYPES.includes(type as HealthType)) {
     notFound();
@@ -388,11 +390,11 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
 
   const healthType = type as HealthType;
   const analyticsData = await getHealthAnalytics(
-    user.id, 
-    healthType, 
-    start_date, 
-    end_date, 
-    aggregation
+    user.id,
+    healthType,
+    start_date,
+    end_date,
+    aggregation,
   );
 
   const handleFilterUpdate = (params: { start_date?: string; end_date?: string; aggregation?: string }) => {
@@ -453,20 +455,33 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
           </h2>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">
-              {t('goal_current')}: {analyticsData.goalProgress.current} {analyticsData.summary.unit}
+              {t('goal_current')}
+              :
+              {analyticsData.goalProgress.current}
+              {' '}
+              {analyticsData.summary.unit}
             </span>
             <span className="text-sm text-gray-600">
-              {t('goal_target')}: {analyticsData.goalProgress.target} {analyticsData.summary.unit}
+              {t('goal_target')}
+              :
+              {analyticsData.goalProgress.target}
+              {' '}
+              {analyticsData.summary.unit}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-            <div 
-              className="bg-blue-600 h-2 rounded-full" 
+            <div
+              className="bg-blue-600 h-2 rounded-full"
               style={{ width: `${Math.min(analyticsData.goalProgress.percentage, 100)}%` }}
-            ></div>
+            >
+            </div>
           </div>
           <p className="text-sm text-gray-600">
-            {analyticsData.goalProgress.percentage}% complete • {analyticsData.goalProgress.daysLeft} days remaining
+            {analyticsData.goalProgress.percentage}
+            % complete •
+            {analyticsData.goalProgress.daysLeft}
+            {' '}
+            days remaining
           </p>
         </div>
       )}
@@ -476,11 +491,12 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           {t('chart_title_trend', { type: type.replace('_', ' ') })}
         </h2>
-        <Suspense fallback={
+        <Suspense fallback={(
           <div className="h-80 flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-        }>
+        )}
+        >
           <AnalyticsChart data={analyticsData} type={healthType} />
         </Suspense>
       </div>
@@ -494,18 +510,18 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
             <p className="text-sm text-gray-600">
-              {t('insight_trend', { 
+              {t('insight_trend', {
                 change: analyticsData.summary.change > 0 ? 'increased' : 'decreased',
-                percentage: Math.abs(analyticsData.summary.change)
+                percentage: Math.abs(analyticsData.summary.change),
               })}
             </p>
           </div>
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0 w-2 h-2 bg-green-600 rounded-full mt-2"></div>
             <p className="text-sm text-gray-600">
-              {t('insight_average', { 
+              {t('insight_average', {
                 average: analyticsData.summary.average,
-                unit: analyticsData.summary.unit
+                unit: analyticsData.summary.unit,
               })}
             </p>
           </div>
@@ -513,10 +529,9 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0 w-2 h-2 bg-yellow-600 rounded-full mt-2"></div>
               <p className="text-sm text-gray-600">
-                {analyticsData.goalProgress.percentage >= 100 
+                {analyticsData.goalProgress.percentage >= 100
                   ? t('insight_goal_achieved')
-                  : t('insight_goal_progress', { percentage: analyticsData.goalProgress.percentage })
-                }
+                  : t('insight_goal_progress', { percentage: analyticsData.goalProgress.percentage })}
               </p>
             </div>
           )}

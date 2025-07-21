@@ -1,6 +1,7 @@
+import type { NextRequest } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { and, eq, gte, lte, sql } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/libs/DB';
 import { Env } from '@/libs/Env';
@@ -29,14 +30,14 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export const GET = async (
   request: NextRequest,
-  { params }: { params: { type: string } }
+  { params }: { params: { type: string } },
 ) => {
   try {
     // Check if health management is enabled
     if (!Env.ENABLE_HEALTH_MGMT) {
       return NextResponse.json(
         { error: 'Health management feature is not enabled' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -45,7 +46,7 @@ export const GET = async (
     if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -61,7 +62,7 @@ export const GET = async (
     if (!validation.success) {
       return NextResponse.json(
         { error: 'Invalid query parameters', details: z.treeifyError(validation.error) },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
@@ -70,7 +71,7 @@ export const GET = async (
 
     // Generate cache key
     const cacheKey = `${user.id}-${type}-${start_date}-${end_date}-${aggregation}`;
-    
+
     // Check cache
     const cached = analyticsCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -88,20 +89,20 @@ export const GET = async (
     if (healthType.length === 0) {
       return NextResponse.json(
         { error: 'Invalid health type' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Set default date range if not provided (last 30 days)
     const endDate = end_date ? new Date(end_date) : new Date();
-    const startDate = start_date 
-      ? new Date(start_date) 
+    const startDate = start_date
+      ? new Date(start_date)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     // Build aggregation query based on aggregation level
     let dateFormat: string;
     let groupByFormat: string;
-    
+
     switch (aggregation) {
       case 'weekly':
         dateFormat = 'YYYY-"W"WW';
@@ -129,12 +130,12 @@ export const GET = async (
       .where(
         and(
           eq(healthRecordSchema.userId, user.id),
-          eq(healthRecordSchema.typeId, healthType[0].id),
+          eq(healthRecordSchema.typeId, healthType[0]?.id || 0),
           gte(healthRecordSchema.recordedAt, startDate),
-          lte(healthRecordSchema.recordedAt, endDate)
-        )
+          lte(healthRecordSchema.recordedAt, endDate),
+        ),
       )
-      .groupBy(sql`TO_CHAR(${healthRecordSchema.recordedAt}, ${dateFormat})`)
+      .groupBy(sql`TO_CHAR(${healthRecordSchema.recordedAt}, ${groupByFormat})`)
       .orderBy(sql`TO_CHAR(${healthRecordSchema.recordedAt}, ${dateFormat})`);
 
     // Get latest record for current value
@@ -144,8 +145,8 @@ export const GET = async (
       .where(
         and(
           eq(healthRecordSchema.userId, user.id),
-          eq(healthRecordSchema.typeId, healthType[0].id)
-        )
+          eq(healthRecordSchema.typeId, healthType[0]?.id || 0),
+        ),
       )
       .orderBy(sql`${healthRecordSchema.recordedAt} DESC`)
       .limit(1);
@@ -158,15 +159,15 @@ export const GET = async (
       const sumY = analyticsData.reduce((sum, item) => sum + Number(item.avgValue), 0);
       const sumXY = analyticsData.reduce((sum, item, index) => sum + index * Number(item.avgValue), 0);
       const sumXX = analyticsData.reduce((sum, _, index) => sum + index * index, 0);
-      
+
       trend = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     }
 
     // Format response for Recharts consumption
     const response = {
-      type: healthType[0].slug,
-      displayName: healthType[0].displayName,
-      unit: healthType[0].unit,
+      type: healthType[0]?.slug || '',
+      displayName: healthType[0]?.displayName || '',
+      unit: healthType[0]?.unit || '',
       aggregation,
       dateRange: {
         start: startDate.toISOString(),
@@ -186,8 +187,8 @@ export const GET = async (
         count: Number(item.count),
       })),
       typicalRange: {
-        low: healthType[0].typicalRangeLow ? Number(healthType[0].typicalRangeLow) : null,
-        high: healthType[0].typicalRangeHigh ? Number(healthType[0].typicalRangeHigh) : null,
+        low: healthType[0]?.typicalRangeLow ? Number(healthType[0].typicalRangeLow) : null,
+        high: healthType[0]?.typicalRangeHigh ? Number(healthType[0].typicalRangeHigh) : null,
       },
     };
 
@@ -205,13 +206,12 @@ export const GET = async (
     });
 
     return NextResponse.json(response);
-
   } catch (error) {
     logger.error('Error retrieving health analytics', error);
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

@@ -16,7 +16,7 @@ export async function generateMetadata(props: {
   };
 }
 
-interface HealthRecord {
+type HealthRecord = {
   id: number;
   type_id: number;
   type_name: string;
@@ -24,14 +24,14 @@ interface HealthRecord {
   unit: string;
   recorded_at: string;
   created_at: string;
-}
+};
 
-interface HealthType {
+type HealthType = {
   id: number;
   slug: string;
   display_name: string;
   unit: string;
-}
+};
 
 async function getHealthRecords(searchParams: {
   page?: string;
@@ -59,10 +59,10 @@ async function getHealthTypes(): Promise<HealthType[]> {
   return [];
 }
 
-function HealthRecordsFilters({ 
-  healthTypes, 
-  searchParams 
-}: { 
+function HealthRecordsFilters({
+  healthTypes,
+  searchParams,
+}: {
   healthTypes: HealthType[];
   searchParams: any;
 }) {
@@ -97,7 +97,7 @@ function HealthRecordsFilters({
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="">All Types</option>
-            {healthTypes.map((type) => (
+            {healthTypes.map(type => (
               <option key={type.id} value={type.id}>
                 {type.display_name}
               </option>
@@ -157,10 +157,10 @@ function HealthRecordsFilters({
   );
 }
 
-function HealthRecordsTable({ 
-  records, 
-  t 
-}: { 
+function HealthRecordsTable({
+  records,
+  t,
+}: {
   records: HealthRecord[];
   t: any;
 }) {
@@ -207,13 +207,15 @@ function HealthRecordsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {records.map((record) => (
+            {records.map(record => (
               <tr key={record.id} className="hover:bg-gray-50">
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                   {record.type_name}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {record.value} {record.unit}
+                  {record.value}
+                  {' '}
+                  {record.unit}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                   {new Date(record.recorded_at).toLocaleDateString()}
@@ -243,22 +245,24 @@ function HealthRecordsTable({
   );
 }
 
-function Pagination({ 
-  currentPage, 
-  totalPages, 
-  t 
-}: { 
+function Pagination({
+  currentPage,
+  totalPages,
+  t,
+}: {
   currentPage: number;
   totalPages: number;
   t: any;
 }) {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1) {
+    return null;
+  }
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  const showPages = pages.filter(page => 
-    page === 1 || 
-    page === totalPages || 
-    (page >= currentPage - 2 && page <= currentPage + 2)
+  const showPages = pages.filter(page =>
+    page === 1
+    || page === totalPages
+    || (page >= currentPage - 2 && page <= currentPage + 2),
   );
 
   return (
@@ -280,9 +284,19 @@ function Pagination({
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            {t('pagination_showing')} <span className="font-medium">{(currentPage - 1) * 10 + 1}</span> {t('pagination_to')}{' '}
-            <span className="font-medium">{Math.min(currentPage * 10, totalPages * 10)}</span> {t('pagination_of')}{' '}
-            <span className="font-medium">{totalPages * 10}</span> {t('pagination_results')}
+            {t('pagination_showing')}
+            {' '}
+            <span className="font-medium">{(currentPage - 1) * 10 + 1}</span>
+            {' '}
+            {t('pagination_to')}
+            {' '}
+            <span className="font-medium">{Math.min(currentPage * 10, totalPages * 10)}</span>
+            {' '}
+            {t('pagination_of')}
+            {' '}
+            <span className="font-medium">{totalPages * 10}</span>
+            {' '}
+            {t('pagination_results')}
           </p>
         </div>
         <div>
@@ -336,14 +350,14 @@ export default async function HealthRecordsPage(props: {
 }) {
   const { locale } = await props.params;
   const searchParams = await props.searchParams;
-  
+
   const t = await getTranslations({
     locale,
     namespace: 'HealthManagement',
   });
 
-  const currentPage = parseInt(searchParams.page || '1', 10);
-  
+  const currentPage = Number.parseInt(searchParams.page || '1', 10);
+
   const [healthRecordsData, healthTypes] = await Promise.all([
     getHealthRecords(searchParams),
     getHealthTypes(),
@@ -379,24 +393,25 @@ export default async function HealthRecordsPage(props: {
       </div>
 
       <form method="GET" className="mb-6">
-        <HealthRecordsFilters 
-          healthTypes={healthTypes} 
+        <HealthRecordsFilters
+          healthTypes={healthTypes}
           searchParams={searchParams}
         />
       </form>
 
-      <Suspense fallback={
+      <Suspense fallback={(
         <div className="flex items-center justify-center py-12">
           <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
         </div>
-      }>
-        <HealthRecordsTable 
-          records={healthRecordsData.records} 
+      )}
+      >
+        <HealthRecordsTable
+          records={healthRecordsData.records}
           t={t}
         />
       </Suspense>
 
-      <Pagination 
+      <Pagination
         currentPage={currentPage}
         totalPages={healthRecordsData.totalPages}
         t={t}

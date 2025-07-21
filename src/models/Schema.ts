@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, pgEnum, pgTable, serial, timestamp, varchar, index } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, numeric, pgEnum, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 // This file defines the structure of your database tables using the Drizzle ORM.
 
@@ -43,7 +43,7 @@ export const healthRecordSchema = pgTable('health_record', {
     .$onUpdate(() => new Date())
     .notNull(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-}, (table) => ({
+}, table => ({
   userRecordedAtIdx: index('health_record_user_recorded_at_idx').on(table.userId, table.recordedAt),
   userTypeIdx: index('health_record_user_type_idx').on(table.userId, table.typeId),
 }));
@@ -60,7 +60,7 @@ export const healthGoalSchema = pgTable('health_goal', {
     .$onUpdate(() => new Date())
     .notNull(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-}, (table) => ({
+}, table => ({
   userTypeIdx: index('health_goal_user_type_idx').on(table.userId, table.typeId),
 }));
 
@@ -77,7 +77,7 @@ export const healthReminderSchema = pgTable('health_reminder', {
     .$onUpdate(() => new Date())
     .notNull(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-}, (table) => ({
+}, table => ({
   userTypeIdx: index('health_reminder_user_type_idx').on(table.userId, table.typeId),
 }));
 

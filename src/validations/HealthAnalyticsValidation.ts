@@ -9,17 +9,17 @@ const MAX_DATE_RANGE_DAYS = 365;
 export const HealthAnalyticsValidation = z.object({
   start_date: z.string()
     .datetime({ message: 'start_date must be a valid ISO datetime string' })
-    .transform((val) => new Date(val)),
-  
+    .transform(val => new Date(val)),
+
   end_date: z.string()
     .datetime({ message: 'end_date must be a valid ISO datetime string' })
-    .transform((val) => new Date(val)),
-  
+    .transform(val => new Date(val)),
+
   type_ids: z.array(z.number().int().positive({ message: 'type_id must be a positive integer' }))
     .min(1, { message: 'At least one type_id must be provided' })
     .max(10, { message: 'Maximum 10 type_ids allowed' })
     .optional(),
-  
+
   aggregation: AggregationOption.default('daily'),
 }).refine((data) => {
   // Ensure end_date is after start_date
@@ -47,28 +47,28 @@ export const HealthAnalyticsValidation = z.object({
 export const HealthAnalyticsQueryValidation = z.object({
   start_date: z.string()
     .datetime({ message: 'start_date must be a valid ISO datetime string' })
-    .transform((val) => new Date(val))
+    .transform(val => new Date(val))
     .optional(),
-  
+
   end_date: z.string()
     .datetime({ message: 'end_date must be a valid ISO datetime string' })
-    .transform((val) => new Date(val))
+    .transform(val => new Date(val))
     .optional(),
-  
+
   type_ids: z.union([
-    z.string().transform((val) => val.split(',').map(id => parseInt(id, 10))),
-    z.array(z.string().transform((val) => parseInt(val, 10)))
+    z.string().transform(val => val.split(',').map(id => Number.parseInt(id, 10))),
+    z.array(z.string().transform(val => Number.parseInt(val, 10))),
   ]).pipe(
     z.array(z.number().int().positive({ message: 'type_id must be a positive integer' }))
-      .max(10, { message: 'Maximum 10 type_ids allowed' })
+      .max(10, { message: 'Maximum 10 type_ids allowed' }),
   ).optional(),
-  
+
   aggregation: AggregationOption.optional().default('daily'),
 }).transform((data) => {
   // Set default date range if not provided (last 30 days)
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-  
+
   return {
     start_date: data.start_date || thirtyDaysAgo,
     end_date: data.end_date || now,

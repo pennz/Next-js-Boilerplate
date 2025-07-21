@@ -1,18 +1,18 @@
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
-import { currentUser } from '@clerk/nextjs/server';
-import { headers } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import type { NextRequest } from 'next/server';
 import arcjet, { tokenBucket } from '@arcjet/next';
+import { currentUser } from '@clerk/nextjs/server';
+import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { db } from '@/libs/DB';
 import { Env } from '@/libs/Env';
 import { logger } from '@/libs/Logger';
 import { healthRecordSchema } from '@/models/Schema';
-import { 
-  HealthRecordValidation, 
-  HealthRecordUpdateValidation, 
-  HealthRecordQueryValidation 
+import {
+  HealthRecordQueryValidation,
+  HealthRecordUpdateValidation,
+  HealthRecordValidation,
 } from '@/validations/HealthRecordValidation';
 
 // Arcjet rate limiting configuration
@@ -34,7 +34,7 @@ const checkHealthFeatureFlag = () => {
   if (!Env.ENABLE_HEALTH_MGMT) {
     return NextResponse.json(
       { error: 'Health management feature is not enabled' },
-      { status: 503 }
+      { status: 503 },
     );
   }
   return null;
@@ -53,23 +53,25 @@ const getCurrentUserId = async () => {
 export const GET = async (request: NextRequest) => {
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
-  if (featureCheck) return featureCheck;
+  if (featureCheck) {
+    return featureCheck;
+  }
 
   // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   // Apply rate limiting
-  const decision = await aj.protect(request, { userId });
+  const decision = await aj.protect(request, { userId, requested: 1 });
   if (decision.isDenied()) {
     return NextResponse.json(
       { error: 'Too many requests' },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -93,15 +95,15 @@ export const GET = async (request: NextRequest) => {
 
     // Build query conditions
     const conditions = [eq(healthRecordSchema.userId, userId)];
-    
+
     if (type_id) {
       conditions.push(eq(healthRecordSchema.typeId, type_id));
     }
-    
+
     if (start_date) {
       conditions.push(gte(healthRecordSchema.recordedAt, start_date));
     }
-    
+
     if (end_date) {
       conditions.push(lte(healthRecordSchema.recordedAt, end_date));
     }
@@ -121,10 +123,10 @@ export const GET = async (request: NextRequest) => {
       .from(healthRecordSchema)
       .where(and(...conditions));
 
-    logger.info('Health records retrieved', { 
-      userId, 
+    logger.info('Health records retrieved', {
+      userId,
       count: records.length,
-      filters: { type_id, start_date, end_date }
+      filters: { type_id, start_date, end_date },
     });
 
     return NextResponse.json({
@@ -136,12 +138,11 @@ export const GET = async (request: NextRequest) => {
         hasMore: (totalCount[0]?.count || 0) > offset + limit,
       },
     });
-
   } catch (error) {
     logger.error('Error retrieving health records', { error, userId });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -150,23 +151,25 @@ export const GET = async (request: NextRequest) => {
 export const POST = async (request: NextRequest) => {
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
-  if (featureCheck) return featureCheck;
+  if (featureCheck) {
+    return featureCheck;
+  }
 
   // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   // Apply rate limiting
-  const decision = await aj.protect(request, { userId });
+  const decision = await aj.protect(request, { userId, requested: 1 });
   if (decision.isDenied()) {
     return NextResponse.json(
       { error: 'Too many requests' },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -192,24 +195,23 @@ export const POST = async (request: NextRequest) => {
       })
       .returning();
 
-    logger.info('Health record created', { 
-      userId, 
+    logger.info('Health record created', {
+      userId,
       recordId: newRecord[0]?.id,
       typeId: type_id,
       value,
-      unit
+      unit,
     });
 
     return NextResponse.json({
       record: newRecord[0],
       message: 'Health record created successfully',
     }, { status: 201 });
-
   } catch (error) {
     logger.error('Error creating health record', { error, userId });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -218,23 +220,25 @@ export const POST = async (request: NextRequest) => {
 export const PUT = async (request: NextRequest) => {
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
-  if (featureCheck) return featureCheck;
+  if (featureCheck) {
+    return featureCheck;
+  }
 
   // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   // Apply rate limiting
-  const decision = await aj.protect(request, { userId });
+  const decision = await aj.protect(request, { userId, requested: 1 });
   if (decision.isDenied()) {
     return NextResponse.json(
       { error: 'Too many requests' },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -255,23 +259,31 @@ export const PUT = async (request: NextRequest) => {
       .where(
         and(
           eq(healthRecordSchema.id, id),
-          eq(healthRecordSchema.userId, userId)
-        )
+          eq(healthRecordSchema.userId, userId),
+        ),
       );
 
     if (existingRecord.length === 0) {
       return NextResponse.json(
         { error: 'Health record not found or access denied' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Build update object with only provided fields
     const updateData: any = {};
-    if (type_id !== undefined) updateData.typeId = type_id;
-    if (value !== undefined) updateData.value = value.toString();
-    if (unit !== undefined) updateData.unit = unit;
-    if (recorded_at !== undefined) updateData.recordedAt = recorded_at;
+    if (type_id !== undefined) {
+      updateData.typeId = type_id;
+    }
+    if (value !== undefined) {
+      updateData.value = value.toString();
+    }
+    if (unit !== undefined) {
+      updateData.unit = unit;
+    }
+    if (recorded_at !== undefined) {
+      updateData.recordedAt = recorded_at;
+    }
 
     // Update health record
     const updatedRecord = await db
@@ -280,27 +292,26 @@ export const PUT = async (request: NextRequest) => {
       .where(
         and(
           eq(healthRecordSchema.id, id),
-          eq(healthRecordSchema.userId, userId)
-        )
+          eq(healthRecordSchema.userId, userId),
+        ),
       )
       .returning();
 
-    logger.info('Health record updated', { 
-      userId, 
+    logger.info('Health record updated', {
+      userId,
       recordId: id,
-      updatedFields: Object.keys(updateData)
+      updatedFields: Object.keys(updateData),
     });
 
     return NextResponse.json({
       record: updatedRecord[0],
       message: 'Health record updated successfully',
     });
-
   } catch (error) {
     logger.error('Error updating health record', { error, userId });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -309,23 +320,25 @@ export const PUT = async (request: NextRequest) => {
 export const DELETE = async (request: NextRequest) => {
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
-  if (featureCheck) return featureCheck;
+  if (featureCheck) {
+    return featureCheck;
+  }
 
   // Check authentication
   const userId = await getCurrentUserId();
   if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   // Apply rate limiting
-  const decision = await aj.protect(request, { userId });
+  const decision = await aj.protect(request, { userId, requested: 1 });
   if (decision.isDenied()) {
     return NextResponse.json(
       { error: 'Too many requests' },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -336,15 +349,15 @@ export const DELETE = async (request: NextRequest) => {
     if (!recordId) {
       return NextResponse.json(
         { error: 'Record ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const id = parseInt(recordId, 10);
+    const id = Number.parseInt(recordId, 10);
     if (isNaN(id) || id <= 0) {
       return NextResponse.json(
         { error: 'Invalid record ID' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -355,14 +368,14 @@ export const DELETE = async (request: NextRequest) => {
       .where(
         and(
           eq(healthRecordSchema.id, id),
-          eq(healthRecordSchema.userId, userId)
-        )
+          eq(healthRecordSchema.userId, userId),
+        ),
       );
 
     if (existingRecord.length === 0) {
       return NextResponse.json(
         { error: 'Health record not found or access denied' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -372,24 +385,23 @@ export const DELETE = async (request: NextRequest) => {
       .where(
         and(
           eq(healthRecordSchema.id, id),
-          eq(healthRecordSchema.userId, userId)
-        )
+          eq(healthRecordSchema.userId, userId),
+        ),
       );
 
-    logger.info('Health record deleted', { 
-      userId, 
-      recordId: id
+    logger.info('Health record deleted', {
+      userId,
+      recordId: id,
     });
 
     return NextResponse.json({
       message: 'Health record deleted successfully',
     });
-
   } catch (error) {
     logger.error('Error deleting health record', { error, userId });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

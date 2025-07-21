@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
-export interface HealthGoal {
+export type HealthGoal = {
   id: number;
   type_id: number;
   type_name: string;
@@ -14,15 +14,15 @@ export interface HealthGoal {
   status: 'active' | 'completed' | 'paused';
   created_at: string;
   updated_at: string;
-}
+};
 
-interface GoalCardProps {
+type GoalCardProps = {
   goal: HealthGoal;
   onEdit?: (goal: HealthGoal) => void;
   onDelete?: (goalId: number) => void;
   onStatusChange?: (goalId: number, status: HealthGoal['status']) => void;
   className?: string;
-}
+};
 
 export const GoalCard = ({
   goal,
@@ -35,7 +35,9 @@ export const GoalCard = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const calculateProgress = (): number => {
-    if (!goal.current_value || goal.target_value === 0) return 0;
+    if (!goal.current_value || goal.target_value === 0) {
+      return 0;
+    }
     return Math.min((goal.current_value / goal.target_value) * 100, 100);
   };
 
@@ -60,15 +62,23 @@ export const GoalCard = ({
   };
 
   const getProgressBarColor = (progress: number): string => {
-    if (progress >= 100) return 'bg-green-500';
-    if (progress >= 75) return 'bg-blue-500';
-    if (progress >= 50) return 'bg-yellow-500';
+    if (progress >= 100) {
+      return 'bg-green-500';
+    }
+    if (progress >= 75) {
+      return 'bg-blue-500';
+    }
+    if (progress >= 50) {
+      return 'bg-yellow-500';
+    }
     return 'bg-red-500';
   };
 
   const handleDelete = async () => {
-    if (!onDelete) return;
-    
+    if (!onDelete) {
+      return;
+    }
+
     setIsDeleting(true);
     try {
       await onDelete(goal.id);
@@ -90,15 +100,21 @@ export const GoalCard = ({
       <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900">
-            {goal.type_name} {t('goal')}
+            {goal.type_name}
+            {' '}
+            {t('goal')}
           </h3>
           <p className="text-sm text-gray-600">
-            {t('target')}: {goal.target_value} {goal.type_unit}
+            {t('target')}
+            :
+            {goal.target_value}
+            {' '}
+            {goal.type_unit}
           </p>
         </div>
         <span
           className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusBadgeClass(
-            goal.status
+            goal.status,
           )}`}
         >
           {t(`status_${goal.status}`)}
@@ -112,20 +128,25 @@ export const GoalCard = ({
             {t('progress')}
           </span>
           <span className="text-sm text-gray-600">
-            {progress.toFixed(1)}%
+            {progress.toFixed(1)}
+            %
           </span>
         </div>
         <div className="h-2 w-full rounded-full bg-gray-200">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${getProgressBarColor(
-              progress
+              progress,
             )}`}
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
         {goal.current_value && (
           <p className="mt-1 text-xs text-gray-500">
-            {t('current')}: {goal.current_value} {goal.type_unit}
+            {t('current')}
+            :
+            {goal.current_value}
+            {' '}
+            {goal.type_unit}
           </p>
         )}
       </div>
@@ -141,17 +162,17 @@ export const GoalCard = ({
               isOverdue
                 ? 'text-red-600 font-medium'
                 : daysRemaining <= 7
-                ? 'text-yellow-600 font-medium'
-                : 'text-gray-600'
+                  ? 'text-yellow-600 font-medium'
+                  : 'text-gray-600'
             }`}
           >
             {isOverdue
               ? t('overdue_by_days', { days: Math.abs(daysRemaining) })
               : daysRemaining === 0
-              ? t('due_today')
-              : daysRemaining === 1
-              ? t('due_tomorrow')
-              : t('days_remaining', { days: daysRemaining })}
+                ? t('due_today')
+                : daysRemaining === 1
+                  ? t('due_tomorrow')
+                  : t('days_remaining', { days: daysRemaining })}
           </span>
         </div>
         <p className="text-xs text-gray-500">
@@ -217,41 +238,43 @@ export const GoalCard = ({
               className="text-red-700 hover:text-red-900 disabled:opacity-50 transition-colors"
               title={t('button_delete')}
             >
-              {isDeleting ? (
-                <svg
-                  className="h-4 w-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              )}
+              {isDeleting
+                ? (
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                  )
+                : (
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  )}
             </button>
           )}
         </div>

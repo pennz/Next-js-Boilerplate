@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { HealthRecordService } from './HealthRecordService';
+import { and, desc, eq } from 'drizzle-orm';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '@/libs/DB';
-import { healthRecordSchema, healthTypeSchema } from '@/models/Schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { healthRecordSchema } from '@/models/Schema';
+import { HealthRecordService } from './HealthRecordService';
 
 // Mock the database
 vi.mock('@/libs/DB', () => ({
@@ -112,7 +112,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthTypeSchema.findFirst.mockResolvedValue(null);
 
       await expect(
-        HealthRecordService.createHealthRecord(mockUserId, newRecordData)
+        HealthRecordService.createHealthRecord(mockUserId, newRecordData),
       ).rejects.toThrow('Health type not found');
 
       expect(mockDb.insert).not.toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthTypeSchema.findFirst.mockResolvedValue(mockHealthType);
 
       await expect(
-        HealthRecordService.createHealthRecord(mockUserId, newRecordData)
+        HealthRecordService.createHealthRecord(mockUserId, newRecordData),
       ).rejects.toThrow('Value outside typical range');
 
       expect(mockDb.insert).not.toHaveBeenCalled();
@@ -149,7 +149,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthTypeSchema.findFirst.mockResolvedValue(mockHealthType);
 
       await expect(
-        HealthRecordService.createHealthRecord(mockUserId, newRecordData)
+        HealthRecordService.createHealthRecord(mockUserId, newRecordData),
       ).rejects.toThrow('Cannot record health data for future dates');
 
       expect(mockDb.insert).not.toHaveBeenCalled();
@@ -171,7 +171,7 @@ describe('HealthRecordService', () => {
       });
 
       await expect(
-        HealthRecordService.createHealthRecord(mockUserId, newRecordData)
+        HealthRecordService.createHealthRecord(mockUserId, newRecordData),
       ).rejects.toThrow('Database connection failed');
     });
   });
@@ -179,7 +179,7 @@ describe('HealthRecordService', () => {
   describe('getHealthRecords', () => {
     it('should retrieve health records for a user', async () => {
       const mockRecords = [mockHealthRecord];
-      
+
       mockDb.query.healthRecordSchema.findMany.mockResolvedValue(mockRecords);
 
       const result = await HealthRecordService.getHealthRecords(mockUserId);
@@ -197,7 +197,7 @@ describe('HealthRecordService', () => {
     it('should filter records by type_id when provided', async () => {
       const mockRecords = [mockHealthRecord];
       const typeId = 1;
-      
+
       mockDb.query.healthRecordSchema.findMany.mockResolvedValue(mockRecords);
 
       const result = await HealthRecordService.getHealthRecords(mockUserId, { type_id: typeId });
@@ -216,7 +216,7 @@ describe('HealthRecordService', () => {
       const mockRecords = [mockHealthRecord];
       const startDate = new Date('2024-01-01');
       const endDate = new Date('2024-01-31');
-      
+
       mockDb.query.healthRecordSchema.findMany.mockResolvedValue(mockRecords);
 
       const result = await HealthRecordService.getHealthRecords(mockUserId, {
@@ -236,7 +236,7 @@ describe('HealthRecordService', () => {
 
     it('should apply pagination when limit and offset provided', async () => {
       const mockRecords = [mockHealthRecord];
-      
+
       mockDb.query.healthRecordSchema.findMany.mockResolvedValue(mockRecords);
 
       const result = await HealthRecordService.getHealthRecords(mockUserId, {
@@ -329,7 +329,7 @@ describe('HealthRecordService', () => {
 
       // Mock finding existing record
       mockDb.query.healthRecordSchema.findFirst.mockResolvedValue(mockHealthRecord);
-      
+
       // Mock health type validation
       mockDb.query.healthTypeSchema.findFirst.mockResolvedValue(mockHealthType);
 
@@ -355,7 +355,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthRecordSchema.findFirst.mockResolvedValue(null);
 
       await expect(
-        HealthRecordService.updateHealthRecord(mockUserId, 999, updateData)
+        HealthRecordService.updateHealthRecord(mockUserId, 999, updateData),
       ).rejects.toThrow('Health record not found');
 
       expect(mockDb.update).not.toHaveBeenCalled();
@@ -368,7 +368,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthRecordSchema.findFirst.mockResolvedValue(otherUserRecord);
 
       await expect(
-        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData)
+        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData),
       ).rejects.toThrow('Health record not found');
 
       expect(mockDb.update).not.toHaveBeenCalled();
@@ -381,7 +381,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthTypeSchema.findFirst.mockResolvedValue(mockHealthType);
 
       await expect(
-        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData)
+        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData),
       ).rejects.toThrow('Value outside typical range');
 
       expect(mockDb.update).not.toHaveBeenCalled();
@@ -396,7 +396,7 @@ describe('HealthRecordService', () => {
       mockDb.query.healthTypeSchema.findFirst.mockResolvedValue(mockHealthType);
 
       await expect(
-        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData)
+        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData),
       ).rejects.toThrow('Cannot record health data for future dates');
 
       expect(mockDb.update).not.toHaveBeenCalled();
@@ -442,7 +442,7 @@ describe('HealthRecordService', () => {
       });
 
       await expect(
-        HealthRecordService.deleteHealthRecord(mockUserId, 1)
+        HealthRecordService.deleteHealthRecord(mockUserId, 1),
       ).rejects.toThrow('Database error');
     });
   });
@@ -497,7 +497,7 @@ describe('HealthRecordService', () => {
         mockUserId,
         1,
         startDate,
-        endDate
+        endDate,
       );
 
       expect(result).toEqual({
@@ -560,23 +560,26 @@ describe('HealthRecordService', () => {
   describe('validateHealthValue', () => {
     it('should validate value is within typical range', () => {
       const isValid = HealthRecordService.validateHealthValue(70.5, mockHealthType);
+
       expect(isValid).toBe(true);
     });
 
     it('should reject value below typical range', () => {
       const isValid = HealthRecordService.validateHealthValue(30, mockHealthType);
+
       expect(isValid).toBe(false);
     });
 
     it('should reject value above typical range', () => {
       const isValid = HealthRecordService.validateHealthValue(250, mockHealthType);
+
       expect(isValid).toBe(false);
     });
 
     it('should accept value at range boundaries', () => {
       const isValidLow = HealthRecordService.validateHealthValue(40, mockHealthType);
       const isValidHigh = HealthRecordService.validateHealthValue(200, mockHealthType);
-      
+
       expect(isValidLow).toBe(true);
       expect(isValidHigh).toBe(true);
     });
@@ -597,7 +600,7 @@ describe('HealthRecordService', () => {
       });
 
       await expect(
-        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData)
+        HealthRecordService.updateHealthRecord(mockUserId, 1, updateData),
       ).rejects.toThrow('Failed to update health record');
     });
 
@@ -605,7 +608,7 @@ describe('HealthRecordService', () => {
       const invalidUserId = '';
 
       await expect(
-        HealthRecordService.getHealthRecords(invalidUserId)
+        HealthRecordService.getHealthRecords(invalidUserId),
       ).rejects.toThrow('Invalid user ID');
     });
 
@@ -618,17 +621,17 @@ describe('HealthRecordService', () => {
       };
 
       await expect(
-        HealthRecordService.createHealthRecord(mockUserId, newRecordData)
+        HealthRecordService.createHealthRecord(mockUserId, newRecordData),
       ).rejects.toThrow('Invalid health record data');
     });
 
     it('should handle database connection timeouts', async () => {
       mockDb.query.healthRecordSchema.findMany.mockRejectedValue(
-        new Error('Connection timeout')
+        new Error('Connection timeout'),
       );
 
       await expect(
-        HealthRecordService.getHealthRecords(mockUserId)
+        HealthRecordService.getHealthRecords(mockUserId),
       ).rejects.toThrow('Connection timeout');
     });
   });

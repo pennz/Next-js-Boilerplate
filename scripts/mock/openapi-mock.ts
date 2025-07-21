@@ -2,17 +2,16 @@
 
 /**
  * OpenAPI Mock Server for Health Management APIs
- * 
+ *
  * This script starts a Prism mock server that serves realistic health data
  * based on the OpenAPI specification. It's designed to run on a different
  * port from the main application to support frontend development.
  */
 
-import { spawn } from 'child_process';
-import { existsSync } from 'fs';
-import { resolve } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Get current directory for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -25,14 +24,14 @@ const FALLBACK_SPEC_PATH = resolve(__dirname, './health-spec-fallback.yaml');
 
 // Colors for console output
 const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
+  reset: '\x1B[0m',
+  bright: '\x1B[1m',
+  red: '\x1B[31m',
+  green: '\x1B[32m',
+  yellow: '\x1B[33m',
+  blue: '\x1B[34m',
+  magenta: '\x1B[35m',
+  cyan: '\x1B[36m',
 };
 
 /**
@@ -378,14 +377,14 @@ components:
  * Write fallback specification to file
  */
 function writeFallbackSpec(): void {
-  const fs = require('fs');
-  const path = require('path');
-  
+  const fs = require('node:fs');
+  const path = require('node:path');
+
   const fallbackDir = path.dirname(FALLBACK_SPEC_PATH);
   if (!fs.existsSync(fallbackDir)) {
     fs.mkdirSync(fallbackDir, { recursive: true });
   }
-  
+
   fs.writeFileSync(FALLBACK_SPEC_PATH, createFallbackSpec());
   log(`Created fallback OpenAPI spec at: ${FALLBACK_SPEC_PATH}`, 'yellow');
 }
@@ -397,7 +396,7 @@ function startMockServer(): Promise<void> {
   return new Promise((resolve, reject) => {
     // Determine which spec file to use
     let specPath = OPENAPI_SPEC_PATH;
-    
+
     if (!existsSync(OPENAPI_SPEC_PATH)) {
       log(`OpenAPI spec not found at: ${OPENAPI_SPEC_PATH}`, 'yellow');
       log('Creating fallback specification...', 'yellow');
@@ -413,7 +412,8 @@ function startMockServer(): Promise<void> {
     const prismArgs = [
       'mock',
       specPath,
-      '--port', MOCK_SERVER_PORT.toString(),
+      '--port',
+      MOCK_SERVER_PORT.toString(),
       '--dynamic', // Enable dynamic mock data generation
       '--cors', // Enable CORS for frontend development
       '--verbose', // Verbose logging
@@ -524,4 +524,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { startMockServer, MOCK_SERVER_PORT, OPENAPI_SPEC_PATH };
+export { MOCK_SERVER_PORT, OPENAPI_SPEC_PATH, startMockServer };

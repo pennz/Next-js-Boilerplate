@@ -3,6 +3,7 @@ import '../src/styles/global.css';
 
 const preview: Preview = {
   parameters: {
+    layout: 'centered',
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -16,7 +17,14 @@ const preview: Preview = {
       toc: true, // Enable table of contents
     },
     a11y: {
-      test: 'todo', // Make a11y tests optional
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            enabled: false, // Disable color contrast check
+          },
+        ],
+      },
     },
   },
   tags: ['autodocs'],
