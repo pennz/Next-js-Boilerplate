@@ -1,0 +1,32 @@
+{
+  "HealthManagement": {
+    "page_description_analytics": "View detailed analytics for {type}",
+    "stat_current": "Current",
+    "stat_average": "Average",
+    "stat_minimum": "Minimum",
+    "stat_maximum": "Maximum",
+    "goal_progress_title": "Goal Progress",
+    "goal_current": "Current",
+    "goal_target": "Target",
+    "chart_title_trend": "{type} Trend",
+    "insights_title": "Insights",
+    "insight_trend": "Trend is {direction}",
+    "insight_average": "Average: {value}",
+    "insight_goal_achieved": "Goal achieved!",
+    "insight_goal_progress": "{percentage}% of goal completed",
+    "button_add_goal": "Add Goal",
+    "page_title_dashboard": "Health Dashboard",
+    "dashboard_subtitle": "Track your health metrics",
+    "quick_action_records_desc": "Record new health data",
+    "quick_action_analytics_desc": "View your health analytics",
+    "quick_action_goals_desc": "Manage your health goals",
+    "quick_action_reminders_desc": "Set up health reminders",
+    "section_recent_records": "Recent Records",
+    "link_view_all": "View All",
+    "section_active_goals": "Active Goals",
+    "section_health_summary": "Health Summary",
+    "stat_records_this_week": "Records This Week",
+    "stat_active_goals": "Active Goals",
+    "stat_goal_completion_rate": "Goal Completion Rate"
+  }
+}
