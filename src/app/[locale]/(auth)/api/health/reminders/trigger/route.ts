@@ -11,23 +11,23 @@ export const POST = async () => {
     if (!Env.ENABLE_HEALTH_MGMT) {
       return NextResponse.json(
         { error: 'Health management feature is not enabled' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Authenticate cron service using secret header
     const authHeader = (await headers()).get('authorization');
     const expectedAuth = `Bearer ${Env.HEALTH_REMINDER_CRON_SECRET}`;
-    
+
     if (!Env.HEALTH_REMINDER_CRON_SECRET || authHeader !== expectedAuth) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const now = new Date();
-    
+
     // Query active reminders that are due for execution
     const dueReminders = await db
       .select({
@@ -45,8 +45,8 @@ export const POST = async () => {
       .where(
         and(
           eq(healthReminderSchema.active, true),
-          lte(healthReminderSchema.nextRunAt, now)
-        )
+          lte(healthReminderSchema.nextRunAt, now),
+        ),
       );
 
     if (dueReminders.length === 0) {
@@ -71,7 +71,7 @@ export const POST = async () => {
         // Update the reminder's next run time
         await db
           .update(healthReminderSchema)
-          .set({ 
+          .set({
             nextRunAt,
             updatedAt: now,
           })
@@ -80,7 +80,7 @@ export const POST = async () => {
         // Send notification (log for now, can be extended to email/SMS)
         const notificationMessage = `Health Reminder: ${reminder.message} (${reminder.typeName})`;
         console.log(`Sending reminder to user ${reminder.userId}: ${notificationMessage}`);
-        
+
         // Log the reminder notification
         console.log(JSON.stringify({
           type: 'health_reminder_sent',
@@ -98,7 +98,6 @@ export const POST = async () => {
           healthType: reminder.typeSlug,
           nextRunAt: nextRunAt.toISOString(),
         });
-
       } catch (error) {
         console.error(`Failed to process reminder ${reminder.id}:`, error);
         failedReminders.push({
@@ -122,17 +121,16 @@ export const POST = async () => {
         failed: failedReminders,
       },
     });
-
   } catch (error) {
     console.error('Error processing health reminders:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

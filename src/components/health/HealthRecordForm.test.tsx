@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextIntlClientProvider } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HealthRecordForm } from './HealthRecordForm';
 
 // Mock next/navigation
@@ -78,7 +78,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(screen.getByLabelText(/health type/i)).toBeInTheDocument();
@@ -91,12 +91,13 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const select = screen.getByLabelText(/health type/i);
+
       expect(select).toBeInTheDocument();
-      
+
       // Check that all health type options are present
       expect(screen.getByRole('option', { name: /weight/i })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: /blood pressure/i })).toBeInTheDocument();
@@ -106,11 +107,11 @@ describe('HealthRecordForm', () => {
 
     it('displays correct unit based on selected health type', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       // Default should show kg for weight
@@ -119,7 +120,7 @@ describe('HealthRecordForm', () => {
       // Change to steps
       const select = screen.getByLabelText(/health type/i);
       await user.selectOptions(select, '3'); // steps option
-      
+
       expect(screen.getByText('steps')).toBeInTheDocument();
       expect(screen.queryByText('kg')).not.toBeInTheDocument();
     });
@@ -135,7 +136,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm initialData={initialData} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(screen.getByDisplayValue('120')).toBeInTheDocument();
@@ -146,7 +147,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm mode="edit" recordId={1} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       expect(screen.getByRole('button', { name: /update record/i })).toBeInTheDocument();
@@ -156,11 +157,11 @@ describe('HealthRecordForm', () => {
   describe('User Interactions', () => {
     it('updates value input when user types', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -172,11 +173,11 @@ describe('HealthRecordForm', () => {
 
     it('updates date/time input when user changes it', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const dateInput = screen.getByLabelText(/date & time/i);
@@ -188,18 +189,18 @@ describe('HealthRecordForm', () => {
 
     it('changes health type and updates unit accordingly', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const select = screen.getByLabelText(/health type/i);
-      
+
       // Change to heart rate
       await user.selectOptions(select, '4');
-      
+
       expect(screen.getByText('bpm')).toBeInTheDocument();
       expect(screen.queryByText('kg')).not.toBeInTheDocument();
     });
@@ -208,11 +209,11 @@ describe('HealthRecordForm', () => {
   describe('Form Validation', () => {
     it('shows validation error for empty value', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -228,11 +229,11 @@ describe('HealthRecordForm', () => {
 
     it('shows validation error for negative value', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -249,11 +250,11 @@ describe('HealthRecordForm', () => {
 
     it('shows validation error for future date', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const dateInput = screen.getByLabelText(/date & time/i);
@@ -275,11 +276,11 @@ describe('HealthRecordForm', () => {
 
     it('does not show validation errors for valid input', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -294,7 +295,7 @@ describe('HealthRecordForm', () => {
     it('submits form with correct data in create mode', async () => {
       const user = userEvent.setup();
       const mockOnSuccess = vi.fn();
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ id: 1, message: 'Success' }),
@@ -303,7 +304,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm onSuccess={mockOnSuccess} />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -338,7 +339,7 @@ describe('HealthRecordForm', () => {
     it('submits form with correct data in edit mode', async () => {
       const user = userEvent.setup();
       const mockOnSuccess = vi.fn();
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ id: 1, message: 'Updated' }),
@@ -346,13 +347,13 @@ describe('HealthRecordForm', () => {
 
       render(
         <TestWrapper>
-          <HealthRecordForm 
-            mode="edit" 
-            recordId={1} 
+          <HealthRecordForm
+            mode="edit"
+            recordId={1}
             onSuccess={mockOnSuccess}
             initialData={{ type_id: 1, value: 70, unit: 'kg', recorded_at: '2024-01-15T10:30' }}
           />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -377,19 +378,19 @@ describe('HealthRecordForm', () => {
 
     it('shows loading state during submission', async () => {
       const user = userEvent.setup();
-      
+
       // Mock a delayed response
-      mockFetch.mockImplementationOnce(() => 
+      mockFetch.mockImplementationOnce(() =>
         new Promise(resolve => setTimeout(() => resolve({
           ok: true,
           json: async () => ({ id: 1 }),
-        }), 100))
+        }), 100)),
       );
 
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -409,7 +410,7 @@ describe('HealthRecordForm', () => {
 
     it('shows success message after successful submission', async () => {
       const user = userEvent.setup();
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ id: 1 }),
@@ -418,7 +419,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -435,7 +436,7 @@ describe('HealthRecordForm', () => {
 
     it('shows error message when submission fails', async () => {
       const user = userEvent.setup();
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: false,
         json: async () => ({ message: 'Server error' }),
@@ -444,7 +445,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -461,7 +462,7 @@ describe('HealthRecordForm', () => {
 
     it('resets form after successful create submission', async () => {
       const user = userEvent.setup();
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ id: 1 }),
@@ -470,7 +471,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -487,13 +488,13 @@ describe('HealthRecordForm', () => {
 
     it('handles network errors gracefully', async () => {
       const user = userEvent.setup();
-      
+
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -514,7 +515,7 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const typeSelect = screen.getByLabelText(/health type/i);
@@ -530,20 +531,21 @@ describe('HealthRecordForm', () => {
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const submitButton = screen.getByRole('button', { name: /save record/i });
+
       expect(submitButton).toHaveAttribute('type', 'submit');
     });
 
     it('shows validation errors with proper styling', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <TestWrapper>
           <HealthRecordForm />
-        </TestWrapper>
+        </TestWrapper>,
       );
 
       const valueInput = screen.getByLabelText(/value/i);
@@ -554,6 +556,7 @@ describe('HealthRecordForm', () => {
 
       await waitFor(() => {
         const errorMessage = screen.getByText(/value must be greater than 0/i);
+
         expect(errorMessage).toHaveClass('text-red-500');
       });
     });

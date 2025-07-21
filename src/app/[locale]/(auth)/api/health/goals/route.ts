@@ -1,14 +1,15 @@
+import type { GoalStatusType } from '@/validations/HealthGoalValidation';
+import { currentUser } from '@clerk/nextjs/server';
 import { and, desc, eq } from 'drizzle-orm';
-import { currentUser } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 import z from 'zod';
 import { db } from '@/libs/DB';
 import { logger } from '@/libs/Logger';
 import { healthGoalSchema, healthRecordSchema, healthTypeSchema } from '@/models/Schema';
-import { 
-  HealthGoalValidation, 
+import {
+
   HealthGoalUpdateValidation,
-  type GoalStatusType 
+  HealthGoalValidation,
 } from '@/validations/HealthGoalValidation';
 
 // GET - List user's health goals
@@ -23,10 +24,10 @@ export const GET = async (request: Request) => {
     const typeId = url.searchParams.get('type_id');
     const status = url.searchParams.get('status') as GoalStatusType | null;
 
-    let whereConditions = [eq(healthGoalSchema.userId, user.id)];
+    const whereConditions = [eq(healthGoalSchema.userId, user.id)];
 
     if (typeId) {
-      whereConditions.push(eq(healthGoalSchema.typeId, parseInt(typeId)));
+      whereConditions.push(eq(healthGoalSchema.typeId, Number.parseInt(typeId)));
     }
 
     if (status) {
@@ -67,14 +68,14 @@ export const GET = async (request: Request) => {
           .where(
             and(
               eq(healthRecordSchema.userId, user.id),
-              eq(healthRecordSchema.typeId, goal.typeId)
-            )
+              eq(healthRecordSchema.typeId, goal.typeId),
+            ),
           )
           .orderBy(desc(healthRecordSchema.recordedAt))
           .limit(1);
 
-        const currentValue = latestRecord[0]?.value ? parseFloat(latestRecord[0].value) : 0;
-        const targetValue = parseFloat(goal.targetValue);
+        const currentValue = latestRecord[0]?.value ? Number.parseFloat(latestRecord[0].value) : 0;
+        const targetValue = Number.parseFloat(goal.targetValue);
         const progressPercentage = targetValue > 0 ? Math.min((currentValue / targetValue) * 100, 100) : 0;
 
         // Calculate days remaining
@@ -90,7 +91,7 @@ export const GET = async (request: Request) => {
           isOverdue: daysRemaining < 0,
           lastRecordedAt: latestRecord[0]?.recordedAt || null,
         };
-      })
+      }),
     );
 
     logger.info(`Retrieved ${goals.length} health goals for user ${user.id}`);
@@ -100,10 +101,10 @@ export const GET = async (request: Request) => {
       total: goals.length,
     });
   } catch (error) {
-    logger.error('Error retrieving health goals:', error);
+    logger.error('Error retrieving health goals:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -133,7 +134,7 @@ export const POST = async (request: Request) => {
     if (healthType.length === 0) {
       return NextResponse.json(
         { error: 'Invalid health type ID' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -145,15 +146,15 @@ export const POST = async (request: Request) => {
         and(
           eq(healthGoalSchema.userId, user.id),
           eq(healthGoalSchema.typeId, parse.data.type_id),
-          eq(healthGoalSchema.status, 'active')
-        )
+          eq(healthGoalSchema.status, 'active'),
+        ),
       )
       .limit(1);
 
     if (existingGoal.length > 0) {
       return NextResponse.json(
         { error: 'An active goal already exists for this health type' },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -175,10 +176,10 @@ export const POST = async (request: Request) => {
       message: 'Health goal created successfully',
     }, { status: 201 });
   } catch (error) {
-    logger.error('Error creating health goal:', error);
+    logger.error('Error creating health goal:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -197,7 +198,7 @@ export const PATCH = async (request: Request) => {
     if (!id) {
       return NextResponse.json(
         { error: 'Goal ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -214,15 +215,15 @@ export const PATCH = async (request: Request) => {
       .where(
         and(
           eq(healthGoalSchema.id, id),
-          eq(healthGoalSchema.userId, user.id)
-        )
+          eq(healthGoalSchema.userId, user.id),
+        ),
       )
       .limit(1);
 
     if (existingGoal.length === 0) {
       return NextResponse.json(
         { error: 'Goal not found or access denied' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -247,14 +248,14 @@ export const PATCH = async (request: Request) => {
         .where(
           and(
             eq(healthRecordSchema.userId, user.id),
-            eq(healthRecordSchema.typeId, existingGoal[0].typeId)
-          )
+            eq(healthRecordSchema.typeId, existingGoal[0]?.typeId || 0),
+          ),
         )
         .orderBy(desc(healthRecordSchema.recordedAt))
         .limit(1);
 
-      const currentValue = latestRecord[0]?.value ? parseFloat(latestRecord[0].value) : 0;
-      const targetValue = parseFloat(updateValues.targetValue || existingGoal[0].targetValue);
+      const currentValue = latestRecord[0]?.value ? Number.parseFloat(latestRecord[0].value) : 0;
+      const targetValue = Number.parseFloat(updateValues.targetValue || existingGoal[0]?.targetValue || '0');
 
       if (currentValue < targetValue) {
         logger.warn(`Goal ${id} marked as completed but target not reached. Current: ${currentValue}, Target: ${targetValue}`);
@@ -274,10 +275,10 @@ export const PATCH = async (request: Request) => {
       message: 'Health goal updated successfully',
     });
   } catch (error) {
-    logger.error('Error updating health goal:', error);
+    logger.error('Error updating health goal:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -296,7 +297,7 @@ export const DELETE = async (request: Request) => {
     if (!id) {
       return NextResponse.json(
         { error: 'Goal ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -306,16 +307,16 @@ export const DELETE = async (request: Request) => {
       .from(healthGoalSchema)
       .where(
         and(
-          eq(healthGoalSchema.id, parseInt(id)),
-          eq(healthGoalSchema.userId, user.id)
-        )
+          eq(healthGoalSchema.id, Number.parseInt(id)),
+          eq(healthGoalSchema.userId, user.id),
+        ),
       )
       .limit(1);
 
     if (existingGoal.length === 0) {
       return NextResponse.json(
         { error: 'Goal not found or access denied' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -324,7 +325,7 @@ export const DELETE = async (request: Request) => {
     await db
       .update(healthGoalSchema)
       .set({ status: 'paused' })
-      .where(eq(healthGoalSchema.id, parseInt(id)));
+      .where(eq(healthGoalSchema.id, Number.parseInt(id)));
 
     logger.info(`Soft deleted health goal ${id} for user ${user.id}`);
 
@@ -332,10 +333,10 @@ export const DELETE = async (request: Request) => {
       message: 'Health goal removed successfully',
     });
   } catch (error) {
-    logger.error('Error deleting health goal:', error);
+    logger.error('Error deleting health goal:', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

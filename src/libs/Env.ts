@@ -7,9 +7,9 @@ export const Env = createEnv({
     CLERK_SECRET_KEY: z.string().min(1),
     DATABASE_URL: z.string().min(1),
     BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
-    ENABLE_HEALTH_MGMT: z.string().transform((val) => val === 'true').optional().default('false'),
+    ENABLE_HEALTH_MGMT: z.string().transform(val => val === 'true').optional().default('false'),
     HEALTH_REMINDER_CRON_SECRET: z.string().min(1).optional(),
-    PROMETHEUS_METRICS_ENABLED: z.string().transform((val) => val === 'true').optional().default('false'),
+    PROMETHEUS_METRICS_ENABLED: z.string().transform(val => val === 'true').optional().default('false'),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().optional(),

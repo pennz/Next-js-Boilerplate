@@ -1,7 +1,7 @@
-import { getTranslations } from 'next-intl/server';
-import { Suspense } from 'react';
 import { currentUser } from '@clerk/nextjs/server';
+import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -20,7 +20,7 @@ export async function generateMetadata(props: {
 
 async function RemindersContent() {
   const user = await currentUser();
-  
+
   if (!user) {
     redirect('/sign-in');
   }
@@ -50,7 +50,7 @@ async function RemindersContent() {
           </svg>
           {t('button_add_reminder')}
         </button>
-        
+
         <button
           type="button"
           className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
@@ -79,7 +79,7 @@ async function RemindersContent() {
                 <option value="inactive">{t('status_inactive')}</option>
               </select>
             </div>
-            
+
             <div>
               <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700">
                 {t('filter_health_type')}
@@ -95,7 +95,7 @@ async function RemindersContent() {
                 <option value="heart_rate">{t('health_type_heart_rate')}</option>
               </select>
             </div>
-            
+
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700">
                 {t('search_reminders')}
@@ -139,7 +139,9 @@ async function RemindersContent() {
                       {t('reminder_schedule_daily_8am')}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {t('next_reminder')}: {t('tomorrow_8am')}
+                      {t('next_reminder')}
+                      :
+                      {t('tomorrow_8am')}
                     </p>
                   </div>
                 </div>
@@ -183,7 +185,9 @@ async function RemindersContent() {
                       {t('reminder_schedule_twice_weekly')}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {t('last_sent')}: {t('last_monday')}
+                      {t('last_sent')}
+                      :
+                      {t('last_monday')}
                     </p>
                   </div>
                 </div>
@@ -227,7 +231,9 @@ async function RemindersContent() {
                       {t('reminder_schedule_evening')}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {t('next_reminder')}: {t('today_6pm')}
+                      {t('next_reminder')}
+                      :
+                      {t('today_6pm')}
                     </p>
                   </div>
                 </div>
@@ -290,7 +296,7 @@ async function RemindersContent() {
                 </svg>
               </button>
             </div>
-            
+
             <form className="space-y-4">
               <div>
                 <label htmlFor="health-type" className="block text-sm font-medium text-gray-700">
@@ -424,7 +430,7 @@ async function RemindersContent() {
 export default function HealthRemindersPage() {
   return (
     <div className="py-5">
-      <Suspense fallback={
+      <Suspense fallback={(
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
@@ -434,7 +440,8 @@ export default function HealthRemindersPage() {
             <div className="h-20 bg-gray-200 rounded"></div>
           </div>
         </div>
-      }>
+      )}
+      >
         <RemindersContent />
       </Suspense>
     </div>

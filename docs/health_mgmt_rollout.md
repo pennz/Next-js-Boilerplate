@@ -138,20 +138,20 @@ kubectl scale deployment app --replicas=3
 
 ```sql
 -- Verify all health tables exist
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_name LIKE 'health_%' 
+SELECT table_name
+FROM information_schema.tables
+WHERE table_name LIKE 'health_%'
 AND table_schema = 'public';
 
 -- Verify indexes
-SELECT indexname, tablename 
-FROM pg_indexes 
+SELECT indexname, tablename
+FROM pg_indexes
 WHERE tablename LIKE 'health_%';
 
 -- Verify foreign key constraints
-SELECT conname, conrelid::regclass, confrelid::regclass 
-FROM pg_constraint 
-WHERE contype = 'f' 
+SELECT conname, conrelid::regclass, confrelid::regclass
+FROM pg_constraint
+WHERE contype = 'f'
 AND conrelid::regclass::text LIKE 'health_%';
 
 -- Check health types seeded
@@ -193,9 +193,9 @@ ENABLE_HEALTH_MGMT=true
 
 ```typescript
 // Example feature flag check in components
-const isHealthMgmtEnabled = useFeatureFlag('ENABLE_HEALTH_MGMT') || 
-  isUserInBeta(user.id) || 
-  isUserInRolloutPercentage(user.id, rolloutPercentage);
+const isHealthMgmtEnabled = useFeatureFlag('ENABLE_HEALTH_MGMT')
+  || isUserInBeta(user.id)
+  || isUserInRolloutPercentage(user.id, rolloutPercentage);
 ```
 
 ### 3.3 Rollout Monitoring
@@ -216,10 +216,10 @@ Add health-specific metrics monitoring:
 
 ```yaml
 # prometheus.yml
-- job_name: 'health-management'
+- job_name: health-management
   static_configs:
     - targets: ['app:3000']
-  metrics_path: '/api/metrics'
+  metrics_path: /api/metrics
   scrape_interval: 30s
 ```
 
@@ -260,7 +260,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High error rate in health management API"
+          summary: High error rate in health management API
 
       - alert: HealthDBSlowQueries
         expr: health_db_query_duration_seconds > 2
@@ -268,7 +268,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Slow database queries in health management"
+          summary: Slow database queries in health management
 
       - alert: HealthReminderFailures
         expr: rate(health_reminders_failed_total[10m]) > 0.05
@@ -276,7 +276,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Health reminder system experiencing failures"
+          summary: Health reminder system experiencing failures
 ```
 
 ### 4.4 Dashboard Setup
@@ -298,8 +298,8 @@ Create Grafana dashboard with panels for:
 name: Health Reminder Cron
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
-  workflow_dispatch:  # Manual trigger
+    - cron: '0 * * * *' # Every hour
+  workflow_dispatch: # Manual trigger
 
 jobs:
   trigger-reminders:
@@ -472,14 +472,14 @@ curl -H "User-ID: test-user" https://your-app.com/api/feature-flags/health
 
 ```sql
 -- Find slow health queries
-SELECT query, mean_time, calls 
-FROM pg_stat_statements 
-WHERE query LIKE '%health_%' 
+SELECT query, mean_time, calls
+FROM pg_stat_statements
+WHERE query LIKE '%health_%'
 ORDER BY mean_time DESC;
 
 -- Check index usage
-SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch 
-FROM pg_stat_user_indexes 
+SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch
+FROM pg_stat_user_indexes
 WHERE tablename LIKE 'health_%';
 ```
 
@@ -616,6 +616,6 @@ curl -X POST https://your-notification-service.com/test
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: $(date +%Y-%m-%d)  
+**Document Version**: 1.0
+**Last Updated**: $(date +%Y-%m-%d)
 **Next Review**: $(date -d "+3 months" +%Y-%m-%d)

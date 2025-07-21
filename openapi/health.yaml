@@ -474,15 +474,15 @@ components:
         slug:
           type: string
           description: URL-friendly identifier
-          example: "weight"
+          example: weight
         display_name:
           type: string
           description: Human-readable name
-          example: "Weight"
+          example: Weight
         unit:
           type: string
           description: Measurement unit
-          example: "kg"
+          example: kg
         typical_range_low:
           type: number
           format: float
@@ -519,7 +519,7 @@ components:
         user_id:
           type: string
           description: Clerk user identifier
-          example: "user_2NiWoBO2hdTHip1VaFVnFONGtOf"
+          example: user_2NiWoBO2hdTHip1VaFVnFONGtOf
         type_id:
           type: integer
           description: Health type identifier
@@ -534,12 +534,12 @@ components:
         unit:
           type: string
           description: Measurement unit
-          example: "kg"
+          example: kg
         recorded_at:
           type: string
           format: date-time
           description: When the measurement was taken
-          example: "2024-01-15T10:30:00Z"
+          example: '2024-01-15T10:30:00Z'
         created_at:
           type: string
           format: date-time
@@ -577,12 +577,12 @@ components:
           minLength: 1
           maxLength: 20
           description: Measurement unit
-          example: "kg"
+          example: kg
         recorded_at:
           type: string
           format: date-time
           description: When the measurement was taken
-          example: "2024-01-15T10:30:00Z"
+          example: '2024-01-15T10:30:00Z'
       required:
         - type_id
         - value
@@ -603,12 +603,12 @@ components:
           minLength: 1
           maxLength: 20
           description: Measurement unit
-          example: "kg"
+          example: kg
         recorded_at:
           type: string
           format: date-time
           description: When the measurement was taken
-          example: "2024-01-15T10:30:00Z"
+          example: '2024-01-15T10:30:00Z'
 
     HealthGoal:
       type: object
@@ -620,7 +620,7 @@ components:
         user_id:
           type: string
           description: Clerk user identifier
-          example: "user_2NiWoBO2hdTHip1VaFVnFONGtOf"
+          example: user_2NiWoBO2hdTHip1VaFVnFONGtOf
         type_id:
           type: integer
           description: Health type identifier
@@ -636,12 +636,12 @@ components:
           type: string
           format: date
           description: Goal deadline
-          example: "2024-06-01"
+          example: 2024-06-01
         status:
           type: string
           enum: [active, completed, paused]
           description: Goal status
-          example: "active"
+          example: active
         progress_percentage:
           type: number
           format: float
@@ -685,7 +685,7 @@ components:
           type: string
           format: date
           description: Goal deadline (must be in the future)
-          example: "2024-06-01"
+          example: 2024-06-01
       required:
         - type_id
         - target_value
@@ -704,12 +704,12 @@ components:
           type: string
           format: date
           description: Goal deadline
-          example: "2024-07-01"
+          example: 2024-07-01
         status:
           type: string
           enum: [active, completed, paused]
           description: Goal status
-          example: "completed"
+          example: completed
 
     HealthReminder:
       type: object
@@ -721,7 +721,7 @@ components:
         user_id:
           type: string
           description: Clerk user identifier
-          example: "user_2NiWoBO2hdTHip1VaFVnFONGtOf"
+          example: user_2NiWoBO2hdTHip1VaFVnFONGtOf
         type_id:
           type: integer
           description: Health type identifier
@@ -731,11 +731,11 @@ components:
         cron_expr:
           type: string
           description: Cron expression for scheduling
-          example: "0 9 * * *"
+          example: '0 9 * * *'
         message:
           type: string
           description: Reminder message
-          example: "Time to log your weight!"
+          example: Time to log your weight!
         active:
           type: boolean
           description: Whether the reminder is active
@@ -744,7 +744,7 @@ components:
           type: string
           format: date-time
           description: Next scheduled execution time
-          example: "2024-01-16T09:00:00Z"
+          example: '2024-01-16T09:00:00Z'
         created_at:
           type: string
           format: date-time
@@ -775,13 +775,13 @@ components:
           type: string
           pattern: '^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$'
           description: Valid cron expression for scheduling
-          example: "0 9 * * *"
+          example: '0 9 * * *'
         message:
           type: string
           minLength: 1
           maxLength: 500
           description: Reminder message
-          example: "Time to log your weight!"
+          example: Time to log your weight!
         active:
           type: boolean
           description: Whether the reminder should be active
@@ -799,13 +799,13 @@ components:
           type: string
           pattern: '^(\*|([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])|\*\/([0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])) (\*|([0-9]|1[0-9]|2[0-3])|\*\/([0-9]|1[0-9]|2[0-3])) (\*|([1-9]|1[0-9]|2[0-9]|3[0-1])|\*\/([1-9]|1[0-9]|2[0-9]|3[0-1])) (\*|([1-9]|1[0-2])|\*\/([1-9]|1[0-2])) (\*|([0-6])|\*\/([0-6]))$'
           description: Valid cron expression for scheduling
-          example: "0 18 * * *"
+          example: '0 18 * * *'
         message:
           type: string
           minLength: 1
           maxLength: 500
           description: Reminder message
-          example: "Evening weight check!"
+          example: Evening weight check!
         active:
           type: boolean
           description: Whether the reminder should be active
@@ -920,11 +920,11 @@ components:
         error:
           type: string
           description: Error message
-          example: "Invalid request parameters"
+          example: Invalid request parameters
         code:
           type: string
           description: Error code
-          example: "VALIDATION_ERROR"
+          example: VALIDATION_ERROR
         details:
           type: object
           description: Additional error details
@@ -939,11 +939,11 @@ components:
         error:
           type: string
           description: Validation error message
-          example: "Validation failed"
+          example: Validation failed
         code:
           type: string
           description: Error code
-          example: "VALIDATION_ERROR"
+          example: VALIDATION_ERROR
         details:
           type: object
           description: Field-specific validation errors
@@ -952,8 +952,8 @@ components:
             items:
               type: string
           example:
-            value: ["Value must be a positive number"]
-            recorded_at: ["Date cannot be in the future"]
+            value: [Value must be a positive number]
+            recorded_at: [Date cannot be in the future]
       required:
         - error
         - code
@@ -967,8 +967,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Invalid request parameters"
-            code: "BAD_REQUEST"
+            error: Invalid request parameters
+            code: BAD_REQUEST
 
     Unauthorized:
       description: Unauthorized - authentication required
@@ -977,8 +977,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Authentication required"
-            code: "UNAUTHORIZED"
+            error: Authentication required
+            code: UNAUTHORIZED
 
     NotFound:
       description: Resource not found
@@ -987,8 +987,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Resource not found"
-            code: "NOT_FOUND"
+            error: Resource not found
+            code: NOT_FOUND
 
     ValidationError:
       description: Validation error - invalid input data
@@ -1004,8 +1004,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: "Internal server error"
-            code: "INTERNAL_ERROR"
+            error: Internal server error
+            code: INTERNAL_ERROR
 
 externalDocs:
   description: Health Management API Documentation

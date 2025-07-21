@@ -10,13 +10,13 @@ jobs:
   trigger-health-reminders:
     name: Trigger Health Reminders
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Trigger Health Reminder API
         id: trigger_reminders
         run: |
           echo "Triggering health reminders at $(date)"
-          
+
           # Make API call to trigger reminders
           response=$(curl -s -w "%{http_code}" \
             -X POST \
@@ -24,14 +24,14 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.HEALTH_REMINDER_CRON_SECRET }}" \
             -d '{"source": "github_actions", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' \
             "${{ vars.APP_URL }}/api/health/reminders/trigger")
-          
+
           # Extract HTTP status code (last 3 characters)
           http_code="${response: -3}"
           response_body="${response%???}"
-          
+
           echo "HTTP Status: $http_code"
           echo "Response: $response_body"
-          
+
           # Check if request was successful
           if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
             echo "✅ Health reminders triggered successfully"
@@ -57,7 +57,7 @@ jobs:
           echo "Health reminder job failed"
           echo "Error Code: ${{ steps.trigger_reminders.outputs.error_code }}"
           echo "Error Response: ${{ steps.trigger_reminders.outputs.error_response }}"
-          
+
           # Log failure details for debugging
           echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo "Workflow: ${{ github.workflow }}"
@@ -71,29 +71,29 @@ jobs:
           script: |
             const issue_body = `
             ## 🚨 Health Reminder Cron Job Failed
-            
+
             **Workflow:** ${{ github.workflow }}
             **Run ID:** ${{ github.run_id }}
             **Timestamp:** ${new Date().toISOString()}
             **Error Code:** ${{ steps.trigger_reminders.outputs.error_code }}
-            
+
             **Error Details:**
             \`\`\`
             ${{ steps.trigger_reminders.outputs.error_response }}
             \`\`\`
-            
+
             **Troubleshooting Steps:**
             1. Check if the application is running and accessible
             2. Verify the HEALTH_REMINDER_CRON_SECRET is correctly configured
             3. Ensure the APP_URL environment variable is set correctly
             4. Check application logs for any errors
             5. Verify the /api/health/reminders/trigger endpoint is working
-            
+
             **Links:**
             - [Failed Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             - [Application URL](${{ vars.APP_URL }})
             `;
-            
+
             // Create an issue for the failure (optional - remove if not desired)
             // github.rest.issues.create({
             //   owner: context.repo.owner,
@@ -102,7 +102,7 @@ jobs:
             //   body: issue_body,
             //   labels: ['bug', 'health-management', 'cron-failure']
             // });
-            
+
             console.log('Health reminder cron job failure logged');
 
   health-check:
@@ -110,19 +110,19 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     needs: [trigger-health-reminders]
-    
+
     steps:
       - name: Check Application Health
         run: |
           echo "Performing application health check"
-          
+
           # Basic health check to ensure app is responsive
           health_response=$(curl -s -w "%{http_code}" \
             -X GET \
             "${{ vars.APP_URL }}/api/health" || echo "000")
-          
+
           http_code="${health_response: -3}"
-          
+
           if [ "$http_code" -eq 200 ]; then
             echo "✅ Application health check passed"
           else

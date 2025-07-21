@@ -65,15 +65,15 @@ const GOAL_TEMPLATES = [
   { type_id: 5, name: '2L water daily', target_value: 2, duration_days: 30 },
 ];
 
-function GoalCard({ goal, healthType, t }: { 
-  goal: any; 
-  healthType: any; 
+function GoalCard({ goal, healthType, t }: {
+  goal: any;
+  healthType: any;
   t: any;
 }) {
-  const progress = goal.current_value && goal.target_value 
+  const progress = goal.current_value && goal.target_value
     ? Math.min(100, Math.abs((goal.current_value / goal.target_value) * 100))
     : 0;
-  
+
   const isOverdue = new Date(goal.target_date) < new Date() && goal.status === 'active';
   const daysLeft = Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
@@ -82,18 +82,27 @@ function GoalCard({ goal, healthType, t }: {
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            {healthType?.display_name} Goal
+            {healthType?.display_name}
+            {' '}
+            Goal
           </h3>
           <p className="text-sm text-gray-600">
-            Target: {goal.target_value} {healthType?.unit}
+            Target:
+            {' '}
+            {goal.target_value}
+            {' '}
+            {healthType?.unit}
           </p>
         </div>
         <div className="flex space-x-2">
           <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-            goal.status === 'active' ? 'bg-green-100 text-green-800' :
-            goal.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-            'bg-gray-100 text-gray-800'
-          }`}>
+            goal.status === 'active'
+              ? 'bg-green-100 text-green-800'
+              : goal.status === 'completed'
+                ? 'bg-blue-100 text-blue-800'
+                : 'bg-gray-100 text-gray-800'
+          }`}
+          >
             {t(`status_${goal.status}`)}
           </span>
           {isOverdue && (
@@ -108,14 +117,19 @@ function GoalCard({ goal, healthType, t }: {
       <div className="mb-4">
         <div className="flex justify-between text-sm text-gray-600 mb-1">
           <span>Progress</span>
-          <span>{progress.toFixed(1)}%</span>
+          <span>
+            {progress.toFixed(1)}
+            %
+          </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             className={`h-2 rounded-full transition-all duration-300 ${
-              goal.status === 'completed' ? 'bg-green-500' :
-              progress >= 80 ? 'bg-blue-500' :
-              progress >= 50 ? 'bg-yellow-500' : 'bg-gray-400'
+              goal.status === 'completed'
+                ? 'bg-green-500'
+                : progress >= 80
+                  ? 'bg-blue-500'
+                  : progress >= 50 ? 'bg-yellow-500' : 'bg-gray-400'
             }`}
             style={{ width: `${Math.min(100, progress)}%` }}
           />
@@ -127,7 +141,9 @@ function GoalCard({ goal, healthType, t }: {
         <div>
           <p className="text-xs text-gray-500">Current</p>
           <p className="text-lg font-semibold">
-            {goal.current_value || 0} {healthType?.unit}
+            {goal.current_value || 0}
+            {' '}
+            {healthType?.unit}
           </p>
         </div>
         <div>
@@ -136,7 +152,11 @@ function GoalCard({ goal, healthType, t }: {
             {new Date(goal.target_date).toLocaleDateString()}
           </p>
           {daysLeft > 0 && goal.status === 'active' && (
-            <p className="text-xs text-gray-500">{daysLeft} days left</p>
+            <p className="text-xs text-gray-500">
+              {daysLeft}
+              {' '}
+              days left
+            </p>
           )}
         </div>
       </div>
@@ -185,7 +205,15 @@ function GoalTemplates({ templates, healthTypes, t }: {
             >
               <p className="font-medium text-gray-900">{template.name}</p>
               <p className="text-sm text-gray-600">
-                {template.target_value} {healthType?.unit} in {template.duration_days} days
+                {template.target_value}
+                {' '}
+                {healthType?.unit}
+                {' '}
+                in
+                {' '}
+                {template.duration_days}
+                {' '}
+                days
               </p>
             </button>
           );
@@ -211,7 +239,11 @@ function CreateGoalForm({ healthTypes, t }: {
             <option value="">Select a health metric</option>
             {healthTypes.map(type => (
               <option key={type.id} value={type.id}>
-                {type.display_name} ({type.unit})
+                {type.display_name}
+                {' '}
+                (
+                {type.unit}
+                )
               </option>
             ))}
           </select>
@@ -262,8 +294,8 @@ function CreateGoalForm({ healthTypes, t }: {
 function GoalsStats({ goals, t }: { goals: any[]; t: any }) {
   const activeGoals = goals.filter(g => g.status === 'active').length;
   const completedGoals = goals.filter(g => g.status === 'completed').length;
-  const overdueGoals = goals.filter(g => 
-    g.status === 'active' && new Date(g.target_date) < new Date()
+  const overdueGoals = goals.filter(g =>
+    g.status === 'active' && new Date(g.target_date) < new Date(),
   ).length;
 
   return (
@@ -357,44 +389,46 @@ async function GoalsContent() {
             </div>
           </div>
 
-          {goals.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-md border border-gray-200">
-              <span className="text-6xl mb-4 block">🎯</span>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No goals yet</h3>
-              <p className="text-gray-600 mb-4">
-                Start by creating your first health goal to track your progress.
-              </p>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
-                Create Your First Goal
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {goals.map(goal => {
-                const healthType = healthTypes.find(ht => ht.id === goal.type_id);
-                return (
-                  <GoalCard 
-                    key={goal.id} 
-                    goal={goal} 
-                    healthType={healthType} 
-                    t={t}
-                  />
-                );
-              })}
-            </div>
-          )}
+          {goals.length === 0
+            ? (
+                <div className="text-center py-12 bg-white rounded-lg shadow-md border border-gray-200">
+                  <span className="text-6xl mb-4 block">🎯</span>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No goals yet</h3>
+                  <p className="text-gray-600 mb-4">
+                    Start by creating your first health goal to track your progress.
+                  </p>
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
+                    Create Your First Goal
+                  </button>
+                </div>
+              )
+            : (
+                <div className="space-y-4">
+                  {goals.map((goal) => {
+                    const healthType = healthTypes.find(ht => ht.id === goal.type_id);
+                    return (
+                      <GoalCard
+                        key={goal.id}
+                        goal={goal}
+                        healthType={healthType}
+                        t={t}
+                      />
+                    );
+                  })}
+                </div>
+              )}
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Create Goal Form */}
           <CreateGoalForm healthTypes={healthTypes} t={t} />
-          
+
           {/* Goal Templates */}
-          <GoalTemplates 
-            templates={GOAL_TEMPLATES} 
-            healthTypes={healthTypes} 
-            t={t} 
+          <GoalTemplates
+            templates={GOAL_TEMPLATES}
+            healthTypes={healthTypes}
+            t={t}
           />
         </div>
       </div>
@@ -405,11 +439,12 @@ async function GoalsContent() {
 export default function HealthGoalsPage() {
   return (
     <div className="py-5">
-      <Suspense fallback={
+      <Suspense fallback={(
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      }>
+      )}
+      >
         <GoalsContent />
       </Suspense>
     </div>

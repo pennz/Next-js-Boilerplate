@@ -2,30 +2,30 @@
 
 import { useTranslations } from 'next-intl';
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  AreaChart,
   Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  Brush,
   CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Legend,
-  ReferenceLine,
-  Brush,
 } from 'recharts';
 
-export interface HealthDataPoint {
+export type HealthDataPoint = {
   date: string;
   value: number;
   unit?: string;
   label?: string;
-}
+};
 
-export interface HealthChartProps {
+export type HealthChartProps = {
   data: HealthDataPoint[];
   chartType?: 'line' | 'bar' | 'area';
   title?: string;
@@ -47,7 +47,7 @@ export interface HealthChartProps {
   formatTooltip?: (value: number, name: string) => [string, string];
   formatXAxis?: (value: string) => string;
   formatYAxis?: (value: number) => string;
-}
+};
 
 const LoadingSpinner = () => (
   <div className="flex h-64 items-center justify-center">
@@ -144,9 +144,9 @@ export const HealthChart = ({
   const defaultXAxisFormatter = (value: string) => {
     try {
       const date = new Date(value);
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
       });
     } catch {
       return value;
@@ -173,38 +173,38 @@ export const HealthChart = ({
         return (
           <BarChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />}
-            <XAxis 
+            <XAxis
               dataKey={xAxisKey}
               tickFormatter={formatXAxis || defaultXAxisFormatter}
               stroke="#6b7280"
               fontSize={12}
             />
-            <YAxis 
+            <YAxis
               tickFormatter={formatYAxis || defaultYAxisFormatter}
               stroke="#6b7280"
               fontSize={12}
             />
-            <Tooltip 
+            <Tooltip
               formatter={formatTooltip || defaultTooltipFormatter}
               labelStyle={{ color: '#374151' }}
-              contentStyle={{ 
+              contentStyle={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               }}
             />
             {showLegend && <Legend />}
             {goalValue && (
-              <ReferenceLine 
-                y={goalValue} 
-                stroke="#ef4444" 
+              <ReferenceLine
+                y={goalValue}
+                stroke="#ef4444"
                 strokeDasharray="5 5"
                 label={{ value: `Goal: ${goalValue} ${unit}`, position: 'topRight' }}
               />
             )}
-            <Bar 
-              dataKey={dataKey} 
+            <Bar
+              dataKey={dataKey}
               fill={color}
               radius={[2, 2, 0, 0]}
             />
@@ -216,39 +216,39 @@ export const HealthChart = ({
         return (
           <AreaChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />}
-            <XAxis 
+            <XAxis
               dataKey={xAxisKey}
               tickFormatter={formatXAxis || defaultXAxisFormatter}
               stroke="#6b7280"
               fontSize={12}
             />
-            <YAxis 
+            <YAxis
               tickFormatter={formatYAxis || defaultYAxisFormatter}
               stroke="#6b7280"
               fontSize={12}
             />
-            <Tooltip 
+            <Tooltip
               formatter={formatTooltip || defaultTooltipFormatter}
               labelStyle={{ color: '#374151' }}
-              contentStyle={{ 
+              contentStyle={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               }}
             />
             {showLegend && <Legend />}
             {goalValue && (
-              <ReferenceLine 
-                y={goalValue} 
-                stroke="#ef4444" 
+              <ReferenceLine
+                y={goalValue}
+                stroke="#ef4444"
                 strokeDasharray="5 5"
                 label={{ value: `Goal: ${goalValue} ${unit}`, position: 'topRight' }}
               />
             )}
-            <Area 
-              type="monotone" 
-              dataKey={dataKey} 
+            <Area
+              type="monotone"
+              dataKey={dataKey}
               stroke={color}
               fill={color}
               fillOpacity={0.3}
@@ -263,39 +263,39 @@ export const HealthChart = ({
         return (
           <LineChart {...commonProps}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />}
-            <XAxis 
+            <XAxis
               dataKey={xAxisKey}
               tickFormatter={formatXAxis || defaultXAxisFormatter}
               stroke="#6b7280"
               fontSize={12}
             />
-            <YAxis 
+            <YAxis
               tickFormatter={formatYAxis || defaultYAxisFormatter}
               stroke="#6b7280"
               fontSize={12}
             />
-            <Tooltip 
+            <Tooltip
               formatter={formatTooltip || defaultTooltipFormatter}
               labelStyle={{ color: '#374151' }}
-              contentStyle={{ 
+              contentStyle={{
                 backgroundColor: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               }}
             />
             {showLegend && <Legend />}
             {goalValue && (
-              <ReferenceLine 
-                y={goalValue} 
-                stroke="#ef4444" 
+              <ReferenceLine
+                y={goalValue}
+                stroke="#ef4444"
                 strokeDasharray="5 5"
                 label={{ value: `Goal: ${goalValue} ${unit}`, position: 'topRight' }}
               />
             )}
-            <Line 
-              type="monotone" 
-              dataKey={dataKey} 
+            <Line
+              type="monotone"
+              dataKey={dataKey}
               stroke={color}
               strokeWidth={2}
               dot={{ fill: color, strokeWidth: 2, r: 4 }}
@@ -319,7 +319,9 @@ export const HealthChart = ({
       </div>
       {data.length > 0 && (
         <div className="mt-2 text-xs text-gray-500">
-          {t('chart_data_points', { count: data.length })} data points
+          {t('chart_data_points', { count: data.length })}
+          {' '}
+          data points
         </div>
       )}
     </div>

@@ -3,29 +3,29 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
 // Mock data interfaces - these would come from the health services in the actual implementation
-interface HealthRecord {
+type HealthRecord = {
   id: number;
   type: string;
   value: number;
   unit: string;
   recorded_at: string;
-}
+};
 
-interface HealthGoal {
+type HealthGoal = {
   id: number;
   type: string;
   target_value: number;
   current_value: number;
   target_date: string;
   status: 'active' | 'completed' | 'paused';
-}
+};
 
-interface HealthStats {
+type HealthStats = {
   totalRecords: number;
   activeGoals: number;
   completedGoals: number;
   weeklyProgress: number;
-}
+};
 
 // Mock data - in real implementation, this would come from the health services
 const getMockHealthData = async (userId: string) => {
@@ -82,27 +82,40 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
 const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
   const progress = Math.min((goal.current_value / goal.target_value) * 100, 100);
   const isCompleted = goal.status === 'completed';
-  
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="font-medium text-gray-900">{goal.type} Goal</h4>
+        <h4 className="font-medium text-gray-900">
+          {goal.type}
+          {' '}
+          Goal
+        </h4>
         {isCompleted && <span className="text-green-500 text-sm">✓ Completed</span>}
       </div>
       <div className="space-y-2">
         <div className="flex justify-between text-sm text-gray-600">
           <span>Progress</span>
-          <span>{Math.round(progress)}%</span>
+          <span>
+            {Math.round(progress)}
+            %
+          </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             className={`h-2 rounded-full ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`}
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
         <div className="flex justify-between text-xs text-gray-500">
-          <span>Current: {goal.current_value}</span>
-          <span>Target: {goal.target_value}</span>
+          <span>
+            Current:
+            {goal.current_value}
+          </span>
+          <span>
+            Target:
+            {goal.target_value}
+          </span>
         </div>
       </div>
     </div>
@@ -112,15 +125,22 @@ const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
 const RecentRecordItem = ({ record }: { record: HealthRecord }) => {
   const recordDate = new Date(record.recorded_at);
   const timeAgo = Math.floor((Date.now() - recordDate.getTime()) / (1000 * 60 * 60));
-  
+
   return (
     <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
       <div>
         <p className="font-medium text-gray-900">{record.type}</p>
-        <p className="text-sm text-gray-500">{timeAgo}h ago</p>
+        <p className="text-sm text-gray-500">
+          {timeAgo}
+          h ago
+        </p>
       </div>
       <div className="text-right">
-        <p className="font-medium text-gray-900">{record.value} {record.unit}</p>
+        <p className="font-medium text-gray-900">
+          {record.value}
+          {' '}
+          {record.unit}
+        </p>
       </div>
     </div>
   );
@@ -209,13 +229,15 @@ export const HealthOverview = async () => {
             </Link>
           </div>
           <div className="space-y-1">
-            {recentRecords.length > 0 ? (
-              recentRecords.map((record) => (
-                <RecentRecordItem key={record.id} record={record} />
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-4">No recent records</p>
-            )}
+            {recentRecords.length > 0
+              ? (
+                  recentRecords.map(record => (
+                    <RecentRecordItem key={record.id} record={record} />
+                  ))
+                )
+              : (
+                  <p className="text-gray-500 text-center py-4">No recent records</p>
+                )}
           </div>
         </div>
 
@@ -231,13 +253,15 @@ export const HealthOverview = async () => {
             </Link>
           </div>
           <div className="space-y-4">
-            {activeGoals.length > 0 ? (
-              activeGoals.map((goal) => (
-                <GoalProgressCard key={goal.id} goal={goal} />
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-4">No active goals</p>
-            )}
+            {activeGoals.length > 0
+              ? (
+                  activeGoals.map(goal => (
+                    <GoalProgressCard key={goal.id} goal={goal} />
+                  ))
+                )
+              : (
+                  <p className="text-gray-500 text-center py-4">No active goals</p>
+                )}
           </div>
         </div>
 

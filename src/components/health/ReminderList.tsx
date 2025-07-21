@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 // Types for health reminder data
-interface HealthType {
+type HealthType = {
   id: number;
   slug: string;
   display_name: string;
   unit: string;
-}
+};
 
-interface HealthReminder {
+type HealthReminder = {
   id: number;
   user_id: string;
   type_id: number;
@@ -22,28 +22,30 @@ interface HealthReminder {
   created_at: string;
   updated_at: string;
   health_type?: HealthType;
-}
+};
 
-interface ReminderListProps {
+type ReminderListProps = {
   reminders: HealthReminder[];
   onToggleActive: (id: number, active: boolean) => Promise<void>;
   onEdit: (reminder: HealthReminder) => void;
   onDelete: (id: number) => Promise<void>;
   loading?: boolean;
-}
+};
 
-interface DeleteConfirmationModalProps {
+type DeleteConfirmationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   reminderMessage: string;
-}
+};
 
 // Helper function to convert cron expression to human-readable format
 const cronToHumanReadable = (cronExpr: string): string => {
   // Basic cron parsing for common patterns
   const parts = cronExpr.split(' ');
-  if (parts.length !== 5) return cronExpr;
+  if (parts.length !== 5) {
+    return cronExpr;
+  }
 
   const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
 
@@ -60,7 +62,7 @@ const cronToHumanReadable = (cronExpr: string): string => {
   // Weekly patterns
   if (dayOfMonth === '*' && month === '*' && dayOfWeek !== '*') {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const dayName = days[parseInt(dayOfWeek)] || `Day ${dayOfWeek}`;
+    const dayName = days[Number.parseInt(dayOfWeek)] || `Day ${dayOfWeek}`;
     if (minute === '0' && hour !== '*') {
       return `Weekly on ${dayName} at ${hour}:00`;
     }
@@ -87,20 +89,22 @@ const formatNextRun = (nextRunAt: string): string => {
   const nextRun = new Date(nextRunAt);
   const now = new Date();
   const diffMs = nextRun.getTime() - now.getTime();
-  
-  if (diffMs < 0) return 'Overdue';
-  
+
+  if (diffMs < 0) {
+    return 'Overdue';
+  }
+
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffHours / 24);
-  
+
   if (diffDays > 0) {
     return `In ${diffDays} day${diffDays > 1 ? 's' : ''}`;
   }
-  
+
   if (diffHours > 0) {
     return `In ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
   }
-  
+
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   return `In ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
 };
@@ -114,7 +118,9 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
 }) => {
   const t = useTranslations('HealthManagement');
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -127,7 +133,11 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
             {t('delete_reminder_message')}
           </p>
           <div className="bg-gray-100 p-3 rounded border">
-            <p className="text-sm font-medium text-gray-800">"{reminderMessage}"</p>
+            <p className="text-sm font-medium text-gray-800">
+              "
+              {reminderMessage}
+              "
+            </p>
           </div>
         </div>
         <div className="flex justify-end space-x-3">
@@ -150,12 +160,12 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
 };
 
 // Toggle Switch Component
-interface ToggleSwitchProps {
+type ToggleSwitchProps = {
   isOn: boolean;
   onToggle: (isOn: boolean) => void;
   disabled?: boolean;
   label?: string;
-}
+};
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ isOn, onToggle, disabled = false, label }) => {
   return (
@@ -223,7 +233,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
   if (loading) {
     return (
       <div className="space-y-4">
-        {[...Array(3)].map((_, index) => (
+        {[...Array.from({ length: 3 })].map((_, index) => (
           <div key={index} className="bg-white rounded-lg border p-4 animate-pulse">
             <div className="flex justify-between items-start">
               <div className="flex-1">
@@ -260,7 +270,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
   return (
     <>
       <div className="space-y-4">
-        {reminders.map((reminder) => (
+        {reminders.map(reminder => (
           <div
             key={reminder.id}
             className={`
@@ -277,32 +287,48 @@ export const ReminderList: React.FC<ReminderListProps> = ({
                   <span
                     className={`
                       px-2 py-1 text-xs rounded-full
-                      ${reminder.active 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-600'
-                      }
+                      ${reminder.active
+            ? 'bg-green-100 text-green-800'
+            : 'bg-gray-100 text-gray-600'
+          }
                     `}
                   >
                     {reminder.active ? t('status_active') : t('status_inactive')}
                   </span>
                 </div>
-                
-                <p className="text-gray-700 mb-2">"{reminder.message}"</p>
-                
+
+                <p className="text-gray-700 mb-2">
+                  "
+                  {reminder.message}
+                  "
+                </p>
+
                 <div className="text-sm text-gray-600 space-y-1">
                   <div className="flex items-center space-x-4">
                     <span>
-                      <strong>{t('label_frequency')}:</strong> {cronToHumanReadable(reminder.cron_expr)}
+                      <strong>
+                        {t('label_frequency')}
+                        :
+                      </strong>
+                      {' '}
+                      {cronToHumanReadable(reminder.cron_expr)}
                     </span>
                   </div>
-                  
+
                   {reminder.active && (
                     <div className="flex items-center space-x-4">
                       <span>
-                        <strong>{t('label_next_run')}:</strong> {formatNextRun(reminder.next_run_at)}
+                        <strong>
+                          {t('label_next_run')}
+                          :
+                        </strong>
+                        {' '}
+                        {formatNextRun(reminder.next_run_at)}
                       </span>
                       <span className="text-xs text-gray-500">
-                        ({new Date(reminder.next_run_at).toLocaleString()})
+                        (
+                        {new Date(reminder.next_run_at).toLocaleString()}
+                        )
                       </span>
                     </div>
                   )}
@@ -316,14 +342,14 @@ export const ReminderList: React.FC<ReminderListProps> = ({
                   disabled={toggleLoading === reminder.id}
                   label={t('label_active')}
                 />
-                
+
                 <button
                   onClick={() => onEdit(reminder)}
                   className="px-3 py-1 text-sm text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition-colors"
                 >
                   {t('button_edit')}
                 </button>
-                
+
                 <button
                   onClick={() => handleDeleteClick(reminder)}
                   className="px-3 py-1 text-sm text-red-600 bg-red-100 rounded hover:bg-red-200 transition-colors"

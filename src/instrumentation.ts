@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/nextjs';
-import { register as promRegister, Counter, Histogram, Gauge } from 'prom-client';
+import { Counter, Gauge, Histogram, register as promRegister } from 'prom-client';
 import { Env } from '@/libs/Env';
 
 // Prometheus metrics for health management features

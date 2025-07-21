@@ -146,7 +146,8 @@ export default async function HealthDashboard() {
                 <div className="flex items-center">
                   <span className="text-sm text-gray-500 mr-3">Today</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {t('label_weight')}: 70.5 kg
+                    {t('label_weight')}
+                    : 70.5 kg
                   </span>
                 </div>
                 <span className="text-xs text-gray-400">2 hours ago</span>
@@ -155,7 +156,8 @@ export default async function HealthDashboard() {
                 <div className="flex items-center">
                   <span className="text-sm text-gray-500 mr-3">Yesterday</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {t('label_steps')}: 8,432 steps
+                    {t('label_steps')}
+                    : 8,432 steps
                   </span>
                 </div>
                 <span className="text-xs text-gray-400">1 day ago</span>
@@ -164,7 +166,8 @@ export default async function HealthDashboard() {
                 <div className="flex items-center">
                   <span className="text-sm text-gray-500 mr-3">2 days ago</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {t('label_blood_pressure')}: 120/80 mmHg
+                    {t('label_blood_pressure')}
+                    : 120/80 mmHg
                   </span>
                 </div>
                 <span className="text-xs text-gray-400">2 days ago</span>
@@ -205,7 +208,7 @@ export default async function HealthDashboard() {
                   <span>45 days left</span>
                 </div>
               </div>
-              
+
               <div className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-900">

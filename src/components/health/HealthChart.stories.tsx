@@ -1,16 +1,28 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { HealthChart } from './HealthChart';
 
+import { generateBloodPressureData, generateStepsData, generateWeightData } from './HealthChart.fixtures';
+
 const meta: Meta<typeof HealthChart> = {
   title: 'Health/HealthChart',
   component: HealthChart,
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: 'Interactive health analytics chart component using Recharts. Supports line, bar, and area chart types with responsive design and accessibility features.',
       },
     },
+  },
+  args: {
+    chartType: 'line',
+    height: 400,
+    showGrid: true,
+    showTooltip: true,
+    showLegend: false,
+    isLoading: false,
+    error: '',
+    xAxisLabel: 'Date',
+    yAxisLabel: 'Value',
   },
   argTypes: {
     chartType: {
@@ -69,50 +81,18 @@ const meta: Meta<typeof HealthChart> = {
 export default meta;
 type Story = StoryObj<typeof HealthChart>;
 
-// Sample data for stories
-const weightData = [
-  { date: '2024-01-01', value: 75.2, unit: 'kg' },
-  { date: '2024-01-02', value: 75.0, unit: 'kg' },
-  { date: '2024-01-03', value: 74.8, unit: 'kg' },
-  { date: '2024-01-04', value: 74.9, unit: 'kg' },
-  { date: '2024-01-05', value: 74.6, unit: 'kg' },
-  { date: '2024-01-06', value: 74.4, unit: 'kg' },
-  { date: '2024-01-07', value: 74.2, unit: 'kg' },
-];
-
-const stepsData = [
-  { date: '2024-01-01', value: 8500, unit: 'steps' },
-  { date: '2024-01-02', value: 9200, unit: 'steps' },
-  { date: '2024-01-03', value: 7800, unit: 'steps' },
-  { date: '2024-01-04', value: 10500, unit: 'steps' },
-  { date: '2024-01-05', value: 9800, unit: 'steps' },
-  { date: '2024-01-06', value: 11200, unit: 'steps' },
-  { date: '2024-01-07', value: 8900, unit: 'steps' },
-];
-
-const bloodPressureData = [
-  { date: '2024-01-01', systolic: 120, diastolic: 80, unit: 'mmHg' },
-  { date: '2024-01-02', systolic: 118, diastolic: 78, unit: 'mmHg' },
-  { date: '2024-01-03', systolic: 122, diastolic: 82, unit: 'mmHg' },
-  { date: '2024-01-04', systolic: 119, diastolic: 79, unit: 'mmHg' },
-  { date: '2024-01-05', systolic: 121, diastolic: 81, unit: 'mmHg' },
-];
+// Generate fresh data for each story render
+const weightData = generateWeightData();
+const stepsData = generateStepsData();
+const bloodPressureData = generateBloodPressureData();
 
 // Default story - Weight trend line chart
 export const Default: Story = {
   args: {
-    chartType: 'line',
     data: weightData,
     title: 'Weight Trend',
-    xAxisLabel: 'Date',
     yAxisLabel: 'Weight (kg)',
     color: '#8884d8',
-    height: 400,
-    showGrid: true,
-    showTooltip: true,
-    showLegend: false,
-    isLoading: false,
-    error: undefined,
   },
 };
 
@@ -137,14 +117,8 @@ export const StepsBarChart: Story = {
     chartType: 'bar',
     data: stepsData,
     title: 'Daily Steps',
-    xAxisLabel: 'Date',
     yAxisLabel: 'Steps',
     color: '#ffc658',
-    height: 400,
-    showGrid: true,
-    showTooltip: true,
-    showLegend: false,
-    isLoading: false,
   },
   parameters: {
     docs: {
@@ -160,14 +134,8 @@ export const WeightAreaChart: Story = {
     chartType: 'area',
     data: weightData,
     title: 'Weight Trend Area',
-    xAxisLabel: 'Date',
     yAxisLabel: 'Weight (kg)',
     color: '#ff7c7c',
-    height: 400,
-    showGrid: true,
-    showTooltip: true,
-    showLegend: false,
-    isLoading: false,
   },
   parameters: {
     docs: {
