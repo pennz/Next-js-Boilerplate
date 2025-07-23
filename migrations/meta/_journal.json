@@ -15,6 +15,13 @@
       "when": 1753074247147,
       "tag": "0001_nice_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753273103697,
+      "tag": "0002_yielding_meggan",
+      "breakpoints": true
     }
   ]
 }
