@@ -25,6 +25,7 @@
     "db-server:memory": "pglite-server",
     "db:generate": "drizzle-kit generate",
     "db:seed:health": "tsx scripts/seed-health-data.ts",
+    "db:seed:exercise": "tsx scripts/seed-exercise-data.ts",
     "db:studio": "drizzle-kit studio",
     "api:generate": "zod-to-openapi generate",
     "api:mock": "prism mock openapi/health.yaml --port 4010",
