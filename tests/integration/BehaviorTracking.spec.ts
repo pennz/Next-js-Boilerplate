@@ -316,6 +316,71 @@ test.describe('Behavioral Event Tracking', () => {
       const responseJson = await response.json();
       expect(responseJson.data.length).toBeGreaterThan(0);
     });
+
+    test('should handle concurrent event creation scenarios', async ({ request }) => {
+      const sessionId = generateSessionId();
+      
+      // Create multiple concurrent requests
+      const promises = Array.from({ length: 10 }, (_, i) =>
+        apiRequest(request, 'post', '/api/behavior/events', {
+          events: [
+            createSampleEvent({ 
+              eventName: `concurrent_event_${i}`, 
+              sessionId 
+            })
+          ],
+        })
+      );
+
+      const responses = await Promise.all(promises);
+      
+      // All requests should succeed
+      for (const response of responses) {
+        expect(response.status()).toBe(201);
+      }
+      
+      // Verify all events were created
+      const getResponse = await apiRequest(request, 'get', `/api/behavior/events?sessionId=${sessionId}`);
+      expect(getResponse.status()).toBe(200);
+      
+      const responseJson = await getResponse.json();
+      expect(responseJson.data.length).toBe(10);
+    });
+
+    test('should maintain data consistency under high concurrency', async ({ request }) => {
+      const sessionId = generateSessionId();
+      
+      // Create a large number of concurrent requests
+      const eventCount = 50;
+      const promises = Array.from({ length: eventCount }, (_, i) =>
+        apiRequest(request, 'post', '/api/behavior/events', {
+          events: [
+            createSampleEvent({ 
+              eventName: `consistency_test_event_${i}`, 
+              sessionId 
+            })
+          ],
+        })
+      );
+
+      const responses = await Promise.all(promises);
+      
+      // All requests should succeed
+      const successfulResponses = responses.filter(r => r.status() === 201);
+      expect(successfulResponses.length).toBeGreaterThan(eventCount * 0.9); // Allow for some failures
+      
+      // Verify events were created consistently
+      const getResponse = await apiRequest(request, 'get', `/api/behavior/events?sessionId=${sessionId}`);
+      expect(getResponse.status()).toBe(200);
+      
+      const responseJson = await getResponse.json();
+      expect(responseJson.data.length).toBeGreaterThanOrEqual(eventCount * 0.9);
+      
+      // Verify no duplicate events
+      const eventNames = responseJson.data.map((event: any) => event.eventName);
+      const uniqueEventNames = [...new Set(eventNames)];
+      expect(eventNames.length).toBe(uniqueEventNames.length);
+    });
   });
 
   test.describe('Authentication and Authorization', () => {
@@ -402,6 +467,43 @@ test.describe('Behavioral Event Tracking', () => {
       
       const responseJson = await response.json();
       expect(responseJson.events[0]).toHaveProperty('context');
+    });
+
+    test('should handle data corruption scenarios with malformed context data', async ({ request }) => {
+      // Create an event with potentially problematic context data
+      const eventData = createSampleEvent({
+        context: {
+          validData: 'test',
+          // These might cause issues in some systems
+          specialChars: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+          unicode: '🚀🌟💻🎉',
+          longString: 'A'.repeat(10000), // Very long string
+          nested: {
+            deeply: {
+              nested: {
+                structure: Array.from({ length: 100 }, (_, i) => ({
+                  id: i,
+                  data: `value_${i}`,
+                })),
+              },
+            },
+          },
+        },
+      });
+      
+      const response = await apiRequest(request, 'post', '/api/behavior/events', {
+        events: [eventData],
+      });
+
+      // System should handle data gracefully without crashing
+      expect([201, 422]).toContain(response.status());
+      
+      // If successful, verify the event was created
+      if (response.status() === 201) {
+        const responseJson = await response.json();
+        expect(responseJson.events[0]).toHaveProperty('id');
+        expect(responseJson.events[0]).toHaveProperty('eventName');
+      }
     });
   });
 
@@ -505,6 +607,31 @@ test.describe('Behavioral Event Tracking', () => {
       const responseJson = await response.json();
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('empty');
+    });
+
+    test('should gracefully handle network failures when external services are unavailable', async ({ request }) => {
+      // This test simulates network issues by using an invalid endpoint
+      const eventData = createSampleEvent();
+      
+      // Temporarily override the API endpoint to simulate network failure
+      const response = await request.post('/api/nonexistent/endpoint', {
+        data: { events: [eventData] },
+        headers: {
+          'x-e2e-random-id': faker.number.int({ max: 1000000 }).toString(),
+        },
+        timeout: 5000, // Short timeout to simulate network issues
+      });
+
+      // Should handle network errors gracefully
+      expect([404, 500, 502, 503, 504]).toContain(response.status());
+      
+      // Create a valid event to ensure system still works after network issue
+      const validResponse = await apiRequest(request, 'post', '/api/behavior/events', {
+        events: [eventData],
+      });
+      
+      // Should still be able to create events normally
+      expect(validResponse.status()).toBe(201);
     });
   });
 

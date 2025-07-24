@@ -36,10 +36,10 @@ export class BehaviorEventService {
     if (!validationResult.success) {
       logger.warn('Bulk event validation failed', { 
         userId, 
-        errors: validationResult.error.errors,
+        errors: validationResult.error.issues,
         eventCount: events.length 
       });
-      throw new Error(`Validation failed: ${validationResult.error.errors[0]?.message}`);
+      throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
 
     const validatedEvents = validationResult.data.events;
@@ -47,7 +47,7 @@ export class BehaviorEventService {
     try {
       // Validate entity references for all events
       for (const event of validatedEvents) {
-        if (event.entityId && event.entityType !== 'ui_interaction') {
+        if (event.entityId) {
           const isValid = await this.validateEntityReference(event.entityType, event.entityId);
           if (!isValid) {
             throw new Error(`Invalid entity reference: ${event.entityType} with ID ${event.entityId}`);
@@ -122,7 +122,7 @@ export class BehaviorEventService {
     // Validate query parameters
     const validationResult = BehaviorEventQueryValidation.safeParse(filters || {});
     if (!validationResult.success) {
-      throw new Error(`Query validation failed: ${validationResult.error.errors[0]?.message}`);
+      throw new Error(`Query validation failed: ${validationResult.error.issues[0]?.message}`);
     }
 
     const validatedFilters = validationResult.data;

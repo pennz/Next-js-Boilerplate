@@ -155,14 +155,14 @@ export const BehaviorEventValidation = z.object({
   message: 'Entity ID is required for non-UI interaction events',
   path: ['entityId'],
 }).refine((data) => {
-  // Business logic: UI interaction events should have UI context
-  if (data.entityType === 'ui_interaction' && data.context && !data.context.ui) {
+  // Business logic: UI interaction events must have UI context
+  if (data.entityType === 'ui_interaction' && (!data.context || !data.context.ui)) {
     return false;
   }
   return true;
 }, {
-  message: 'UI interaction events should include UI context data',
-  path: ['context'],
+  message: 'UI interaction events must include UI context data',
+  path: ['context', 'ui'],
 }).refine((data) => {
   // Business logic: Health-related events should have health context when available
   if ((data.entityType === 'health_record' || data.entityType === 'health_goal') && 

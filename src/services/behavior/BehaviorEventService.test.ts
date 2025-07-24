@@ -1073,5 +1073,140 @@ describe('BehaviorEventService', () => {
       expect(result.custom?.largeData).toBeDefined();
       expect(result.environment?.timestamp).toBeDefined();
     });
+
+    it('should handle network failures gracefully when PostHog is unavailable', async () => {
+      const events: BehaviorEventInput[] = [{
+        eventName: 'test_event',
+        entityType: 'ui_interaction',
+        sessionId: mockSessionId,
+      }];
+
+      // Mock successful database insert
+      mockDb.insert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([mockBehaviorEvent]),
+        }),
+      });
+
+      // Mock PostHog network failure
+      const originalProcessEnv = process.env;
+      process.env = {
+        ...originalProcessEnv,
+        POSTHOG_API_KEY: 'test-key',
+        POSTHOG_HOST: 'http://unavailable-host.test',
+      };
+
+      // Mock fetch to simulate network failure
+      const mockFetch = vi.spyOn(global, 'fetch');
+      mockFetch.mockRejectedValue(new Error('Network error: PostHog unreachable'));
+
+      const result = await BehaviorEventService.createEvents(mockUserId, events);
+
+      // Should still succeed despite PostHog failure
+      expect(result).toHaveLength(1);
+      expect(mockLogger.warn).toHaveBeenCalledWith('Failed to send events to PostHog', expect.any(Object));
+
+      // Restore environment
+      process.env = originalProcessEnv;
+      mockFetch.mockRestore();
+    });
+
+    it('should handle database transaction rollbacks gracefully', async () => {
+      const events: BehaviorEventInput[] = [
+        {
+          eventName: 'health_record_added',
+          entityType: 'health_record',
+          entityId: 1,
+        },
+        {
+          eventName: 'training_session_started',
+          entityType: 'training_session',
+          entityId: 1,
+        },
+      ];
+
+      // Mock entity validations
+      mockDb.query.healthRecordSchema.findFirst.mockResolvedValue(mockHealthRecord);
+      mockDb.query.trainingSessionSchema.findFirst.mockResolvedValue(mockTrainingSession);
+
+      // Mock database transaction failure
+      mockDb.insert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockRejectedValue(new Error('Transaction rolled back')),
+        }),
+      });
+
+      await expect(
+        BehaviorEventService.createEvents(mockUserId, events),
+      ).rejects.toThrow('Transaction rolled back');
+
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to create behavioral events', expect.any(Object));
+    });
+
+    it('should handle data corruption scenarios with malformed existing data', async () => {
+      const events: BehaviorEventInput[] = [{
+        eventName: 'test_event',
+        entityType: 'ui_interaction',
+        context: {
+          custom: {
+            validData: 'test',
+          },
+        },
+      }];
+
+      // Mock database with malformed data response
+      mockDb.insert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{
+            ...mockBehaviorEvent,
+            context: '{ invalid json }', // Malformed JSON
+          }]),
+        }),
+      });
+
+      const result = await BehaviorEventService.createEvents(mockUserId, events);
+
+      // Should handle malformed data gracefully
+      expect(result).toHaveLength(1);
+      expect(mockLogger.warn).toHaveBeenCalledWith('Failed to parse event context', expect.any(Object));
+    });
+
+    it('should ensure graceful degradation when external services are unavailable', async () => {
+      const events: BehaviorEventInput[] = [{
+        eventName: 'ui_click',
+        entityType: 'ui_interaction',
+        sessionId: mockSessionId,
+      }];
+
+      // Mock successful database insert
+      mockDb.insert.mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([mockBehaviorEvent]),
+        }),
+      });
+
+      // Mock multiple external service failures
+      const originalProcessEnv = process.env;
+      process.env = {
+        ...originalProcessEnv,
+        POSTHOG_API_KEY: 'test-key',
+        POSTHOG_HOST: 'http://unavailable-host.test',
+        ANALYTICS_SERVICE_URL: 'http://unavailable-analytics.test',
+      };
+
+      // Mock fetch to simulate multiple service failures
+      const mockFetch = vi.spyOn(global, 'fetch');
+      mockFetch.mockRejectedValue(new Error('All external services unreachable'));
+
+      const result = await BehaviorEventService.createEvents(mockUserId, events);
+
+      // Should still succeed despite all external service failures
+      expect(result).toHaveLength(1);
+      expect(mockLogger.warn).toHaveBeenCalledWith('Failed to send events to external services', expect.any(Object));
+
+      // Restore environment
+      process.env = originalProcessEnv;
+      mockFetch.mockRestore();
+    });
   });
 });

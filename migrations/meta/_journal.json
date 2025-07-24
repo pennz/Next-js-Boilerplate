@@ -22,6 +22,13 @@
       "when": 1753273103697,
       "tag": "0002_yielding_meggan",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1753368678000,
+      "tag": "0003_behavioral_event_optimizations",
+      "breakpoints": true
     }
   ]
 }
