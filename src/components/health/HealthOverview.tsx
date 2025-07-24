@@ -1,9 +1,9 @@
-import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { getTranslations } from 'next-intl/server';
+'use client';
+
+import { useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { db } from '@/libs/DB';
-import { healthGoalSchema, healthRecordSchema, healthTypeSchema } from '@/models/Schema';
+import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 
 // Mock data interfaces - these would come from the health services in the actual implementation
 type HealthRecord = {
@@ -23,9 +23,21 @@ type HealthGoal = {
   status: 'active' | 'completed' | 'paused';
 };
 
-// Remove getMockHealthData and replace with real data fetching
+// Server component wrapper to handle data fetching
+export const HealthOverviewWrapper = async () => {
+  const { currentUser } = await import('@clerk/nextjs/server');
+  const { getTranslations } = await import('next-intl/server');
+  const { and, desc, eq, sql } = await import('drizzle-orm');
+  const { db } = await import('@/libs/DB');
+  const { healthGoalSchema, healthRecordSchema, healthTypeSchema } = await import('@/models/Schema');
 
-async function getHealthOverviewData(userId: string) {
+  const user = await currentUser();
+  const t = await getTranslations('HealthManagement');
+
+  if (!user) {
+    return null;
+  }
+
   // Fetch recent records (last 3)
   const recentRecordsRaw = await db
     .select({
@@ -37,7 +49,7 @@ async function getHealthOverviewData(userId: string) {
     })
     .from(healthRecordSchema)
     .leftJoin(healthTypeSchema, eq(healthRecordSchema.typeId, healthTypeSchema.id))
-    .where(eq(healthRecordSchema.userId, userId))
+    .where(eq(healthRecordSchema.userId, user.id))
     .orderBy(desc(healthRecordSchema.recordedAt))
     .limit(3);
 
@@ -62,7 +74,7 @@ async function getHealthOverviewData(userId: string) {
     })
     .from(healthGoalSchema)
     .leftJoin(healthTypeSchema, eq(healthGoalSchema.typeId, healthTypeSchema.id))
-    .where(and(eq(healthGoalSchema.userId, userId), eq(healthGoalSchema.status, 'active')))
+    .where(and(eq(healthGoalSchema.userId, user.id), eq(healthGoalSchema.status, 'active')))
     .orderBy(desc(healthGoalSchema.createdAt))
     .limit(3);
 
@@ -71,7 +83,7 @@ async function getHealthOverviewData(userId: string) {
     const latestRecord = await db
       .select({ value: healthRecordSchema.value })
       .from(healthRecordSchema)
-      .where(and(eq(healthRecordSchema.userId, userId), eq(healthRecordSchema.typeId, goal.type_id)))
+      .where(and(eq(healthRecordSchema.userId, user.id), eq(healthRecordSchema.typeId, goal.type_id)))
       .orderBy(desc(healthRecordSchema.recordedAt))
       .limit(1);
     const current_value = latestRecord[0]?.value ? Number(latestRecord[0].value) : 0;
@@ -89,12 +101,12 @@ async function getHealthOverviewData(userId: string) {
   const totalRecords = await db
     .select({ count: sql`COUNT(*)` })
     .from(healthRecordSchema)
-    .where(eq(healthRecordSchema.userId, userId));
+    .where(eq(healthRecordSchema.userId, user.id));
   const activeGoalsCount = activeGoals.length;
   const completedGoals = await db
     .select({ count: sql`COUNT(*)` })
     .from(healthGoalSchema)
-    .where(and(eq(healthGoalSchema.userId, userId), eq(healthGoalSchema.status, 'completed')));
+    .where(and(eq(healthGoalSchema.userId, user.id), eq(healthGoalSchema.status, 'completed')));
 
   // Weekly progress: count of records in the last 7 days
   const weekAgo = new Date();
@@ -103,7 +115,7 @@ async function getHealthOverviewData(userId: string) {
     .select({ count: sql`COUNT(*)` })
     .from(healthRecordSchema)
     .where(and(
-      eq(healthRecordSchema.userId, userId),
+      eq(healthRecordSchema.userId, user.id),
       sql`${healthRecordSchema.recordedAt} >= ${weekAgo.toISOString()}`,
     ));
 
@@ -114,8 +126,8 @@ async function getHealthOverviewData(userId: string) {
     weeklyProgress: Number(weeklyRecords[0]?.count || 0),
   };
 
-  return { recentRecords, activeGoals, stats };
-}
+  return <HealthOverview recentRecords={recentRecords} activeGoals={activeGoals} stats={stats} />;
+};
 
 const StatCard = ({ title, value, subtitle, icon, trend }: {
   title: string;
@@ -124,11 +136,39 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
   icon: string;
   trend?: 'up' | 'down' | 'neutral';
 }) => {
+  const { trackEvent } = useBehaviorTracking();
   const trendColor = trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-500';
   const trendIcon = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
 
+  const handleStatCardView = async () => {
+    await trackEvent({
+      eventName: 'health_stat_viewed',
+      entityType: 'ui_interaction',
+      context: {
+        ui: {
+          component: 'HealthOverview',
+          element: 'StatCard',
+          statType: title,
+          statValue: value,
+          trend,
+        },
+        health: {
+          metricType: title,
+          metricValue: value,
+        },
+      },
+    });
+  };
+
+  useEffect(() => {
+    handleStatCardView();
+  }, []);
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+    <div 
+      className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+      onClick={handleStatCardView}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -146,12 +186,42 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
   );
 };
 
+// Export both components - the wrapper for server-side usage and the main component for direct usage
+export { HealthOverviewWrapper };
+export default HealthOverview;
+
 const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
+  const { trackEvent } = useBehaviorTracking();
   const progress = Math.min((goal.current_value / goal.target_value) * 100, 100);
   const isCompleted = goal.status === 'completed';
 
+  const handleGoalProgressView = async () => {
+    await trackEvent({
+      eventName: 'goal_progress_viewed',
+      entityType: 'health_goal',
+      entityId: goal.id,
+      context: {
+        ui: {
+          component: 'HealthOverview',
+          element: 'GoalProgressCard',
+        },
+        health: {
+          goalType: goal.type,
+          progress: Math.round(progress),
+          isCompleted,
+          currentValue: goal.current_value,
+          targetValue: goal.target_value,
+          targetDate: goal.target_date,
+        },
+      },
+    });
+  };
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div 
+      className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-sm transition-shadow"
+      onClick={handleGoalProgressView}
+    >
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-gray-900">
           {goal.type}
@@ -190,11 +260,36 @@ const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
 };
 
 const RecentRecordItem = ({ record }: { record: HealthRecord }) => {
+  const { trackEvent } = useBehaviorTracking();
   const recordDate = new Date(record.recorded_at);
   const timeAgo = Math.floor((Date.now() - recordDate.getTime()) / (1000 * 60 * 60));
 
+  const handleRecordView = async () => {
+    await trackEvent({
+      eventName: 'health_record_viewed',
+      entityType: 'health_record',
+      entityId: record.id,
+      context: {
+        ui: {
+          component: 'HealthOverview',
+          element: 'RecentRecordItem',
+          location: 'recent_records_section',
+        },
+        health: {
+          recordType: record.type,
+          recordValue: record.value,
+          recordUnit: record.unit,
+          timeAgo: `${timeAgo}h`,
+        },
+      },
+    });
+  };
+
   return (
-    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+    <div 
+      className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors rounded px-2"
+      onClick={handleRecordView}
+    >
       <div>
         <p className="font-medium text-gray-900">{record.type}</p>
         <p className="text-sm text-gray-500">
@@ -217,25 +312,109 @@ const QuickActionButton = ({ href, icon, label }: {
   href: string;
   icon: string;
   label: string;
-}) => (
-  <Link
-    href={href}
-    className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
-  >
-    <span className="text-lg">{icon}</span>
-    <span className="font-medium">{label}</span>
-  </Link>
-);
+}) => {
+  const { trackEvent } = useBehaviorTracking();
 
-export const HealthOverview = async () => {
-  const t = await getTranslations('HealthManagement');
-  const user = await currentUser();
+  const handleQuickActionClick = async () => {
+    await trackEvent({
+      eventName: 'ui_click',
+      entityType: 'ui_interaction',
+      context: {
+        ui: {
+          component: 'HealthOverview',
+          element: 'QuickActionButton',
+          action: 'click',
+          buttonLabel: label,
+          targetHref: href,
+        },
+        navigation: {
+          destination: href,
+          actionType: label.toLowerCase().replace(' ', '_'),
+        },
+      },
+    });
+  };
+
+  return (
+    <Link
+      href={href}
+      onClick={handleQuickActionClick}
+      className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+    >
+      <span className="text-lg">{icon}</span>
+      <span className="font-medium">{label}</span>
+    </Link>
+  );
+};
+
+// Props interface for the client component
+interface HealthOverviewProps {
+  recentRecords: HealthRecord[];
+  activeGoals: HealthGoal[];
+  stats: {
+    totalRecords: number;
+    activeGoals: number;
+    completedGoals: number;
+    weeklyProgress: number;
+  };
+}
+
+export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOverviewProps) => {
+  const { trackEvent } = useBehaviorTracking();
+  const { user } = useUser();
+
+  // Track health overview view on component mount
+  useEffect(() => {
+    const trackOverviewView = async () => {
+      await trackEvent({
+        eventName: 'health_overview_viewed',
+        entityType: 'ui_interaction',
+        context: {
+          ui: {
+            component: 'HealthOverview',
+            action: 'view',
+          },
+          health: {
+            totalRecords: stats.totalRecords,
+            activeGoals: stats.activeGoals,
+            completedGoals: stats.completedGoals,
+            weeklyProgress: stats.weeklyProgress,
+            recentRecordsCount: recentRecords.length,
+            activeGoalsCount: activeGoals.length,
+          },
+          performance: {
+            viewTimestamp: new Date().toISOString(),
+          },
+        },
+      });
+    };
+
+    if (user) {
+      trackOverviewView();
+    }
+  }, [user, trackEvent, stats, recentRecords.length, activeGoals.length]);
+
+  // Track mini chart interactions
+  const handleMiniChartView = async (chartType: string) => {
+    await trackEvent({
+      eventName: 'health_chart_viewed',
+      entityType: 'ui_interaction',
+      context: {
+        ui: {
+          component: 'HealthOverview',
+          element: 'MiniChart',
+          chartType,
+        },
+        health: {
+          chartType,
+        },
+      },
+    });
+  };
 
   if (!user) {
     return null;
   }
-
-  const { recentRecords, activeGoals, stats } = await getHealthOverviewData(user.id);
 
   return (
     <div className="space-y-6" data-testid="health-overview">
@@ -373,19 +552,28 @@ export const HealthOverview = async () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Placeholder for mini charts - would be replaced with actual Recharts components */}
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div 
+            className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => handleMiniChartView('weight_trend')}
+          >
             <p className="text-sm font-medium text-gray-600 mb-2">Weight Trend</p>
             <div className="h-20 bg-gradient-to-r from-blue-200 to-blue-300 rounded flex items-end justify-center">
               <span className="text-xs text-gray-600">📉 Chart placeholder</span>
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div 
+            className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => handleMiniChartView('daily_steps')}
+          >
             <p className="text-sm font-medium text-gray-600 mb-2">Daily Steps</p>
             <div className="h-20 bg-gradient-to-r from-green-200 to-green-300 rounded flex items-end justify-center">
               <span className="text-xs text-gray-600">📊 Chart placeholder</span>
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
+          <div 
+            className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => handleMiniChartView('blood_pressure')}
+          >
             <p className="text-sm font-medium text-gray-600 mb-2">Blood Pressure</p>
             <div className="h-20 bg-gradient-to-r from-purple-200 to-purple-300 rounded flex items-end justify-center">
               <span className="text-xs text-gray-600">📈 Chart placeholder</span>

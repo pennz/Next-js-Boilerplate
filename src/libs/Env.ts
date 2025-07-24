@@ -8,6 +8,7 @@ export const Env = createEnv({
     DATABASE_URL: z.string().min(1),
     BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
     ENABLE_HEALTH_MGMT: z.string().transform(val => val === 'true').optional().default('false'),
+    ENABLE_BEHAVIOR_TRACKING: z.string().transform(val => val === 'true').optional().default('false'),
     HEALTH_REMINDER_CRON_SECRET: z.string().min(1).optional(),
     PROMETHEUS_METRICS_ENABLED: z.string().transform(val => val === 'true').optional().default('false'),
   },
@@ -16,6 +17,8 @@ export const Env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
+    NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE: z.string().transform(val => parseInt(val, 10)).optional().default('10'),
+    NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL: z.string().transform(val => parseInt(val, 10)).optional().default('30000'),
   },
   shared: {
     NODE_ENV: z.enum(['test', 'development', 'production']).optional(),
@@ -27,6 +30,7 @@ export const Env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_STACK_SOURCE_TOKEN: process.env.BETTER_STACK_SOURCE_TOKEN,
     ENABLE_HEALTH_MGMT: process.env.ENABLE_HEALTH_MGMT,
+    ENABLE_BEHAVIOR_TRACKING: process.env.ENABLE_BEHAVIOR_TRACKING,
     HEALTH_REMINDER_CRON_SECRET: process.env.HEALTH_REMINDER_CRON_SECRET,
     PROMETHEUS_METRICS_ENABLED: process.env.PROMETHEUS_METRICS_ENABLED,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
@@ -35,5 +39,7 @@ export const Env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE: process.env.NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE,
+    NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL: process.env.NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL,
   },
 });

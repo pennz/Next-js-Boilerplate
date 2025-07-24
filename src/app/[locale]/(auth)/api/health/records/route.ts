@@ -9,6 +9,7 @@ import { db } from '@/libs/DB';
 import { Env } from '@/libs/Env';
 import { logger } from '@/libs/Logger';
 import { healthRecordSchema } from '@/models/Schema';
+import { BehaviorEventService } from '@/services/behavior/BehaviorEventService';
 import {
   HealthRecordQueryValidation,
   HealthRecordUpdateValidation,
@@ -38,6 +39,38 @@ const checkHealthFeatureFlag = () => {
     );
   }
   return null;
+};
+
+// Helper function to track behavioral events safely
+const trackBehaviorEvent = async (
+  userId: string,
+  eventName: string,
+  entityType: 'health_record' | 'ui_interaction',
+  entityId?: number,
+  context?: any,
+) => {
+  if (!Env.ENABLE_BEHAVIOR_TRACKING) {
+    return;
+  }
+
+  try {
+    await BehaviorEventService.trackEvent(
+      userId,
+      eventName,
+      entityType,
+      entityId,
+      context,
+    );
+  } catch (error) {
+    // Log the error but don't let tracking failures affect the main operation
+    logger.warn('Failed to track behavioral event', {
+      userId,
+      eventName,
+      entityType,
+      entityId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 };
 
 // Authentication helper
@@ -129,6 +162,26 @@ export const GET = async (request: NextRequest) => {
       filters: { type_id, start_date, end_date },
     });
 
+    // Track behavioral event for health records query
+    await trackBehaviorEvent(
+      userId,
+      'health_records_queried',
+      'ui_interaction',
+      undefined,
+      {
+        custom: {
+          filters: { type_id, start_date, end_date },
+          resultCount: records.length,
+          totalCount: totalCount[0]?.count || 0,
+          pagination: { limit, offset },
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'GET',
+        },
+      },
+    );
+
     return NextResponse.json({
       records,
       pagination: {
@@ -203,12 +256,53 @@ export const POST = async (request: NextRequest) => {
       unit,
     });
 
+    // Track behavioral event for health record creation
+    await trackBehaviorEvent(
+      userId,
+      'health_record_created',
+      'health_record',
+      newRecord[0]?.id,
+      {
+        custom: {
+          typeId: type_id,
+          value,
+          unit,
+          recordedAt: recorded_at,
+          operationSuccess: true,
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'POST',
+        },
+      },
+    );
+
     return NextResponse.json({
       record: newRecord[0],
       message: 'Health record created successfully',
     }, { status: 201 });
   } catch (error) {
     logger.error('Error creating health record', { error, userId });
+
+    // Track behavioral event for failed health record creation
+    await trackBehaviorEvent(
+      userId,
+      'health_record_created',
+      'ui_interaction',
+      undefined,
+      {
+        custom: {
+          operationSuccess: false,
+          errorType: error instanceof Error ? error.constructor.name : 'UnknownError',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'POST',
+        },
+      },
+    );
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },
@@ -303,12 +397,59 @@ export const PUT = async (request: NextRequest) => {
       updatedFields: Object.keys(updateData),
     });
 
+    // Track behavioral event for health record update
+    await trackBehaviorEvent(
+      userId,
+      'health_record_updated',
+      'health_record',
+      id,
+      {
+        custom: {
+          updatedFields: Object.keys(updateData),
+          changeContext: {
+            before: {
+              typeId: existingRecord[0]?.typeId,
+              value: existingRecord[0]?.value,
+              unit: existingRecord[0]?.unit,
+              recordedAt: existingRecord[0]?.recordedAt,
+            },
+            after: updateData,
+          },
+          operationSuccess: true,
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'PUT',
+        },
+      },
+    );
+
     return NextResponse.json({
       record: updatedRecord[0],
       message: 'Health record updated successfully',
     });
   } catch (error) {
     logger.error('Error updating health record', { error, userId });
+
+    // Track behavioral event for failed health record update
+    await trackBehaviorEvent(
+      userId,
+      'health_record_updated',
+      'ui_interaction',
+      undefined,
+      {
+        custom: {
+          operationSuccess: false,
+          errorType: error instanceof Error ? error.constructor.name : 'UnknownError',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'PUT',
+        },
+      },
+    );
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },
@@ -394,11 +535,54 @@ export const DELETE = async (request: NextRequest) => {
       recordId: id,
     });
 
+    // Track behavioral event for health record deletion
+    await trackBehaviorEvent(
+      userId,
+      'health_record_deleted',
+      'health_record',
+      id,
+      {
+        custom: {
+          deletedRecord: {
+            typeId: existingRecord[0]?.typeId,
+            value: existingRecord[0]?.value,
+            unit: existingRecord[0]?.unit,
+            recordedAt: existingRecord[0]?.recordedAt,
+          },
+          operationSuccess: true,
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'DELETE',
+        },
+      },
+    );
+
     return NextResponse.json({
       message: 'Health record deleted successfully',
     });
   } catch (error) {
     logger.error('Error deleting health record', { error, userId });
+
+    // Track behavioral event for failed health record deletion
+    await trackBehaviorEvent(
+      userId,
+      'health_record_deleted',
+      'ui_interaction',
+      undefined,
+      {
+        custom: {
+          operationSuccess: false,
+          errorType: error instanceof Error ? error.constructor.name : 'UnknownError',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        },
+        environment: {
+          endpoint: '/api/health/records',
+          method: 'DELETE',
+        },
+      },
+    );
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

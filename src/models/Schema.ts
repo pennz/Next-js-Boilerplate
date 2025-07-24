@@ -1,4 +1,4 @@
-import { boolean, index, integer, numeric, pgEnum, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, numeric, pgEnum, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 // This file defines the structure of your database tables using the Drizzle ORM.
 
@@ -20,6 +20,9 @@ export const goalStatusEnum = pgEnum('goal_status', ['active', 'completed', 'pau
 export const exerciseTypeEnum = pgEnum('exercise_type', ['strength', 'cardio', 'flexibility', 'balance', 'sports']);
 export const difficultyLevelEnum = pgEnum('difficulty_level', ['beginner', 'intermediate', 'advanced']);
 export const trainingStatusEnum = pgEnum('training_status', ['scheduled', 'completed', 'skipped', 'in_progress']);
+
+// Behavioral Event Enums
+export const entityTypeEnum = pgEnum('entity_type', ['health_record', 'training_session', 'exercise_log', 'health_goal', 'ui_interaction']);
 
 // Health Management Tables
 export const healthTypeSchema = pgTable('health_type', {
@@ -201,6 +204,22 @@ export const exerciseLogSchema = pgTable('exercise_log', {
 }, table => ({
   userLoggedIdx: index('exercise_log_user_logged_idx').on(table.userId, table.loggedAt),
   sessionExerciseIdx: index('exercise_log_session_exercise_idx').on(table.trainingSessionId, table.exerciseId),
+}));
+
+// Behavioral Event Tables
+export const behavioralEventSchema = pgTable('behavioral_event', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  eventName: varchar('event_name', { length: 100 }).notNull(),
+  entityType: entityTypeEnum('entity_type').notNull(),
+  entityId: integer('entity_id'),
+  context: jsonb('context'),
+  sessionId: varchar('session_id', { length: 255 }),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+}, table => ({
+  userCreatedAtIdx: index('behavioral_event_user_created_at_idx').on(table.userId, table.createdAt),
+  userEventNameIdx: index('behavioral_event_user_event_name_idx').on(table.userId, table.eventName),
+  eventNameCreatedAtIdx: index('behavioral_event_event_name_created_at_idx').on(table.eventName, table.createdAt),
 }));
 
 export const counterSchema = pgTable('counter', {
