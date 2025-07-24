@@ -15,6 +15,27 @@ export const Env = createEnv({
      * NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL) are only used when this is enabled.
      */
     ENABLE_BEHAVIOR_TRACKING: z.string().transform(val => val === 'true').optional().default(false),
+    /**
+     * Enables user profile management functionality.
+     * When set to 'true', users can create and manage detailed profiles including
+     * fitness goals, preferences, and constraints.
+     */
+    ENABLE_USER_PROFILES: z.string().transform(val => val === 'true').optional().default(false),
+    /**
+     * Enables micro-behavior pattern analysis functionality.
+     * When set to 'true', detailed behavioral patterns and context analysis will be performed.
+     * Note: Client-side micro-behavior settings are only used when this is enabled.
+     */
+    ENABLE_MICRO_BEHAVIOR_TRACKING: z.string().transform(val => val === 'true').optional().default(false),
+    /**
+     * Percentage threshold for profile completion scoring.
+     * Must be between 1 and 100. Default is 80%.
+     */
+    PROFILE_COMPLETION_THRESHOLD: z.string()
+      .transform(val => parseInt(val, 10))
+      .pipe(z.number().int().positive().min(1).max(100))
+      .optional()
+      .default(80),
     HEALTH_REMINDER_CRON_SECRET: z.string().min(1).optional(),
     PROMETHEUS_METRICS_ENABLED: z.string().transform(val => val === 'true').optional().default(false),
   },
@@ -48,6 +69,26 @@ export const Env = createEnv({
       .pipe(z.number().int().positive().min(1000).max(300000))
       .optional()
       .default(30000),
+    /**
+     * The interval (in milliseconds) for auto-saving profile changes.
+     * Only used when ENABLE_USER_PROFILES is set to 'true'.
+     * Must be between 5000ms (5 seconds) and 300000ms (5 minutes).
+     */
+    NEXT_PUBLIC_PROFILE_AUTO_SAVE_INTERVAL: z.string()
+      .transform(val => parseInt(val, 10))
+      .pipe(z.number().int().positive().min(5000).max(300000))
+      .optional()
+      .default(60000),
+    /**
+     * The maximum number of micro-behaviors to buffer before analysis.
+     * Only used when ENABLE_MICRO_BEHAVIOR_TRACKING is set to 'true'.
+     * Must be between 1 and 100.
+     */
+    NEXT_PUBLIC_MICRO_BEHAVIOR_BUFFER_SIZE: z.string()
+      .transform(val => parseInt(val, 10))
+      .pipe(z.number().int().positive().min(1).max(100))
+      .optional()
+      .default(20),
   },
   shared: {
     NODE_ENV: z.enum(['test', 'development', 'production']).optional(),
@@ -60,6 +101,9 @@ export const Env = createEnv({
     BETTER_STACK_SOURCE_TOKEN: process.env.BETTER_STACK_SOURCE_TOKEN,
     ENABLE_HEALTH_MGMT: process.env.ENABLE_HEALTH_MGMT,
     ENABLE_BEHAVIOR_TRACKING: process.env.ENABLE_BEHAVIOR_TRACKING,
+    ENABLE_USER_PROFILES: process.env.ENABLE_USER_PROFILES,
+    ENABLE_MICRO_BEHAVIOR_TRACKING: process.env.ENABLE_MICRO_BEHAVIOR_TRACKING,
+    PROFILE_COMPLETION_THRESHOLD: process.env.PROFILE_COMPLETION_THRESHOLD,
     HEALTH_REMINDER_CRON_SECRET: process.env.HEALTH_REMINDER_CRON_SECRET,
     PROMETHEUS_METRICS_ENABLED: process.env.PROMETHEUS_METRICS_ENABLED,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
@@ -70,5 +114,7 @@ export const Env = createEnv({
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE: process.env.NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE,
     NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL: process.env.NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL,
+    NEXT_PUBLIC_PROFILE_AUTO_SAVE_INTERVAL: process.env.NEXT_PUBLIC_PROFILE_AUTO_SAVE_INTERVAL,
+    NEXT_PUBLIC_MICRO_BEHAVIOR_BUFFER_SIZE: process.env.NEXT_PUBLIC_MICRO_BEHAVIOR_BUFFER_SIZE,
   },
 });
