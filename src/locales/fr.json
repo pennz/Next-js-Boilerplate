@@ -71,6 +71,12 @@
   "DashboardLayout": {
     "dashboard_link": "Tableau de bord",
     "user_profile_link": "Gérer votre compte",
+    "health_overview_link": "Aperçu de la Santé",
+    "health_records_link": "Dossiers de Santé",
+    "health_analytics_link": "Analyses de Santé",
+    "health_goals_link": "Objectifs de Santé",
+    "health_reminders_link": "Rappels de Santé",
+    "exercise_overview_link": "Exercice et Entraînement",
     "sign_out": "Se déconnecter"
   },
   "HealthManagement": {
@@ -197,5 +203,11 @@
     "confirm_delete_goal": "Êtes-vous sûr de vouloir supprimer cet objectif ?",
     "confirm_delete_reminder": "Êtes-vous sûr de vouloir supprimer ce rappel ?",
     "health_link": "Santé"
+  },
+  "ExerciseManagement": {
+    "meta_title": "Exercice et Entraînement",
+    "meta_description": "Suivez vos séances d'entraînement, plans de formation et progrès fitness",
+    "page_title_dashboard": "Exercice et Entraînement",
+    "dashboard_subtitle": "Gérez vos séances d'entraînement et plans de formation"
   }
 }

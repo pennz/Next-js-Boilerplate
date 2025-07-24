@@ -71,6 +71,12 @@
   "DashboardLayout": {
     "dashboard_link": "Dashboard",
     "user_profile_link": "Manage your account",
+    "health_overview_link": "Health Overview",
+    "health_records_link": "Health Records",
+    "health_analytics_link": "Health Analytics",
+    "health_goals_link": "Health Goals",
+    "health_reminders_link": "Health Reminders",
+    "exercise_overview_link": "Exercise & Training",
     "sign_out": "Sign out"
   },
   "HealthManagement": {
@@ -197,5 +203,11 @@
     "confirm_delete_goal": "Are you sure you want to delete this goal?",
     "confirm_delete_reminder": "Are you sure you want to delete this reminder?",
     "health_link": "Health"
+  },
+  "ExerciseManagement": {
+    "meta_title": "Exercise & Training",
+    "meta_description": "Track your workouts, training plans, and fitness progress",
+    "page_title_dashboard": "Exercise & Training",
+    "dashboard_subtitle": "Manage your workouts and training plans"
   }
 }

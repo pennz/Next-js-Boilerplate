@@ -1,7 +1,7 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
-import { exerciseSchema, muscleGroupSchema } from '@/models/Schema';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { Env } from '@/libs/Env';
+import { exerciseSchema, muscleGroupSchema } from '@/models/Schema';
 
 const db = drizzle({
   connection: {
@@ -18,12 +18,12 @@ const muscleGroups = [
   { name: 'Biceps', bodyPart: 'Upper Body', description: 'Front arm muscles' },
   { name: 'Triceps', bodyPart: 'Upper Body', description: 'Back arm muscles' },
   { name: 'Forearms', bodyPart: 'Upper Body', description: 'Lower arm muscles' },
-  
+
   // Core
   { name: 'Abs', bodyPart: 'Core', description: 'Abdominal muscles' },
   { name: 'Obliques', bodyPart: 'Core', description: 'Side abdominal muscles' },
   { name: 'Lower Back', bodyPart: 'Core', description: 'Lower back and spinal erectors' },
-  
+
   // Lower Body
   { name: 'Quadriceps', bodyPart: 'Lower Body', description: 'Front thigh muscles' },
   { name: 'Hamstrings', bodyPart: 'Lower Body', description: 'Back thigh muscles' },
@@ -52,7 +52,7 @@ const exercises = [
     difficulty: 'intermediate' as const,
     equipmentNeeded: 'Barbell, Bench',
   },
-  
+
   // Back exercises
   {
     name: 'Pull-ups',
@@ -72,7 +72,7 @@ const exercises = [
     difficulty: 'intermediate' as const,
     equipmentNeeded: 'Barbell',
   },
-  
+
   // Leg exercises
   {
     name: 'Squats',
@@ -92,7 +92,7 @@ const exercises = [
     difficulty: 'intermediate' as const,
     equipmentNeeded: 'Barbell',
   },
-  
+
   // Cardio exercises
   {
     name: 'Running',
@@ -112,7 +112,7 @@ const exercises = [
     difficulty: 'beginner' as const,
     equipmentNeeded: 'Bicycle or stationary bike',
   },
-  
+
   // Core exercises
   {
     name: 'Plank',
@@ -136,7 +136,7 @@ const exercises = [
 
 async function seedExerciseData() {
   console.log('🌱 Seeding exercise data...');
-  
+
   try {
     // Insert muscle groups
     console.log('Inserting muscle groups...');
@@ -146,7 +146,7 @@ async function seedExerciseData() {
         .from(muscleGroupSchema)
         .where(eq(muscleGroupSchema.name, muscleGroup.name))
         .limit(1);
-      
+
       if (existing.length === 0) {
         await db.insert(muscleGroupSchema).values(muscleGroup);
         console.log(`✅ Added muscle group: ${muscleGroup.name}`);
@@ -154,30 +154,30 @@ async function seedExerciseData() {
         console.log(`⏭️  Muscle group already exists: ${muscleGroup.name}`);
       }
     }
-    
+
     // Get muscle group IDs for exercises
     const muscleGroupMap = new Map();
     const allMuscleGroups = await db.select().from(muscleGroupSchema);
     for (const mg of allMuscleGroups) {
       muscleGroupMap.set(mg.name, mg.id);
     }
-    
+
     // Insert exercises
     console.log('Inserting exercises...');
     for (const exercise of exercises) {
       const primaryMuscleGroupId = muscleGroupMap.get(exercise.primaryMuscleGroup);
-      
+
       if (!primaryMuscleGroupId) {
         console.log(`❌ Primary muscle group not found: ${exercise.primaryMuscleGroup}`);
         continue;
       }
-      
+
       const existing = await db
         .select()
         .from(exerciseSchema)
         .where(eq(exerciseSchema.name, exercise.name))
         .limit(1);
-      
+
       if (existing.length === 0) {
         await db.insert(exerciseSchema).values({
           name: exercise.name,
@@ -193,7 +193,7 @@ async function seedExerciseData() {
         console.log(`⏭️  Exercise already exists: ${exercise.name}`);
       }
     }
-    
+
     console.log('🎉 Exercise data seeded successfully!');
   } catch (error) {
     console.error('❌ Error seeding exercise data:', error);

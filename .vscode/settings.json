@@ -64,5 +64,7 @@
     "postcss",
     "github-actions-workflow"
   ],
-  "traycer.enableCommentsHighlighting": true
+  "traycer.enableCommentsHighlighting": true,
+  "files.autoSave": "onFocusChange",
+  "editor.fontSize": 16
 }

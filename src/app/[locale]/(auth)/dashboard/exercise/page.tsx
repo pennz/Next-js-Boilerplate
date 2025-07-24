@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { getTranslations } from 'next-intl/server';
-import { HealthOverview } from '@/components/health/HealthOverview';
+import { ExerciseOverview } from '@/components/exercise/ExerciseOverview';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -8,7 +8,7 @@ export async function generateMetadata(props: {
   const { locale } = await props.params;
   const t = await getTranslations({
     locale,
-    namespace: 'HealthManagement',
+    namespace: 'ExerciseManagement',
   });
 
   return {
@@ -16,8 +16,8 @@ export async function generateMetadata(props: {
   };
 }
 
-export default async function HealthDashboard() {
-  const t = await getTranslations('HealthManagement');
+export default async function ExerciseDashboard() {
+  const t = await getTranslations('ExerciseManagement');
   const user = await currentUser();
 
   if (!user) {
@@ -36,7 +36,7 @@ export default async function HealthDashboard() {
           </p>
         </div>
       </div>
-      <HealthOverview />
+      <ExerciseOverview />
     </div>
   );
 }

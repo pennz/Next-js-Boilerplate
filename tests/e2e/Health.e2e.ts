@@ -538,4 +538,39 @@ test.describe('Health Management', () => {
       await expect(page).toHaveURL(/.*\/sign-in/);
     });
   });
+
+  test.describe('Health Overview Page', () => {
+    test('should display all main sections', async ({ page }) => {
+      await page.goto('/dashboard/health');
+
+      await expect(page.getByTestId('health-overview')).toBeVisible();
+      await expect(page.getByTestId('health-overview-stats')).toBeVisible();
+      await expect(page.getByTestId('health-overview-recent-records')).toBeVisible();
+      await expect(page.getByTestId('health-overview-active-goals')).toBeVisible();
+      await expect(page.getByTestId('health-overview-quick-actions')).toBeVisible();
+      await expect(page.getByTestId('health-overview-mini-charts')).toBeVisible();
+    });
+
+    test('should update stats after adding a health record', async ({ page }) => {
+      await page.goto('/dashboard/health');
+      const initialTotal = await page.locator('[data-testid="health-overview-stats"] .text-2xl').first().textContent();
+      await page.goto('/dashboard/health/records');
+      await page.getByRole('button', { name: 'Add Record' }).click();
+      await page.getByLabel('Health Type').selectOption('weight');
+      await page.getByLabel('Value').fill('99.9');
+      await page.getByRole('button', { name: 'Save Record' }).click();
+      await page.goto('/dashboard/health');
+      const updatedTotal = await page.locator('[data-testid="health-overview-stats"] .text-2xl').first().textContent();
+
+      expect(Number(updatedTotal)).toBeGreaterThan(Number(initialTotal));
+    });
+
+    test('should show empty state when no records or goals exist', async ({ page }) => {
+      // Assume test DB is clean or records/goals are deleted in beforeEach
+      await page.goto('/dashboard/health');
+
+      await expect(page.getByTestId('health-overview-recent-records')).toContainText('No recent records');
+      await expect(page.getByTestId('health-overview-active-goals')).toContainText('No active goals');
+    });
+  });
 });

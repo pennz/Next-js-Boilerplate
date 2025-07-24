@@ -1,6 +1,9 @@
 import { currentUser } from '@clerk/nextjs/server';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
+import { db } from '@/libs/DB';
+import { healthGoalSchema, healthRecordSchema, healthTypeSchema } from '@/models/Schema';
 
 // Mock data interfaces - these would come from the health services in the actual implementation
 type HealthRecord = {
@@ -20,35 +23,99 @@ type HealthGoal = {
   status: 'active' | 'completed' | 'paused';
 };
 
-type HealthStats = {
-  totalRecords: number;
-  activeGoals: number;
-  completedGoals: number;
-  weeklyProgress: number;
-};
+// Remove getMockHealthData and replace with real data fetching
 
-// Mock data - in real implementation, this would come from the health services
-const getMockHealthData = async (userId: string) => {
-  const recentRecords: HealthRecord[] = [
-    { id: 1, type: 'Weight', value: 75.2, unit: 'kg', recorded_at: '2024-01-15T08:00:00Z' },
-    { id: 2, type: 'Steps', value: 8500, unit: 'steps', recorded_at: '2024-01-15T20:00:00Z' },
-    { id: 3, type: 'Blood Pressure', value: 120, unit: 'mmHg', recorded_at: '2024-01-14T09:00:00Z' },
-  ];
+async function getHealthOverviewData(userId: string) {
+  // Fetch recent records (last 3)
+  const recentRecordsRaw = await db
+    .select({
+      id: healthRecordSchema.id,
+      value: healthRecordSchema.value,
+      unit: healthRecordSchema.unit,
+      recorded_at: healthRecordSchema.recordedAt,
+      type: healthTypeSchema.displayName,
+    })
+    .from(healthRecordSchema)
+    .leftJoin(healthTypeSchema, eq(healthRecordSchema.typeId, healthTypeSchema.id))
+    .where(eq(healthRecordSchema.userId, userId))
+    .orderBy(desc(healthRecordSchema.recordedAt))
+    .limit(3);
 
-  const activeGoals: HealthGoal[] = [
-    { id: 1, type: 'Weight', target_value: 70, current_value: 75.2, target_date: '2024-03-01', status: 'active' },
-    { id: 2, type: 'Steps', target_value: 10000, current_value: 8500, target_date: '2024-02-01', status: 'active' },
-  ];
+  const recentRecords = recentRecordsRaw.map(r => ({
+    id: r.id,
+    type: r.type ?? '',
+    value: Number(r.value),
+    unit: r.unit,
+    recorded_at: r.recorded_at instanceof Date ? r.recorded_at.toISOString() : r.recorded_at,
+  }));
 
-  const stats: HealthStats = {
-    totalRecords: 45,
-    activeGoals: 2,
-    completedGoals: 3,
-    weeklyProgress: 78,
+  // Fetch active goals
+  const activeGoalsRaw = await db
+    .select({
+      id: healthGoalSchema.id,
+      type: healthTypeSchema.displayName,
+      target_value: healthGoalSchema.targetValue,
+      target_date: healthGoalSchema.targetDate,
+      status: healthGoalSchema.status,
+      type_id: healthGoalSchema.typeId,
+      unit: healthTypeSchema.unit,
+    })
+    .from(healthGoalSchema)
+    .leftJoin(healthTypeSchema, eq(healthGoalSchema.typeId, healthTypeSchema.id))
+    .where(and(eq(healthGoalSchema.userId, userId), eq(healthGoalSchema.status, 'active')))
+    .orderBy(desc(healthGoalSchema.createdAt))
+    .limit(3);
+
+  // For each goal, get the latest record for progress
+  const activeGoals = await Promise.all(activeGoalsRaw.map(async (goal) => {
+    const latestRecord = await db
+      .select({ value: healthRecordSchema.value })
+      .from(healthRecordSchema)
+      .where(and(eq(healthRecordSchema.userId, userId), eq(healthRecordSchema.typeId, goal.type_id)))
+      .orderBy(desc(healthRecordSchema.recordedAt))
+      .limit(1);
+    const current_value = latestRecord[0]?.value ? Number(latestRecord[0].value) : 0;
+    return {
+      id: goal.id,
+      type: goal.type ?? '',
+      target_value: Number(goal.target_value),
+      current_value,
+      target_date: goal.target_date instanceof Date ? goal.target_date.toISOString().slice(0, 10) : goal.target_date,
+      status: goal.status,
+    };
+  }));
+
+  // Stats
+  const totalRecords = await db
+    .select({ count: sql`COUNT(*)` })
+    .from(healthRecordSchema)
+    .where(eq(healthRecordSchema.userId, userId));
+  const activeGoalsCount = activeGoals.length;
+  const completedGoals = await db
+    .select({ count: sql`COUNT(*)` })
+    .from(healthGoalSchema)
+    .where(and(eq(healthGoalSchema.userId, userId), eq(healthGoalSchema.status, 'completed')));
+
+  // Weekly progress: count of records in the last 7 days
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weeklyRecords = await db
+    .select({ count: sql`COUNT(*)` })
+    .from(healthRecordSchema)
+    .where(and(
+      eq(healthRecordSchema.userId, userId),
+      sql`${healthRecordSchema.recordedAt} >= ${weekAgo.toISOString()}`,
+    ));
+
+  const stats = {
+    totalRecords: Number(totalRecords[0]?.count || 0),
+    activeGoals: activeGoalsCount,
+    completedGoals: Number(completedGoals[0]?.count || 0),
+    weeklyProgress: Number(weeklyRecords[0]?.count || 0),
   };
 
   return { recentRecords, activeGoals, stats };
-};
+}
 
 const StatCard = ({ title, value, subtitle, icon, trend }: {
   title: string;
@@ -168,10 +235,10 @@ export const HealthOverview = async () => {
     return null;
   }
 
-  const { recentRecords, activeGoals, stats } = await getMockHealthData(user.id);
+  const { recentRecords, activeGoals, stats } = await getHealthOverviewData(user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="health-overview">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -187,7 +254,7 @@ export const HealthOverview = async () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="health-overview-stats">
         <StatCard
           title="Total Records"
           value={stats.totalRecords}
@@ -218,7 +285,7 @@ export const HealthOverview = async () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Records */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-recent-records">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Recent Records</h3>
             <Link
@@ -242,7 +309,7 @@ export const HealthOverview = async () => {
         </div>
 
         {/* Goal Progress */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-active-goals">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Goal Progress</h3>
             <Link
@@ -266,7 +333,7 @@ export const HealthOverview = async () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-quick-actions">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
           <div className="space-y-3">
             <QuickActionButton
@@ -294,7 +361,7 @@ export const HealthOverview = async () => {
       </div>
 
       {/* Mini Chart Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-mini-charts">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Health Trends</h3>
           <Link

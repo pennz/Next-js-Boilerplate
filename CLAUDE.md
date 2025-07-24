@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Development is centered around npm scripts for common tasks:
 
 - `npm run dev` - Start development server (uses Turbopack, includes local PGlite database server)
-- `npm run build` - Build production bundle 
+- `npm run build` - Build production bundle
 - `npm run start` - Start production server
 - `npm run test` - Run unit tests with Vitest
 - `npm run test:e2e` - Run end-to-end tests with Playwright
@@ -51,7 +51,7 @@ src/
 ├── app/[locale]/           # Next.js App Router with i18n
 │   ├── (auth)/            # Authenticated routes
 │   │   ├── dashboard/     # Main app dashboard
-│   │   └── api/           # API routes  
+│   │   └── api/           # API routes
 │   └── (marketing)/       # Public marketing pages
 ├── components/            # React components
 ├── libs/                  # Third-party library configurations
@@ -104,7 +104,7 @@ Development uses `.env.local` (not tracked by Git):
 
 ### Form Handling & Validation
 
-- **Forms**: React Hook Form with `@hookform/resolvers` 
+- **Forms**: React Hook Form with `@hookform/resolvers`
 - **Validation**: Zod schemas provide runtime validation and TypeScript types
 - **Pattern**: Forms use validation schemas from `src/validations/`
 
