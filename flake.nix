@@ -143,7 +143,7 @@
           # Initialize PostgreSQL if not exists
           if [ ! -d "$PGDATA" ]; then
             echo "📦 Initializing PostgreSQL database..."
-            initdb --auth-local=trust --auth-host=trust --encoding=UTF8 --locale=C
+            initdb --auth-local=trust --auth-host=md5 --encoding=UTF8 --locale=C --username=$(whoami)
             
             # macOS-specific PostgreSQL configuration
             echo "port = 5432" >> "$PGDATA/postgresql.conf"
@@ -152,6 +152,12 @@
             echo "max_connections = 100" >> "$PGDATA/postgresql.conf"
             echo "shared_buffers = 128MB" >> "$PGDATA/postgresql.conf"
             echo "dynamic_shared_memory_type = posix" >> "$PGDATA/postgresql.conf"
+            echo "log_statement = 'none'" >> "$PGDATA/postgresql.conf"
+            echo "log_min_duration_statement = -1" >> "$PGDATA/postgresql.conf"
+            
+            # Allow local connections without password
+            echo "host all all 127.0.0.1/32 trust" >> "$PGDATA/pg_hba.conf"
+            echo "host all all ::1/128 trust" >> "$PGDATA/pg_hba.conf"
           fi
           
           # Start PostgreSQL
@@ -175,13 +181,24 @@
           fi
           
           # Create database and user if they don't exist
-          if ! psql -h localhost -p 5432 -lqt | cut -d \| -f 1 | grep -qw development; then
-            echo "🔧 Setting up development database..."
-            createdb -h localhost -p 5432 development
-            psql -h localhost -p 5432 -d development -c "CREATE USER development WITH PASSWORD 'development';" || true
-            psql -h localhost -p 5432 -d development -c "GRANT ALL PRIVILEGES ON DATABASE development TO development;" || true
-            psql -h localhost -p 5432 -d development -c "ALTER USER development CREATEDB;" || true
+          # Connect as the default user (usually your macOS username)
+          DEFAULT_USER=$(whoami)
+          
+          # Check if development user exists
+          if ! psql -h localhost -p 5432 -d postgres -c "SELECT 1 FROM pg_user WHERE usename = 'development';" | grep -q 1; then
+            echo "🔧 Creating development user..."
+            psql -h localhost -p 5432 -d postgres -c "CREATE USER development WITH PASSWORD 'development' CREATEDB;"
           fi
+          
+          # Check if development database exists
+          if ! psql -h localhost -p 5432 -d postgres -lqt | cut -d \| -f 1 | grep -qw development; then
+            echo "🔧 Creating development database..."
+            createdb -h localhost -p 5432 -O development development
+          fi
+          
+          # Grant necessary permissions
+          psql -h localhost -p 5432 -d development -c "GRANT ALL PRIVILEGES ON DATABASE development TO development;" || true
+          psql -h localhost -p 5432 -d development -c "GRANT ALL ON SCHEMA public TO development;" || true
           
           # Create .env.local if it doesn't exist
           if [ ! -f ".env.local" ] && [ -f ".env.example" ]; then
@@ -206,6 +223,7 @@
           echo "  npm run storybook - Run Storybook"
           echo "  dev-stop          - Stop development services"
           echo "  dev-logs          - View PostgreSQL logs"
+          echo "  dev-reset         - Reset database (removes all data)"
           echo ""
           echo "🔧 Development tools:"
           echo "  Node.js: $(node --version)"
@@ -249,12 +267,34 @@
           echo ""
           echo "=== PostgreSQL Status ==="
           pg_ctl status || echo "PostgreSQL not running"
+          echo ""
+          echo "=== PostgreSQL Users ==="
+          psql -h localhost -p 5432 -d postgres -c "SELECT usename, createdb, usesuper FROM pg_user;" 2>/dev/null || echo "Cannot connect to PostgreSQL"
+        '';
+
+        resetScript = pkgs.writeShellScriptBin "dev-reset" ''
+          echo "🔄 Resetting development environment..."
+          echo "⚠️  This will delete all data in your development database!"
+          read -p "Are you sure? (y/N): " -n 1 -r
+          echo
+          if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "🛑 Stopping services..."
+            dev-stop
+            
+            echo "🗑️  Removing database..."
+            rm -rf .postgres
+            
+            echo "🚀 Reinitializing..."
+            dev-setup
+          else
+            echo "❌ Reset cancelled"
+          fi
         '';
 
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = systemDeps ++ [ devScripts stopScript logsScript ];
+          buildInputs = systemDeps ++ [ devScripts stopScript logsScript resetScript ];
           
           shellHook = ''
             # Set environment variables
@@ -291,6 +331,7 @@
             echo "  • dev-setup  - Initialize development environment"
             echo "  • dev-stop   - Stop all services"
             echo "  • dev-logs   - View service logs"
+            echo "  • dev-reset  - Reset database (removes all data)"
             echo ""
             echo "💡 Run 'dev-setup' to get started!"
           '';
