@@ -18,7 +18,7 @@
         isDarwin = pkgs.stdenv.isDarwin;
         
         # macOS-specific packages
-        darwinDeps = with pkgs; lib.optionals isDarwin [
+        darwinDeps = with pkgs; pkgs.lib.optionals isDarwin [
           # macOS development tools
           darwin.apple_sdk.frameworks.Security
           darwin.apple_sdk.frameworks.CoreFoundation
@@ -26,8 +26,8 @@
           
           # macOS command line tools
           coreutils  # GNU coreutils for consistent behavior
-          gnu-sed    # GNU sed instead of BSD sed
-          gnu-tar    # GNU tar instead of BSD tar
+          gnused    # GNU sed instead of BSD sed
+          gnutar    # GNU tar instead of BSD tar
           findutils  # GNU find instead of BSD find
           
           # macOS-specific utilities
@@ -73,7 +73,6 @@
           fd                 # File finding (faster than find)
           ripgrep           # Fast grep replacement
           bat               # Better cat with syntax highlighting
-          exa               # Better ls replacement
           
           # SSL/TLS for HTTPS development
           openssl
@@ -126,7 +125,7 @@
           NODE_OPTIONS = "--max-old-space-size=4096";  # Increase Node.js memory limit
           
           # Path additions for GNU tools on macOS
-          PATH = lib.optionalString isDarwin "${pkgs.coreutils}/bin:${pkgs.gnu-sed}/bin:${pkgs.gnu-tar}/bin:${pkgs.findutils}/bin:$PATH";
+          PATH = pkgs.lib.optionalString isDarwin "${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.gnutar}/bin:${pkgs.findutils}/bin:$PATH";
         };
 
         # macOS-specific development scripts
@@ -157,6 +156,7 @@
           
           # Start PostgreSQL
           if ! pg_ctl status > /dev/null 2>&1; then
+            test -d "$HOME/.postgres" || mkdir "$HOME/.postgres"
             echo "🐘 Starting PostgreSQL..."
             pg_ctl start -l "$PGDATA/postgres.log" -o "-F -p 5432"
             sleep 3
@@ -343,7 +343,7 @@
           nativeBuildInputs = with pkgs; [
             nodejs
             python3  # For native module compilation
-          ] ++ lib.optionals isDarwin [
+          ] ++ pkgs.lib.optionals isDarwin [
             darwin.apple_sdk.frameworks.Security
           ];
           
