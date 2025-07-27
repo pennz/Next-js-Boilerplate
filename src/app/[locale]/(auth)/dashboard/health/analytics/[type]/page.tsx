@@ -1,7 +1,12 @@
+import type {
+  PredictionAlgorithm,
+  ScoringSystem,
+} from '@/components/health/types';
 import { currentUser } from '@clerk/nextjs/server';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+
 import {
   Area,
   AreaChart,
@@ -16,16 +21,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-
 import { HealthPredictiveChart, HealthRadarChart } from '@/components/health';
-import {
-  transformToPredictiveData,
-  transformToRadarData,
-} from '@/components/health';
-import type {
-  PredictionAlgorithm,
-  ScoringSystem,
-} from '@/components/health/types';
+import { transformToPredictiveData, transformToRadarData } from '@/utils/healthDataTransformers';
 
 // Health record and goal types for mock data
 type HealthRecord = {
@@ -171,15 +168,38 @@ function generateMockData(type: HealthType, aggregation: string = 'daily'): Anal
 // Generate mock health records for radar chart
 function generateMockHealthRecords(userId: string): HealthRecord[] {
   const now = new Date();
-  const healthTypes: HealthType[] = ['weight', 'steps', 'heart_rate', 'sleep', 'water_intake'];
-  
+  const healthTypes: HealthType[] = [
+    'weight',
+    'blood_pressure',
+    'steps',
+    'heart_rate',
+    'sleep',
+    'calories',
+    'water_intake',
+    'glucose',
+  ];
+
   return healthTypes.map((type, index) => {
-    const baseValues = {
+    const baseValues: Record<HealthType, number> = {
       weight: 70,
+      blood_pressure: 120,
       steps: 8500,
       heart_rate: 72,
       sleep: 7.5,
+      calories: 2000,
       water_intake: 2.8,
+      glucose: 95,
+    };
+
+    const units: Record<HealthType, string> = {
+      weight: 'kg',
+      blood_pressure: 'mmHg',
+      steps: 'steps',
+      heart_rate: 'bpm',
+      sleep: 'hours',
+      calories: 'kcal',
+      water_intake: 'liters',
+      glucose: 'mg/dL',
     };
 
     return {
@@ -187,7 +207,7 @@ function generateMockHealthRecords(userId: string): HealthRecord[] {
       user_id: userId,
       type,
       value: baseValues[type] + (Math.random() - 0.5) * baseValues[type] * 0.1,
-      unit: type === 'weight' ? 'kg' : type === 'steps' ? 'steps' : type === 'heart_rate' ? 'bpm' : type === 'sleep' ? 'hours' : 'liters',
+      unit: units[type],
       recorded_at: now.toISOString(),
       notes: null,
       created_at: now.toISOString(),
@@ -198,21 +218,49 @@ function generateMockHealthRecords(userId: string): HealthRecord[] {
 
 // Generate mock health goals for radar chart
 function generateMockHealthGoals(userId: string): HealthGoal[] {
-  const healthTypes: HealthType[] = ['weight', 'steps', 'sleep', 'water_intake'];
-  
+  const healthTypes: HealthType[] = [
+    'weight',
+    'blood_pressure',
+    'steps',
+    'heart_rate',
+    'sleep',
+    'calories',
+    'water_intake',
+    'glucose',
+  ];
+
   return healthTypes.map((type, index) => {
-    const targetValues = {
+    const targetValues: Record<HealthType, number> = {
       weight: 65,
+      blood_pressure: 120,
       steps: 10000,
+      heart_rate: 72,
       sleep: 8,
+      calories: 1800,
       water_intake: 3,
+      glucose: 95,
     };
 
-    const currentValues = {
+    const currentValues: Record<HealthType, number> = {
       weight: 70,
+      blood_pressure: 120,
       steps: 8500,
+      heart_rate: 72,
       sleep: 7.5,
+      calories: 2000,
       water_intake: 2.8,
+      glucose: 95,
+    };
+
+    const units: Record<HealthType, string> = {
+      weight: 'kg',
+      blood_pressure: 'mmHg',
+      steps: 'steps',
+      heart_rate: 'bpm',
+      sleep: 'hours',
+      calories: 'kcal',
+      water_intake: 'liters',
+      glucose: 'mg/dL',
     };
 
     return {
@@ -574,7 +622,7 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
       unit: point.unit,
     })),
     'linear-regression',
-    7
+    7,
   );
 
   // Transform data for radar chart
@@ -649,17 +697,17 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">
               {t('goal_current')}
-              :
-              {analyticsData.goalProgress.current}
-              {' '}
-              {analyticsData.summary.unit}
+            :
+            {analyticsData.goalProgress?.current ?? 0}
+            {' '}
+            {analyticsData.summary.unit}
             </span>
             <span className="text-sm text-gray-600">
               {t('goal_target')}
-              :
-              {analyticsData.goalProgress.target}
-              {' '}
-              {analyticsData.summary.unit}
+            :
+            {analyticsData.goalProgress?.target ?? 0}
+            {' '}
+            {analyticsData.summary.unit}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
@@ -670,9 +718,9 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
             </div>
           </div>
           <p className="text-sm text-gray-600">
-            {analyticsData.goalProgress.percentage}
+            {analyticsData.goalProgress?.percentage ?? 0}
             % complete •
-            {analyticsData.goalProgress.daysLeft}
+            {analyticsData.goalProgress?.daysLeft ?? 0}
             {' '}
             days remaining
           </p>
@@ -792,9 +840,9 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0 w-2 h-2 bg-yellow-600 rounded-full mt-2"></div>
               <p className="text-sm text-gray-600">
-                {analyticsData.goalProgress.percentage >= 100
+                {(analyticsData.goalProgress?.percentage ?? 0) >= 100
                   ? t('insight_goal_achieved')
-                  : t('insight_goal_progress', { percentage: analyticsData.goalProgress.percentage })}
+                  : t('insight_goal_progress', { percentage: analyticsData.goalProgress?.percentage ?? 0 })}
               </p>
             </div>
           )}
@@ -802,11 +850,11 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0 w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
               <p className="text-sm text-gray-600">
-                {t('insight_radar_overview', { 
-                  metricsCount: radarData[0].metrics.length,
-                  avgScore: Math.round(
-                    radarData[0].metrics.reduce((sum, metric) => sum + metric.score, 0) / radarData[0].metrics.length
-                  )
+                {t('insight_radar_overview', {
+                  metricsCount: radarData[0]?.metrics?.length ?? 0,
+                  avgScore: radarData[0]?.metrics ? Math.round(
+                    radarData[0].metrics.reduce((sum, metric) => sum + (metric.score ?? 0), 0) / radarData[0].metrics.length,
+                  ) : 0,
                 })}
               </p>
             </div>

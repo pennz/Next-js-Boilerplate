@@ -60,8 +60,6 @@ async function getHealthTypes(): Promise<HealthType[]> {
   return [];
 }
 
-
-
 function HealthRecordsTable({
   records,
   t,
