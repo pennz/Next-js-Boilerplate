@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { getTranslations } from 'next-intl/server';
-import { HealthOverview } from '@/components/health/HealthOverview';
+import { HealthOverviewWrapper } from '@/components/health/HealthOverviewWrapper';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -36,7 +36,7 @@ export default async function HealthDashboard() {
           </p>
         </div>
       </div>
-      <HealthOverview />
+      <HealthOverviewWrapper />
     </div>
   );
 }

@@ -27,6 +27,41 @@ export default antfu(
     // Ignored paths
     ignores: [
       'migrations/**/*',
+
+      // Build outputs
+      'dist/**',
+      '.next/**',
+      'build/**',
+
+      // Generated files
+      '*.min.js',
+      'bundle.js',
+      '*.bundle.js',
+      '.storybook/**',
+      'coverage/**',
+
+      // Config files you don't want to lint
+      'webpack.config.js',
+      'jest.config.js',
+      'vite.config.js',
+
+      // Specific files
+      'src/legacy-code.js',
+
+      // Test files (if you don't want to lint them)
+      '**/*.test.js',
+      '**/*.spec.js',
+
+      // Documentation
+      'docs/**',
+
+      // Temporary files
+      'temp-*',
+      '*.tmp',
+      // Other non-code files
+      '**/*.json',
+      '**/*.yaml',
+      '**/*.yml',
     ],
   },
   // --- Next.js Specific Rules ---

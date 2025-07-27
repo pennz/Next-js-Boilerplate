@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 
-// Mock data interfaces - these would come from the health services in the actual implementation
-type HealthRecord = {
+// Data interfaces
+export type HealthRecord = {
   id: number;
   type: string;
   value: number;
@@ -14,7 +14,7 @@ type HealthRecord = {
   recorded_at: string;
 };
 
-type HealthGoal = {
+export type HealthGoal = {
   id: number;
   type: string;
   target_value: number;
@@ -23,110 +23,11 @@ type HealthGoal = {
   status: 'active' | 'completed' | 'paused';
 };
 
-// Server component wrapper to handle data fetching
-export const HealthOverviewWrapper = async () => {
-  const { currentUser } = await import('@clerk/nextjs/server');
-  const { getTranslations } = await import('next-intl/server');
-  const { and, desc, eq, sql } = await import('drizzle-orm');
-  const { db } = await import('@/libs/DB');
-  const { healthGoalSchema, healthRecordSchema, healthTypeSchema } = await import('@/models/Schema');
-
-  const user = await currentUser();
-  const t = await getTranslations('HealthManagement');
-
-  if (!user) {
-    return null;
-  }
-
-  // Fetch recent records (last 3)
-  const recentRecordsRaw = await db
-    .select({
-      id: healthRecordSchema.id,
-      value: healthRecordSchema.value,
-      unit: healthRecordSchema.unit,
-      recorded_at: healthRecordSchema.recordedAt,
-      type: healthTypeSchema.displayName,
-    })
-    .from(healthRecordSchema)
-    .leftJoin(healthTypeSchema, eq(healthRecordSchema.typeId, healthTypeSchema.id))
-    .where(eq(healthRecordSchema.userId, user.id))
-    .orderBy(desc(healthRecordSchema.recordedAt))
-    .limit(3);
-
-  const recentRecords = recentRecordsRaw.map(r => ({
-    id: r.id,
-    type: r.type ?? '',
-    value: Number(r.value),
-    unit: r.unit,
-    recorded_at: r.recorded_at instanceof Date ? r.recorded_at.toISOString() : r.recorded_at,
-  }));
-
-  // Fetch active goals
-  const activeGoalsRaw = await db
-    .select({
-      id: healthGoalSchema.id,
-      type: healthTypeSchema.displayName,
-      target_value: healthGoalSchema.targetValue,
-      target_date: healthGoalSchema.targetDate,
-      status: healthGoalSchema.status,
-      type_id: healthGoalSchema.typeId,
-      unit: healthTypeSchema.unit,
-    })
-    .from(healthGoalSchema)
-    .leftJoin(healthTypeSchema, eq(healthGoalSchema.typeId, healthTypeSchema.id))
-    .where(and(eq(healthGoalSchema.userId, user.id), eq(healthGoalSchema.status, 'active')))
-    .orderBy(desc(healthGoalSchema.createdAt))
-    .limit(3);
-
-  // For each goal, get the latest record for progress
-  const activeGoals = await Promise.all(activeGoalsRaw.map(async (goal) => {
-    const latestRecord = await db
-      .select({ value: healthRecordSchema.value })
-      .from(healthRecordSchema)
-      .where(and(eq(healthRecordSchema.userId, user.id), eq(healthRecordSchema.typeId, goal.type_id)))
-      .orderBy(desc(healthRecordSchema.recordedAt))
-      .limit(1);
-    const current_value = latestRecord[0]?.value ? Number(latestRecord[0].value) : 0;
-    return {
-      id: goal.id,
-      type: goal.type ?? '',
-      target_value: Number(goal.target_value),
-      current_value,
-      target_date: goal.target_date instanceof Date ? goal.target_date.toISOString().slice(0, 10) : goal.target_date,
-      status: goal.status,
-    };
-  }));
-
-  // Stats
-  const totalRecords = await db
-    .select({ count: sql`COUNT(*)` })
-    .from(healthRecordSchema)
-    .where(eq(healthRecordSchema.userId, user.id));
-  const activeGoalsCount = activeGoals.length;
-  const completedGoals = await db
-    .select({ count: sql`COUNT(*)` })
-    .from(healthGoalSchema)
-    .where(and(eq(healthGoalSchema.userId, user.id), eq(healthGoalSchema.status, 'completed')));
-
-  // Weekly progress: count of records in the last 7 days
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
-  const weeklyRecords = await db
-    .select({ count: sql`COUNT(*)` })
-    .from(healthRecordSchema)
-    .where(and(
-      eq(healthRecordSchema.userId, user.id),
-      sql`${healthRecordSchema.recordedAt} >= ${weekAgo.toISOString()}`,
-    ));
-
-  const stats = {
-    totalRecords: Number(totalRecords[0]?.count || 0),
-    activeGoals: activeGoalsCount,
-    completedGoals: Number(completedGoals[0]?.count || 0),
-    weeklyProgress: Number(weeklyRecords[0]?.count || 0),
-  };
-
-  return <HealthOverview recentRecords={recentRecords} activeGoals={activeGoals} stats={stats} />;
+export type HealthStats = {
+  totalRecords: number;
+  activeGoals: number;
+  completedGoals: number;
+  weeklyProgress: number;
 };
 
 const StatCard = ({ title, value, subtitle, icon, trend }: {
@@ -146,15 +47,13 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
       entityType: 'ui_interaction',
       context: {
         ui: {
-          component: 'HealthOverview',
-          element: 'StatCard',
-          statType: title,
-          statValue: value,
-          trend,
+          componentName: 'HealthOverview',
+          elementId: 'StatCard',
+          action: 'view',
         },
-        health: {
-          metricType: title,
-          metricValue: value,
+        healthData: {
+          recordType: title,
+          value: typeof value === 'number' ? value : Number.parseFloat(value as string) || 0,
         },
       },
     });
@@ -195,9 +94,6 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
 };
 
 // Export both components - the wrapper for server-side usage and the main component for direct usage
-export { HealthOverviewWrapper };
-export default HealthOverview;
-
 const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
   const { trackEvent } = useBehaviorTracking();
   const progress = Math.min((goal.current_value / goal.target_value) * 100, 100);
@@ -210,16 +106,14 @@ const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
       entityId: goal.id,
       context: {
         ui: {
-          component: 'HealthOverview',
-          element: 'GoalProgressCard',
+          componentName: 'HealthOverview',
+          elementId: 'GoalProgressCard',
+          action: 'view',
         },
-        health: {
-          goalType: goal.type,
-          progress: Math.round(progress),
-          isCompleted,
-          currentValue: goal.current_value,
-          targetValue: goal.target_value,
-          targetDate: goal.target_date,
+        healthData: {
+          recordType: goal.type,
+          goalId: goal.id,
+          value: Math.round(progress),
         },
       },
     });
@@ -287,15 +181,14 @@ const RecentRecordItem = ({ record }: { record: HealthRecord }) => {
       entityId: record.id,
       context: {
         ui: {
-          component: 'HealthOverview',
-          element: 'RecentRecordItem',
-          location: 'recent_records_section',
+          componentName: 'HealthOverview',
+          elementId: 'RecentRecordItem',
+          action: 'view',
         },
-        health: {
+        healthData: {
           recordType: record.type,
-          recordValue: record.value,
-          recordUnit: record.unit,
-          timeAgo: `${timeAgo}h`,
+          value: record.value,
+          unit: record.unit,
         },
       },
     });
@@ -345,15 +238,10 @@ const QuickActionButton = ({ href, icon, label }: {
       entityType: 'ui_interaction',
       context: {
         ui: {
-          component: 'HealthOverview',
-          element: 'QuickActionButton',
+          componentName: 'HealthOverview',
+          elementId: 'QuickActionButton',
           action: 'click',
-          buttonLabel: label,
-          targetHref: href,
-        },
-        navigation: {
-          destination: href,
-          actionType: label.toLowerCase().replace(' ', '_'),
+          elementType: 'link',
         },
       },
     });
@@ -375,12 +263,7 @@ const QuickActionButton = ({ href, icon, label }: {
 type HealthOverviewProps = {
   recentRecords: HealthRecord[];
   activeGoals: HealthGoal[];
-  stats: {
-    totalRecords: number;
-    activeGoals: number;
-    completedGoals: number;
-    weeklyProgress: number;
-  };
+  stats: HealthStats;
 };
 
 export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOverviewProps) => {
@@ -395,19 +278,14 @@ export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOver
         entityType: 'ui_interaction',
         context: {
           ui: {
-            component: 'HealthOverview',
+            componentName: 'HealthOverview',
             action: 'view',
           },
-          health: {
-            totalRecords: stats.totalRecords,
-            activeGoals: stats.activeGoals,
-            completedGoals: stats.completedGoals,
-            weeklyProgress: stats.weeklyProgress,
-            recentRecordsCount: recentRecords.length,
-            activeGoalsCount: activeGoals.length,
+          healthData: {
+            value: stats.totalRecords,
           },
           performance: {
-            viewTimestamp: new Date().toISOString(),
+            loadTime: performance.now(),
           },
         },
       });
@@ -425,12 +303,13 @@ export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOver
       entityType: 'ui_interaction',
       context: {
         ui: {
-          component: 'HealthOverview',
-          element: 'MiniChart',
-          chartType,
+          componentName: 'HealthOverview',
+          elementId: 'MiniChart',
+          action: 'view',
+          elementType: chartType,
         },
-        health: {
-          chartType,
+        healthData: {
+          recordType: chartType,
         },
       },
     });
