@@ -87,6 +87,8 @@
     "page_title_analytics": "Health Analytics",
     "page_title_goals": "Health Goals",
     "page_title_reminders": "Health Reminders",
+    "page_title_dashboard": "Health Dashboard",
+    "dashboard_subtitle": "Track and manage your health metrics all in one place",
     "label_weight": "Weight",
     "label_blood_pressure": "Blood Pressure",
     "label_steps": "Steps",

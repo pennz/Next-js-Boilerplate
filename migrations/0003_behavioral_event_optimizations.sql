@@ -1,31 +1,39 @@
 -- Behavioral Event Optimizations
 -- This migration adds database optimizations for the behavioral_event table
 
--- 1. Add check constraints for eventName validation
-ALTER TABLE behavioral_event 
-  ADD CONSTRAINT behavioral_event_event_name_check 
-  CHECK (event_name ~ '^[a-zA-Z0-9_-]+$' AND LENGTH(event_name) BETWEEN 1 AND 100);
+-- Check if the behavioral_event table exists before applying optimizations
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'behavioral_event') THEN
+    -- 1. Add check constraints for eventName validation
+    ALTER TABLE behavioral_event 
+      ADD CONSTRAINT behavioral_event_event_name_check 
+      CHECK (event_name ~ '^[a-zA-Z0-9_-]+$' AND LENGTH(event_name) BETWEEN 1 AND 100);
 
--- 2. Create composite indexes for common query patterns
--- Index for queries filtering by userId, createdAt, and entityType
-CREATE INDEX CONCURRENTLY behavioral_event_user_created_entity_idx 
-  ON behavioral_event USING btree (user_id, created_at, entity_type);
+    -- 2. Create composite indexes for common query patterns
+    -- Index for queries filtering by userId, createdAt, and entityType
+    CREATE INDEX CONCURRENTLY behavioral_event_user_created_entity_idx 
+      ON behavioral_event USING btree (user_id, created_at, entity_type);
 
--- Additional composite indexes for common query patterns
-CREATE INDEX CONCURRENTLY behavioral_event_user_entity_created_idx 
-  ON behavioral_event USING btree (user_id, entity_type, created_at);
+    -- Additional composite indexes for common query patterns
+    CREATE INDEX CONCURRENTLY behavioral_event_user_entity_created_idx 
+      ON behavioral_event USING btree (user_id, entity_type, created_at);
 
-CREATE INDEX CONCURRENTLY behavioral_event_entity_created_user_idx 
-  ON behavioral_event USING btree (entity_type, created_at, user_id);
+    CREATE INDEX CONCURRENTLY behavioral_event_entity_created_user_idx 
+      ON behavioral_event USING btree (entity_type, created_at, user_id);
 
--- 3. Add GIN indexes for JSON context queries
--- GIN index for efficient JSON queries on the context column
-CREATE INDEX CONCURRENTLY behavioral_event_context_gin_idx 
-  ON behavioral_event USING gin (context);
+    -- 3. Add GIN indexes for JSON context queries
+    -- GIN index for efficient JSON queries on the context column
+    CREATE INDEX CONCURRENTLY behavioral_event_context_gin_idx 
+      ON behavioral_event USING gin (context);
 
--- GIN index for text search within JSON context
-CREATE INDEX CONCURRENTLY behavioral_event_context_text_gin_idx 
-  ON behavioral_event USING gin (context jsonb_path_ops);
+    -- GIN index for text search within JSON context
+    CREATE INDEX CONCURRENTLY behavioral_event_context_text_gin_idx 
+      ON behavioral_event USING gin (context jsonb_path_ops);
+  ELSE
+    RAISE NOTICE 'behavioral_event table does not exist, skipping optimizations';
+  END IF;
+END $$;
 
 -- 4. Documentation for partitioning strategy (as comments)
 /*
