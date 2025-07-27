@@ -13,7 +13,7 @@ The behavioral_event table stores user interaction data, which tends to grow rap
 Partition the behavioral_event table by time periods (monthly or yearly):
 
 - **Structure**: `behavioral_event_YYYY_MM` for monthly partitions or `behavioral_event_YYYY` for yearly partitions
-- **Benefits**: 
+- **Benefits**:
   - Efficient time-range queries (most common pattern for behavioral analytics)
   - Easy data retention policies (drop old partitions)
   - Balanced partition sizes
@@ -23,7 +23,7 @@ Partition the behavioral_event table by time periods (monthly or yearly):
 
 Combine time-based partitioning with another dimension for specialized use cases:
 
-- **Structure**: `behavioral_event_YYYY_MM_user_range` 
+- **Structure**: `behavioral_event_YYYY_MM_user_range`
 - **Use Case**: When user-specific analytics are common
 - **Complexity**: Higher management overhead
 

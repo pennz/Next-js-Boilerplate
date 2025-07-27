@@ -92,7 +92,7 @@ Modern fitness apps transform raw health data into actionable insights that help
 
 **Personalized Insights**:
 - "You burn 300 more calories on days when you get 7+ hours of sleep"
-- "Your highest calorie burn days are Tuesdays and Thursdays - schedule intense workouts then" 
+- "Your highest calorie burn days are Tuesdays and Thursdays - schedule intense workouts then"
 - "You're most likely to overeat when stressed - try a 5-minute breathing exercise instead"
 - "Your weight loss rate suggests adjusting daily calories from 1,800 to 1,650 for continued progress"
 

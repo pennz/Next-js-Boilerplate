@@ -327,7 +327,7 @@ const selectedType = HEALTH_TYPES.find(type => type.id === Number(selectedTypeId
 #### Focus Management
 ```typescript
 // Focus ring styling for keyboard navigation
-className="focus:outline-hidden focus:ring-3 focus:ring-blue-300/50"
+className = 'focus:outline-hidden focus:ring-3 focus:ring-blue-300/50';
 ```
 
 #### ARIA Attributes
@@ -394,19 +394,19 @@ router.refresh();
 const t = useTranslations('HealthManagement');
 
 // Field labels
-{t('label_health_type')}
-{t('label_value')}
-{t('label_recorded_at')}
+{ t('label_health_type'); }
+{ t('label_value'); }
+{ t('label_recorded_at'); }
 
 // Button text
-{t('button_save_record')}
-{t('button_update_record')}
+{ t('button_save_record'); }
+{ t('button_update_record'); }
 
 // Error messages
-{t('error_invalid_value')}
+{ t('error_invalid_value'); }
 
 // Success messages
-{t('success_record_saved')}
+{ t('success_record_saved'); }
 ```
 
 ### Dynamic Translation with Parameters
@@ -420,8 +420,8 @@ const successMessage = mode === 'edit'
 ### Fallback Patterns
 ```typescript
 // Graceful fallback for missing translations
-{t(`label_${type.slug}` as any) || type.display_name}
-{t(`unit_${selectedType.slug}` as any) || selectedType.unit}
+{ t(`label_${type.slug}` as any) || type.display_name; }
+{ t(`unit_${selectedType.slug}` as any) || selectedType.unit; }
 ```
 
 ## 8. Form Testing Patterns
@@ -431,7 +431,7 @@ const successMessage = mode === 'edit'
 // Comprehensive form rendering verification
 it('renders all form fields correctly', () => {
   render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-  
+
   expect(screen.getByLabelText(/health type/i)).toBeInTheDocument();
   expect(screen.getByLabelText(/value/i)).toBeInTheDocument();
   expect(screen.getByLabelText(/date & time/i)).toBeInTheDocument();
@@ -445,11 +445,11 @@ it('renders all form fields correctly', () => {
 it('updates value input when user types', async () => {
   const user = userEvent.setup();
   render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-  
+
   const valueInput = screen.getByLabelText(/value/i);
   await user.clear(valueInput);
   await user.type(valueInput, '75.5');
-  
+
   expect(valueInput).toHaveValue(75.5);
 });
 ```
@@ -460,14 +460,14 @@ it('updates value input when user types', async () => {
 it('shows validation error for negative value', async () => {
   const user = userEvent.setup();
   render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-  
+
   const valueInput = screen.getByLabelText(/value/i);
   const submitButton = screen.getByRole('button', { name: /save record/i });
-  
+
   await user.clear(valueInput);
   await user.type(valueInput, '-5');
   await user.click(submitButton);
-  
+
   await waitFor(() => {
     expect(screen.getByText(/value must be greater than 0/i)).toBeInTheDocument();
   });
@@ -480,16 +480,16 @@ it('shows validation error for negative value', async () => {
 it('submits form with correct data in create mode', async () => {
   const user = userEvent.setup();
   const mockOnSuccess = vi.fn();
-  
+
   mockFetch.mockResolvedValueOnce({
     ok: true,
     json: async () => ({ id: 1, message: 'Success' }),
   });
-  
+
   render(<TestWrapper><HealthRecordForm onSuccess={mockOnSuccess} /></TestWrapper>);
-  
+
   // User interactions...
-  
+
   await waitFor(() => {
     expect(mockFetch).toHaveBeenCalledWith('/api/health/records', {
       method: 'POST',
@@ -497,7 +497,7 @@ it('submits form with correct data in create mode', async () => {
       body: JSON.stringify(expectedData),
     });
   });
-  
+
   expect(mockOnSuccess).toHaveBeenCalled();
 });
 ```
@@ -507,11 +507,11 @@ it('submits form with correct data in create mode', async () => {
 // Accessibility compliance verification
 it('has proper form labels associated with inputs', () => {
   render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-  
+
   const typeSelect = screen.getByLabelText(/health type/i);
   const valueInput = screen.getByLabelText(/value/i);
   const dateInput = screen.getByLabelText(/date & time/i);
-  
+
   expect(typeSelect).toHaveAttribute('id', 'type_id');
   expect(valueInput).toHaveAttribute('id', 'value');
   expect(dateInput).toHaveAttribute('id', 'recorded_at');

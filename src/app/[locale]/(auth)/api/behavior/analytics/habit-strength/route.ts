@@ -55,7 +55,7 @@ export const GET = async (request: NextRequest) => {
     const habitStrengthData = await HabitStrengthAnalyticsService.calculateHabitStrength(
       user.id,
       behaviorType,
-      timeRange
+      timeRange,
     );
 
     logger.info('Habit strength analytics retrieved', {

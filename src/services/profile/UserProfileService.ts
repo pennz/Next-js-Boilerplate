@@ -1,27 +1,24 @@
-import { and, desc, eq, gte, lte, asc } from 'drizzle-orm';
+import type { UserConstraintInput, UserFitnessGoalInput, UserPreferenceInput, UserProfileInput, UserProfileUpdateInput } from '@/validations/UserProfileValidation';
+import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@/libs/DB';
-import { 
-  userProfileSchema,
+import { logger } from '@/libs/Logger';
+import {
+  userConstraintSchema,
   userFitnessGoalSchema,
   userPreferenceSchema,
-  userConstraintSchema,
-  goalStatusEnum
+  userProfileSchema,
 } from '@/models/Schema';
-import { 
-  UserProfileValidation,
-  UserFitnessGoalValidation,
-  UserPreferenceValidation,
+import {
+
   UserConstraintValidation,
+
+  UserFitnessGoalValidation,
+
+  UserPreferenceValidation,
+
   UserProfileUpdateValidation,
-  UserProfileQueryValidation,
-  type UserProfileInput,
-  type UserFitnessGoalInput,
-  type UserPreferenceInput,
-  type UserConstraintInput,
-  type UserProfileUpdateInput,
-  type UserProfileQueryInput
+  UserProfileValidation,
 } from '@/validations/UserProfileValidation';
-import { logger } from '@/libs/Logger';
 
 export class UserProfileService {
   /**
@@ -35,9 +32,9 @@ export class UserProfileService {
     // Validate profile data
     const validationResult = UserProfileValidation.safeParse(profileData);
     if (!validationResult.success) {
-      logger.warn('Profile validation failed', { 
-        userId, 
-        errors: validationResult.error.issues 
+      logger.warn('Profile validation failed', {
+        userId,
+        errors: validationResult.error.issues,
       });
       throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
@@ -76,17 +73,17 @@ export class UserProfileService {
         .values(profileToInsert)
         .returning();
 
-      logger.info('User profile created', { 
-        userId, 
+      logger.info('User profile created', {
+        userId,
         profileId: insertedProfile[0]?.id,
-        completeness
+        completeness,
       });
 
       return insertedProfile[0];
     } catch (error) {
-      logger.error('Failed to create user profile', { 
+      logger.error('Failed to create user profile', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -103,9 +100,9 @@ export class UserProfileService {
     // Validate update data
     const validationResult = UserProfileUpdateValidation.safeParse(updates);
     if (!validationResult.success) {
-      logger.warn('Profile update validation failed', { 
-        userId, 
-        errors: validationResult.error.issues 
+      logger.warn('Profile update validation failed', {
+        userId,
+        errors: validationResult.error.issues,
       });
       throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
@@ -142,18 +139,18 @@ export class UserProfileService {
         .where(eq(userProfileSchema.userId, userId))
         .returning();
 
-      logger.info('User profile updated', { 
-        userId, 
+      logger.info('User profile updated', {
+        userId,
         profileId: updatedProfile[0]?.id,
         updatedFields: Object.keys(validatedUpdates),
-        newCompleteness
+        newCompleteness,
       });
 
       return updatedProfile[0];
     } catch (error) {
-      logger.error('Failed to update user profile', { 
+      logger.error('Failed to update user profile', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -195,17 +192,17 @@ export class UserProfileService {
         };
       }
 
-      logger.debug('User profile retrieved', { 
-        userId, 
+      logger.debug('User profile retrieved', {
+        userId,
         profileId: profile.id,
-        includeRelated
+        includeRelated,
       });
 
       return result;
     } catch (error) {
-      logger.error('Failed to retrieve user profile', { 
+      logger.error('Failed to retrieve user profile', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -239,16 +236,16 @@ export class UserProfileService {
         await tx.delete(userProfileSchema).where(eq(userProfileSchema.userId, userId));
       });
 
-      logger.info('User profile deleted', { 
-        userId, 
-        profileId: existingProfile.id
+      logger.info('User profile deleted', {
+        userId,
+        profileId: existingProfile.id,
       });
 
       return true;
     } catch (error) {
-      logger.error('Failed to delete user profile', { 
+      logger.error('Failed to delete user profile', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -265,9 +262,9 @@ export class UserProfileService {
     // Validate goal data
     const validationResult = UserFitnessGoalValidation.safeParse(goalData);
     if (!validationResult.success) {
-      logger.warn('Fitness goal validation failed', { 
-        userId, 
-        errors: validationResult.error.issues 
+      logger.warn('Fitness goal validation failed', {
+        userId,
+        errors: validationResult.error.issues,
       });
       throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
@@ -303,17 +300,17 @@ export class UserProfileService {
         .values(goalToInsert)
         .returning();
 
-      logger.info('Fitness goal created', { 
-        userId, 
+      logger.info('Fitness goal created', {
+        userId,
         goalId: insertedGoal[0]?.id,
-        goalType: validatedGoal.goalType
+        goalType: validatedGoal.goalType,
       });
 
       return insertedGoal[0];
     } catch (error) {
-      logger.error('Failed to create fitness goal', { 
+      logger.error('Failed to create fitness goal', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -336,7 +333,7 @@ export class UserProfileService {
       const existingGoal = await db.query.userFitnessGoalSchema.findFirst({
         where: and(
           eq(userFitnessGoalSchema.id, goalId),
-          eq(userFitnessGoalSchema.userId, userId)
+          eq(userFitnessGoalSchema.userId, userId),
         ),
       });
 
@@ -350,22 +347,22 @@ export class UserProfileService {
         .set(updates)
         .where(and(
           eq(userFitnessGoalSchema.id, goalId),
-          eq(userFitnessGoalSchema.userId, userId)
+          eq(userFitnessGoalSchema.userId, userId),
         ))
         .returning();
 
-      logger.info('Fitness goal updated', { 
-        userId, 
+      logger.info('Fitness goal updated', {
+        userId,
         goalId,
-        updatedFields: Object.keys(updates)
+        updatedFields: Object.keys(updates),
       });
 
       return updatedGoal[0];
     } catch (error) {
-      logger.error('Failed to update fitness goal', { 
+      logger.error('Failed to update fitness goal', {
         userId,
         goalId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -398,18 +395,18 @@ export class UserProfileService {
         .where(and(...whereConditions))
         .orderBy(desc(userFitnessGoalSchema.priority), desc(userFitnessGoalSchema.createdAt));
 
-      logger.debug('Fitness goals retrieved', { 
-        userId, 
+      logger.debug('Fitness goals retrieved', {
+        userId,
         goalCount: goals.length,
-        filters
+        filters,
       });
 
       return goals;
     } catch (error) {
-      logger.error('Failed to retrieve fitness goals', { 
+      logger.error('Failed to retrieve fitness goals', {
         userId,
         filters,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -433,9 +430,9 @@ export class UserProfileService {
     // Validate preferences
     const validationResult = UserPreferenceValidation.safeParse(preferences);
     if (!validationResult.success) {
-      logger.warn('Preferences validation failed', { 
-        userId, 
-        errors: validationResult.error.issues 
+      logger.warn('Preferences validation failed', {
+        userId,
+        errors: validationResult.error.issues,
       });
       throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
@@ -465,17 +462,17 @@ export class UserProfileService {
           .returning();
       }
 
-      logger.info('User preferences updated', { 
+      logger.info('User preferences updated', {
         userId,
         preferencesId: result[0]?.id,
-        isNew: !existingPreferences
+        isNew: !existingPreferences,
       });
 
       return result[0];
     } catch (error) {
-      logger.error('Failed to update preferences', { 
+      logger.error('Failed to update preferences', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -494,16 +491,16 @@ export class UserProfileService {
         where: eq(userPreferenceSchema.userId, userId),
       });
 
-      logger.debug('User preferences retrieved', { 
+      logger.debug('User preferences retrieved', {
         userId,
-        hasPreferences: !!preferences
+        hasPreferences: !!preferences,
       });
 
       return preferences;
     } catch (error) {
-      logger.error('Failed to retrieve preferences', { 
+      logger.error('Failed to retrieve preferences', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -542,9 +539,9 @@ export class UserProfileService {
     // Validate constraint data
     const validationResult = UserConstraintValidation.safeParse(constraintData);
     if (!validationResult.success) {
-      logger.warn('Constraint validation failed', { 
-        userId, 
-        errors: validationResult.error.issues 
+      logger.warn('Constraint validation failed', {
+        userId,
+        errors: validationResult.error.issues,
       });
       throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
@@ -575,18 +572,18 @@ export class UserProfileService {
         .values(constraintToInsert)
         .returning();
 
-      logger.info('User constraint added', { 
-        userId, 
+      logger.info('User constraint added', {
+        userId,
         constraintId: insertedConstraint[0]?.id,
         constraintType: validatedConstraint.constraintType,
-        severity: validatedConstraint.severity
+        severity: validatedConstraint.severity,
       });
 
       return insertedConstraint[0];
     } catch (error) {
-      logger.error('Failed to add constraint', { 
+      logger.error('Failed to add constraint', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -609,7 +606,7 @@ export class UserProfileService {
       const existingConstraint = await db.query.userConstraintSchema.findFirst({
         where: and(
           eq(userConstraintSchema.id, constraintId),
-          eq(userConstraintSchema.userId, userId)
+          eq(userConstraintSchema.userId, userId),
         ),
       });
 
@@ -623,22 +620,22 @@ export class UserProfileService {
         .set(updates)
         .where(and(
           eq(userConstraintSchema.id, constraintId),
-          eq(userConstraintSchema.userId, userId)
+          eq(userConstraintSchema.userId, userId),
         ))
         .returning();
 
-      logger.info('User constraint updated', { 
-        userId, 
+      logger.info('User constraint updated', {
+        userId,
         constraintId,
-        updatedFields: Object.keys(updates)
+        updatedFields: Object.keys(updates),
       });
 
       return updatedConstraint[0];
     } catch (error) {
-      logger.error('Failed to update constraint', { 
+      logger.error('Failed to update constraint', {
         userId,
         constraintId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -661,7 +658,7 @@ export class UserProfileService {
       const existingConstraint = await db.query.userConstraintSchema.findFirst({
         where: and(
           eq(userConstraintSchema.id, constraintId),
-          eq(userConstraintSchema.userId, userId)
+          eq(userConstraintSchema.userId, userId),
         ),
       });
 
@@ -675,20 +672,20 @@ export class UserProfileService {
         .set({ isActive: false })
         .where(and(
           eq(userConstraintSchema.id, constraintId),
-          eq(userConstraintSchema.userId, userId)
+          eq(userConstraintSchema.userId, userId),
         ));
 
-      logger.info('User constraint removed', { 
-        userId, 
-        constraintId
+      logger.info('User constraint removed', {
+        userId,
+        constraintId,
       });
 
       return true;
     } catch (error) {
-      logger.error('Failed to remove constraint', { 
+      logger.error('Failed to remove constraint', {
         userId,
         constraintId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -708,20 +705,20 @@ export class UserProfileService {
         .from(userConstraintSchema)
         .where(and(
           eq(userConstraintSchema.userId, userId),
-          eq(userConstraintSchema.isActive, true)
+          eq(userConstraintSchema.isActive, true),
         ))
         .orderBy(desc(userConstraintSchema.severity), desc(userConstraintSchema.createdAt));
 
-      logger.debug('Active constraints retrieved', { 
-        userId, 
-        constraintCount: constraints.length
+      logger.debug('Active constraints retrieved', {
+        userId,
+        constraintCount: constraints.length,
       });
 
       return constraints;
     } catch (error) {
-      logger.error('Failed to retrieve active constraints', { 
+      logger.error('Failed to retrieve active constraints', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -741,7 +738,7 @@ export class UserProfileService {
       'activityLevel',
     ];
 
-    const completedFields = fields.filter(field => {
+    const completedFields = fields.filter((field) => {
       const value = profile[field];
       return value !== null && value !== undefined && value !== '';
     });
@@ -794,9 +791,9 @@ export class UserProfileService {
         hasPreferences: !!preferences,
       };
     } catch (error) {
-      logger.error('Failed to get profile statistics', { 
+      logger.error('Failed to get profile statistics', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }

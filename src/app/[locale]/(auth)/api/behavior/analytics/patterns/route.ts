@@ -40,11 +40,11 @@ export const GET = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url);
     const queryParams = {
       behaviorType: searchParams.get('behaviorType'),
-      minConfidence: searchParams.get('minConfidence') 
-        ? parseInt(searchParams.get('minConfidence')!) 
+      minConfidence: searchParams.get('minConfidence')
+        ? Number.parseInt(searchParams.get('minConfidence')!)
         : 70,
-      limit: searchParams.get('limit') 
-        ? parseInt(searchParams.get('limit')!) 
+      limit: searchParams.get('limit')
+        ? Number.parseInt(searchParams.get('limit')!)
         : 10,
     };
 
@@ -61,7 +61,7 @@ export const GET = async (request: NextRequest) => {
     const patterns = await HabitStrengthAnalyticsService.recognizePatterns(
       user.id,
       behaviorType,
-      minConfidence
+      minConfidence,
     );
 
     // Limit results

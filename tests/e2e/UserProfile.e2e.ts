@@ -6,7 +6,6 @@ import { expect, test } from '@playwright/test';
 import {
   addHealthGoal,
   addHealthRecord,
-  addHealthReminder,
   getFutureDate,
 } from './helpers/healthTestHelpers';
 
@@ -117,9 +116,10 @@ test.describe('User Profile Management', () => {
 
       // Verify tracking events
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const setupCompleteEvent = capturedEvents.find(event => 
-        event.eventName === 'profile_setup_completed'
+      const setupCompleteEvent = capturedEvents.find(event =>
+        event.eventName === 'profile_setup_completed',
       );
+
       expect(setupCompleteEvent).toBeTruthy();
       expect(setupCompleteEvent.properties).toMatchObject({
         completionPercentage: 100,
@@ -151,6 +151,7 @@ test.describe('User Profile Management', () => {
 
       // Should show resume setup option
       await expect(page.getByTestId('resume-setup-button')).toBeVisible();
+
       await page.getByTestId('resume-setup-button').click();
 
       // Should continue from where left off
@@ -181,9 +182,10 @@ test.describe('User Profile Management', () => {
 
       // Verify error tracking
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const validationEvent = capturedEvents.find(event => 
-        event.eventName === 'profile_validation_error'
+      const validationEvent = capturedEvents.find(event =>
+        event.eventName === 'profile_validation_error',
       );
+
       expect(validationEvent).toBeTruthy();
     });
 
@@ -245,9 +247,10 @@ test.describe('User Profile Management', () => {
 
       // Verify tracking
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const updateEvent = capturedEvents.find(event => 
-        event.eventName === 'profile_updated'
+      const updateEvent = capturedEvents.find(event =>
+        event.eventName === 'profile_updated',
       );
+
       expect(updateEvent).toBeTruthy();
       expect(updateEvent.properties.fieldsUpdated).toContain('firstName');
       expect(updateEvent.properties.fieldsUpdated).toContain('weight');
@@ -275,7 +278,7 @@ test.describe('User Profile Management', () => {
 
       // Try to save in second tab (should detect conflict)
       await secondPage.getByRole('button', { name: 'Save Changes' }).click();
-      
+
       // Should show conflict resolution dialog
       await expect(secondPage.getByText('Profile was updated by another session')).toBeVisible();
       await expect(secondPage.getByRole('button', { name: 'Reload and Retry' })).toBeVisible();
@@ -375,7 +378,7 @@ test.describe('User Profile Management', () => {
 
       // Verify preferences saved
       await expect(page.getByText('Preferences updated successfully')).toBeVisible();
-      
+
       // Verify preferences display
       await expect(page.getByTestId('preferred-workouts')).toContainText('Strength');
       await expect(page.getByTestId('preferred-workouts')).toContainText('Cardio');
@@ -385,9 +388,10 @@ test.describe('User Profile Management', () => {
 
       // Verify tracking
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const preferencesEvent = capturedEvents.find(event => 
-        event.eventName === 'workout_preferences_updated'
+      const preferencesEvent = capturedEvents.find(event =>
+        event.eventName === 'workout_preferences_updated',
       );
+
       expect(preferencesEvent).toBeTruthy();
       expect(preferencesEvent.properties.workoutTypes).toContain('strength');
       expect(preferencesEvent.properties.workoutTypes).toContain('cardio');
@@ -440,6 +444,7 @@ test.describe('User Profile Management', () => {
 
       // Verify recommendations match preferences
       const recommendations = page.getByTestId('workout-recommendation');
+
       await expect(recommendations.first()).toContainText('Yoga');
       await expect(recommendations.first()).toContainText('30 min');
       await expect(recommendations.first()).toContainText('Morning');
@@ -450,9 +455,10 @@ test.describe('User Profile Management', () => {
 
       // Track recommendation view
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const recommendationEvent = capturedEvents.find(event => 
-        event.eventName === 'workout_recommendations_viewed'
+      const recommendationEvent = capturedEvents.find(event =>
+        event.eventName === 'workout_recommendations_viewed',
       );
+
       expect(recommendationEvent).toBeTruthy();
       expect(recommendationEvent.properties.filteredByPreferences).toBe(true);
     });
@@ -474,18 +480,20 @@ test.describe('User Profile Management', () => {
 
       // Verify reset
       await expect(page.getByText('Preferences reset to defaults')).toBeVisible();
-      
+
       // Check that custom preferences are cleared
       await page.getByTestId('edit-preferences-button').click();
+
       await expect(page.getByTestId('workout-type-strength')).not.toBeChecked();
       await expect(page.getByTestId('workout-type-cardio')).not.toBeChecked();
       await expect(page.getByTestId('preferred-time-evening')).not.toBeChecked();
 
       // Verify tracking
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const resetEvent = capturedEvents.find(event => 
-        event.eventName === 'preferences_reset'
+      const resetEvent = capturedEvents.find(event =>
+        event.eventName === 'preferences_reset',
       );
+
       expect(resetEvent).toBeTruthy();
     });
 
@@ -541,21 +549,23 @@ test.describe('User Profile Management', () => {
 
       // Should show constraint-aware recommendations
       await expect(page.getByTestId('constraint-notice')).toContainText('Recommendations adjusted for knee injury');
-      
+
       // Should not show high-impact exercises
       const recommendations = page.getByTestId('workout-recommendation');
       const count = await recommendations.count();
       for (let i = 0; i < count; i++) {
         const recommendation = recommendations.nth(i);
+
         await expect(recommendation).not.toContainText('Running');
         await expect(recommendation).not.toContainText('Jumping');
       }
 
       // Track constraint impact
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const constraintEvent = capturedEvents.find(event => 
-        event.eventName === 'constraint_added'
+      const constraintEvent = capturedEvents.find(event =>
+        event.eventName === 'constraint_added',
       );
+
       expect(constraintEvent).toBeTruthy();
       expect(constraintEvent.properties.constraintType).toBe('injury');
       expect(constraintEvent.properties.severity).toBe('medium');
@@ -635,6 +645,7 @@ test.describe('User Profile Management', () => {
       for (let i = 0; i < count; i++) {
         const recommendation = recommendations.nth(i);
         const equipmentText = await recommendation.getByTestId('required-equipment').textContent();
+
         expect(equipmentText).not.toContain('Barbell');
         expect(equipmentText).not.toContain('Treadmill');
       }
@@ -672,9 +683,10 @@ test.describe('User Profile Management', () => {
 
       // Verify tracking
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const resolvedEvent = capturedEvents.find(event => 
-        event.eventName === 'constraint_resolved'
+      const resolvedEvent = capturedEvents.find(event =>
+        event.eventName === 'constraint_resolved',
       );
+
       expect(resolvedEvent).toBeTruthy();
       expect(resolvedEvent.properties.constraintType).toBe('injury');
       expect(resolvedEvent.properties.resolutionMethod).toBe('manual');
@@ -715,10 +727,10 @@ test.describe('User Profile Management', () => {
       // Track various micro-behaviors during workout
       await page.getByTestId('exercise-rest-timer').click(); // Rest behavior
       await page.waitForTimeout(2000);
-      
+
       await page.getByTestId('increase-weight-button').click(); // Weight adjustment
       await page.getByTestId('decrease-reps-button').click(); // Rep adjustment
-      
+
       await page.getByTestId('skip-exercise-button').click(); // Exercise skipping
       await page.getByLabel('Skip Reason').selectOption('too-difficult');
       await page.getByRole('button', { name: 'Confirm Skip' }).click();
@@ -743,9 +755,10 @@ test.describe('User Profile Management', () => {
 
       // Verify tracking
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const patternEvent = capturedEvents.find(event => 
-        event.eventName === 'micro_behavior_pattern_detected'
+      const patternEvent = capturedEvents.find(event =>
+        event.eventName === 'micro_behavior_pattern_detected',
       );
+
       expect(patternEvent).toBeTruthy();
       expect(patternEvent.properties.patternType).toBe('workout_adjustment');
     });
@@ -755,7 +768,7 @@ test.describe('User Profile Management', () => {
 
       // Start workout with context tracking
       await page.goto('/dashboard/exercise/workout');
-      
+
       // Set workout context
       await page.getByTestId('workout-location').selectOption('home');
       await page.getByTestId('energy-level').selectOption('medium');
@@ -817,9 +830,10 @@ test.describe('User Profile Management', () => {
 
       // Verify recommendation applied
       await expect(page.getByText('Recommendation applied to your profile')).toBeVisible();
-      
+
       // Check that preferences were updated
       await page.goto('/dashboard/profile');
+
       await expect(page.getByTestId('auto-adjustments')).toContainText('Home workout weight reduction: 10%');
     });
 
@@ -935,11 +949,13 @@ test.describe('User Profile Management', () => {
       // Check consistency in health component
       await page.goto('/dashboard/health');
       await page.waitForLoadState('networkidle');
+
       await expect(page.getByTestId('current-weight')).toContainText('72 kg');
 
       // Check consistency in exercise component
       await page.goto('/dashboard/exercise');
       await page.waitForLoadState('networkidle');
+
       await expect(page.getByTestId('user-weight')).toContainText('72 kg');
 
       // Update preferences and check consistency
@@ -951,6 +967,7 @@ test.describe('User Profile Management', () => {
       // Check in recommendations
       await page.goto('/dashboard/exercise/recommendations');
       await page.waitForLoadState('networkidle');
+
       await expect(page.getByTestId('workout-recommendation').first()).toContainText('Yoga');
     });
 
@@ -985,9 +1002,10 @@ test.describe('User Profile Management', () => {
       // Should sync changes
       await expect(page.getByText('Profile synchronized')).toBeVisible();
       await expect(page.getByTestId('profile-weight')).toContainText('73');
-      
+
       // Verify preferences synced
       await page.getByTestId('edit-preferences-button').click();
+
       await expect(page.getByTestId('workout-type-cardio')).toBeChecked();
     });
 
@@ -1030,11 +1048,13 @@ test.describe('User Profile Management', () => {
       // Should handle scrolling/pagination smoothly
       await page.getByTestId('next-page-button').click();
       await page.waitForLoadState('networkidle');
+
       await expect(page.getByText('Showing 51-100 of 1000')).toBeVisible();
 
       // Behavior analysis should handle large dataset
       await page.getByTestId('behavior-analysis-tab').click();
       await page.waitForLoadState('networkidle');
+
       await expect(page.getByTestId('behavior-chart')).toBeVisible();
       await expect(page.getByText('Analyzing 5000 behavior events')).toBeVisible();
     });
@@ -1102,7 +1122,7 @@ test.describe('User Profile Management', () => {
 
   async function simulateWorkoutSession(page, options = {}) {
     await page.goto('/dashboard/exercise/workout');
-    
+
     if (options.location) {
       await page.getByTestId('workout-location').selectOption(options.location);
     }

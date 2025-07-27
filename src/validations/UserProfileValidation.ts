@@ -223,19 +223,19 @@ export const UserFitnessGoalValidation = z.object({
   if (data.goal_type === 'muscle_gain' && data.target_value && data.target_value > 30) {
     return false; // Unrealistic muscle gain target
   }
-  
+
   // Validate target date is reasonable for goal type
   const now = new Date();
   const timeDiff = data.target_date.getTime() - now.getTime();
   const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-  
+
   if (data.goal_type === 'weight_loss' && daysDiff < 30) {
     return false; // Weight loss goals should be at least 30 days
   }
   if (data.goal_type === 'muscle_gain' && daysDiff < 60) {
     return false; // Muscle gain goals should be at least 60 days
   }
-  
+
   return true;
 }, {
   message: 'Goal target or timeline is not reasonable for the specified goal type',
@@ -284,17 +284,17 @@ export const UserPreferenceValidation = z.object({
   if (data.preferred_days.length > totalWorkoutDays) {
     return false; // Cannot prefer more days than available workout days
   }
-  
+
   // Validate equipment and workout type compatibility
-  const hasCardioEquipment = data.available_equipment.some(eq => 
-    ['treadmill', 'bike', 'rowing_machine'].includes(eq)
+  const hasCardioEquipment = data.available_equipment.some(eq =>
+    ['treadmill', 'bike', 'rowing_machine'].includes(eq),
   );
   const prefersCardio = data.preferred_workout_types.includes('cardio');
-  
+
   if (prefersCardio && !hasCardioEquipment && !data.available_equipment.includes('none')) {
     // This is just a warning case, not a hard validation failure
   }
-  
+
   return true;
 }, {
   message: 'Workout preferences and available equipment are not compatible',
@@ -340,23 +340,23 @@ export const UserConstraintValidation = z.object({
   if (data.end_date && data.start_date >= data.end_date) {
     return false; // End date must be after start date
   }
-  
+
   if (data.is_permanent && data.end_date) {
     return false; // Permanent constraints cannot have end dates
   }
-  
+
   // Validate severity and impact level correlation
   const severityToImpact: Record<string, number[]> = {
-    'low': [1, 2],
-    'medium': [2, 3, 4],
-    'high': [3, 4, 5],
-    'critical': [4, 5],
+    low: [1, 2],
+    medium: [2, 3, 4],
+    high: [3, 4, 5],
+    critical: [4, 5],
   };
-  
+
   if (!severityToImpact[data.severity]?.includes(data.impact_level)) {
     return false; // Severity and impact level must be correlated
   }
-  
+
   return true;
 }, {
   message: 'Constraint dates, severity, or impact level are not valid',

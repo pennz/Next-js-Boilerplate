@@ -234,6 +234,7 @@ jsxA11y.flatConfigs.recommended,
 test('page should be accessible', async ({ page }) => {
   await page.goto('/');
   const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
+
   expect(accessibilityScanResults.violations).toEqual([]);
 });
 ```

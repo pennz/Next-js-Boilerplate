@@ -136,11 +136,11 @@ Based on `drizzle.config.ts` and `src/libs/DB.ts`:
 #### Production Database Requirements
 
 1. **PostgreSQL Version**: Compatible with Drizzle ORM
-2. **SSL Configuration**: 
+2. **SSL Configuration**:
    - SSL enabled for non-localhost connections
    - SSL certificates required for production deployments
 3. **Connection Pooling**: Recommended for production environments
-4. **Migration Management**: 
+4. **Migration Management**:
    - Automatic migration execution on startup
    - Migration files stored in `./migrations` directory
    - Verbose and strict mode enabled for safety

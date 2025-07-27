@@ -46,7 +46,7 @@ graph TD
     A --> F[Better Stack Logs]
     A --> G[Prometheus Metrics]
     A --> H[External Cron]
-    
+
     B --> I[JWT Tokens]
     C --> J[Bot Protection]
     C --> K[Rate Limiting]
@@ -91,16 +91,16 @@ export default async function middleware(request: NextRequest, event: NextFetchE
       if (isProtectedRoute(req)) {
         const locale = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
         const signInUrl = new URL(`${locale}/sign-in`, req.url);
-        
+
         await auth.protect({
           unauthenticatedUrl: signInUrl.toString(),
         });
       }
-      
+
       return handleI18nRouting(request);
     })(request, event);
   }
-  
+
   return handleI18nRouting(request);
 }
 ```
@@ -145,7 +145,7 @@ const aj = arcjet.withRule(
     mode: 'LIVE',
     allow: [
       'CATEGORY:SEARCH_ENGINE',
-      'CATEGORY:PREVIEW', 
+      'CATEGORY:PREVIEW',
       'CATEGORY:MONITOR',
     ],
   }),
@@ -248,7 +248,7 @@ export function PostHogProvider({ children }) {
       capture_pageview: true,
     })
   }, [])
-  
+
   return <PostHogProvider client={posthog}>{children}</PostHogProvider>
 }
 ```
@@ -293,8 +293,8 @@ await configure({
   loggers: [
     {
       category: ['app'],
-      sinks: isServer() && Env.BETTER_STACK_SOURCE_TOKEN 
-        ? ['console', 'betterStack'] 
+      sinks: isServer() && Env.BETTER_STACK_SOURCE_TOKEN
+        ? ['console', 'betterStack']
         : ['console'],
       lowestLevel: 'debug',
     },
@@ -342,7 +342,7 @@ if (authHeader !== expectedAuth) {
 **Cron Configuration:**
 ```typescript
 // Environment Variables
-HEALTH_REMINDER_CRON_SECRET=your_secret_token
+HEALTH_REMINDER_CRON_SECRET = your_secret_token;
 
 // Endpoint: /api/health/reminders/trigger
 // Method: POST
@@ -356,7 +356,7 @@ HEALTH_REMINDER_CRON_SECRET=your_secret_token
 **Configuration:**
 ```typescript
 // Environment Variables
-PROMETHEUS_METRICS_ENABLED=true
+PROMETHEUS_METRICS_ENABLED = true;
 ```
 
 **Integration Pattern:**
@@ -552,9 +552,9 @@ if (process.env.ARCJET_KEY) {
 }
 
 // Conditional logging
-sinks: isServer() && Env.BETTER_STACK_SOURCE_TOKEN 
-  ? ['console', 'betterStack'] 
-  : ['console']
+sinks: isServer() && Env.BETTER_STACK_SOURCE_TOKEN
+  ? ['console', 'betterStack']
+  : ['console'];
 ```
 
 **Health Check Endpoints:**

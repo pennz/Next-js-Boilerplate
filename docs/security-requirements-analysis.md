@@ -26,7 +26,7 @@ The application implements a sophisticated middleware security architecture in `
 
 #### Security Matcher Configuration
 ```typescript
-matcher: '/((?!_next|_vercel|monitoring|.*\\..*).*)'
+matcher: '/((?!_next|_vercel|monitoring|.*\\..*).*)';
 ```
 - Excludes Next.js internal routes (`_next`, `_vercel`)
 - Excludes monitoring endpoints
@@ -49,7 +49,7 @@ matcher: '/((?!_next|_vercel|monitoring|.*\\..*).*)'
 ```typescript
 shield({
   mode: 'LIVE', // Active blocking mode
-})
+});
 ```
 - **LIVE Mode**: Actively blocks malicious requests
 - **DRY_RUN Mode**: Available for testing (logs only)
@@ -62,7 +62,7 @@ shield({
 
 #### IP-Based Identification
 ```typescript
-characteristics: ['ip.src']
+characteristics: ['ip.src'];
 ```
 - User identification by source IP address
 - Enables IP-based rate limiting and tracking
@@ -76,10 +76,10 @@ detectBot({
   mode: 'LIVE',
   allow: [
     'CATEGORY:SEARCH_ENGINE', // Google, Bing, DuckDuckGo
-    'CATEGORY:PREVIEW',       // Social media link previews
-    'CATEGORY:MONITOR',       // Uptime monitoring services
+    'CATEGORY:PREVIEW', // Social media link previews
+    'CATEGORY:MONITOR', // Uptime monitoring services
   ],
-})
+});
 ```
 
 #### Allowed Bot Categories
@@ -119,12 +119,12 @@ detectBot({
 ```typescript
 ClerkProvider({
   localization: clerkLocale,
-  signInUrl: signInUrl,
-  signUpUrl: signUpUrl,
+  signInUrl,
+  signUpUrl,
   signInFallbackRedirectUrl: dashboardUrl,
   signUpFallbackRedirectUrl: dashboardUrl,
-  afterSignOutUrl: afterSignOutUrl,
-})
+  afterSignOutUrl,
+});
 ```
 
 #### Internationalized Authentication
@@ -139,7 +139,7 @@ ClerkProvider({
 if (isProtectedRoute(req)) {
   const locale = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
   const signInUrl = new URL(`${locale}/sign-in`, req.url);
-  
+
   await auth.protect({
     unauthenticatedUrl: signInUrl.toString(),
   });
@@ -295,9 +295,9 @@ client: {
 ```typescript
 allow: [
   'CATEGORY:SEARCH_ENGINE', // SEO-critical bots
-  'CATEGORY:PREVIEW',       // Social media previews
-  'CATEGORY:MONITOR',       // Uptime monitoring
-]
+  'CATEGORY:PREVIEW', // Social media previews
+  'CATEGORY:MONITOR', // Uptime monitoring
+];
 ```
 
 ### Rate Limiting Strategy

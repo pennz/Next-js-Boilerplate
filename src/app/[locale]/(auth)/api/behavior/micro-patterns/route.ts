@@ -1,14 +1,14 @@
 import type { NextRequest } from 'next/server';
 import arcjet, { tokenBucket } from '@arcjet/next';
 import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { db } from '@/libs/DB';
 import { Env } from '@/libs/Env';
 import { logger } from '@/libs/Logger';
-import { microBehaviorPatternSchema, contextPatternSchema } from '@/models/Schema';
+import { microBehaviorPatternSchema } from '@/models/Schema';
 // import { MicroBehaviorService } from '@/services/behavior/MicroBehaviorService';
 // import {
 //   MicroBehaviorPatternValidation,
@@ -71,43 +71,43 @@ class TempMicroBehaviorService {
   static async getPatterns(userId: string, filters: any): Promise<any[]> {
     // Placeholder implementation
     logger.info('Getting micro-behavior patterns', { userId, filters });
-    
+
     // Build query conditions
     const conditions = [eq(microBehaviorPatternSchema.userId, userId)];
-    
+
     if (filters.patternType) {
       conditions.push(eq(microBehaviorPatternSchema.patternType, filters.patternType));
     }
-    
+
     if (filters.behaviorName) {
       conditions.push(eq(microBehaviorPatternSchema.behaviorName, filters.behaviorName));
     }
-    
+
     if (filters.minFrequency !== undefined) {
       conditions.push(gte(microBehaviorPatternSchema.frequency, filters.minFrequency));
     }
-    
+
     if (filters.minStrength !== undefined) {
       conditions.push(gte(microBehaviorPatternSchema.strength, filters.minStrength));
     }
-    
+
     if (filters.minConfidence !== undefined) {
       conditions.push(gte(microBehaviorPatternSchema.confidence, filters.minConfidence));
     }
-    
+
     if (filters.startDate) {
       conditions.push(gte(microBehaviorPatternSchema.createdAt, filters.startDate));
     }
-    
+
     if (filters.endDate) {
       conditions.push(lte(microBehaviorPatternSchema.createdAt, filters.endDate));
     }
-    
+
     // Build order by
-    const orderBy = filters.sortOrder === 'asc' 
+    const orderBy = filters.sortOrder === 'asc'
       ? sql`${microBehaviorPatternSchema[filters.sortBy]} ASC`
       : sql`${microBehaviorPatternSchema[filters.sortBy]} DESC`;
-    
+
     const patterns = await db
       .select()
       .from(microBehaviorPatternSchema)
@@ -115,13 +115,13 @@ class TempMicroBehaviorService {
       .orderBy(orderBy)
       .limit(filters.limit)
       .offset(filters.offset);
-    
+
     return patterns;
   }
-  
+
   static async createPattern(userId: string, patternData: any): Promise<any> {
     logger.info('Creating micro-behavior pattern', { userId, patternData });
-    
+
     const patternToInsert = {
       userId,
       patternType: patternData.patternType,
@@ -136,18 +136,18 @@ class TempMicroBehaviorService {
       timeframe: patternData.timeframe ? JSON.stringify(patternData.timeframe) : null,
       metadata: patternData.metadata ? JSON.stringify(patternData.metadata) : null,
     };
-    
+
     const [insertedPattern] = await db
       .insert(microBehaviorPatternSchema)
       .values(patternToInsert)
       .returning();
-    
+
     return insertedPattern;
   }
-  
+
   static async createPatterns(userId: string, patterns: any[]): Promise<any[]> {
     logger.info('Creating bulk micro-behavior patterns', { userId, count: patterns.length });
-    
+
     const patternsToInsert = patterns.map(pattern => ({
       userId,
       patternType: pattern.patternType,
@@ -162,35 +162,59 @@ class TempMicroBehaviorService {
       timeframe: pattern.timeframe ? JSON.stringify(pattern.timeframe) : null,
       metadata: pattern.metadata ? JSON.stringify(pattern.metadata) : null,
     }));
-    
+
     const insertedPatterns = await db
       .insert(microBehaviorPatternSchema)
       .values(patternsToInsert)
       .returning();
-    
+
     return insertedPatterns;
   }
-  
+
   static async updatePattern(userId: string, patternId: number, updates: any): Promise<any> {
     logger.info('Updating micro-behavior pattern', { userId, patternId, updates });
-    
+
     const updateData: any = {};
-    
-    if (updates.patternType !== undefined) updateData.patternType = updates.patternType;
-    if (updates.behaviorName !== undefined) updateData.behaviorName = updates.behaviorName;
-    if (updates.frequency !== undefined) updateData.frequency = updates.frequency;
-    if (updates.strength !== undefined) updateData.strength = updates.strength;
-    if (updates.confidence !== undefined) updateData.confidence = updates.confidence;
-    if (updates.context !== undefined) updateData.context = JSON.stringify(updates.context);
-    if (updates.triggers !== undefined) updateData.triggers = JSON.stringify(updates.triggers);
-    if (updates.outcomes !== undefined) updateData.outcomes = JSON.stringify(updates.outcomes);
-    if (updates.correlations !== undefined) updateData.correlations = JSON.stringify(updates.correlations);
-    if (updates.timeframe !== undefined) updateData.timeframe = JSON.stringify(updates.timeframe);
-    if (updates.metadata !== undefined) updateData.metadata = JSON.stringify(updates.metadata);
-    if (updates.status !== undefined) updateData.status = updates.status;
-    
+
+    if (updates.patternType !== undefined) {
+      updateData.patternType = updates.patternType;
+    }
+    if (updates.behaviorName !== undefined) {
+      updateData.behaviorName = updates.behaviorName;
+    }
+    if (updates.frequency !== undefined) {
+      updateData.frequency = updates.frequency;
+    }
+    if (updates.strength !== undefined) {
+      updateData.strength = updates.strength;
+    }
+    if (updates.confidence !== undefined) {
+      updateData.confidence = updates.confidence;
+    }
+    if (updates.context !== undefined) {
+      updateData.context = JSON.stringify(updates.context);
+    }
+    if (updates.triggers !== undefined) {
+      updateData.triggers = JSON.stringify(updates.triggers);
+    }
+    if (updates.outcomes !== undefined) {
+      updateData.outcomes = JSON.stringify(updates.outcomes);
+    }
+    if (updates.correlations !== undefined) {
+      updateData.correlations = JSON.stringify(updates.correlations);
+    }
+    if (updates.timeframe !== undefined) {
+      updateData.timeframe = JSON.stringify(updates.timeframe);
+    }
+    if (updates.metadata !== undefined) {
+      updateData.metadata = JSON.stringify(updates.metadata);
+    }
+    if (updates.status !== undefined) {
+      updateData.status = updates.status;
+    }
+
     updateData.updatedAt = new Date();
-    
+
     const [updatedPattern] = await db
       .update(microBehaviorPatternSchema)
       .set(updateData)
@@ -201,17 +225,17 @@ class TempMicroBehaviorService {
         ),
       )
       .returning();
-    
+
     if (!updatedPattern) {
       throw new Error('Pattern not found or access denied');
     }
-    
+
     return updatedPattern;
   }
-  
+
   static async generateInsights(userId: string, patterns: any[]): Promise<any> {
     logger.info('Generating pattern insights', { userId, patternCount: patterns.length });
-    
+
     // Placeholder insight generation
     const insights = {
       totalPatterns: patterns.length,
@@ -228,7 +252,7 @@ class TempMicroBehaviorService {
         'Consider correlations between strong patterns',
       ],
     };
-    
+
     return insights;
   }
 }
@@ -329,31 +353,31 @@ export const GET = async (request: NextRequest) => {
 
     // Get total count for pagination
     const conditions = [eq(microBehaviorPatternSchema.userId, userId)];
-    
+
     if (validatedQuery.patternType) {
       conditions.push(eq(microBehaviorPatternSchema.patternType, validatedQuery.patternType));
     }
-    
+
     if (validatedQuery.behaviorName) {
       conditions.push(eq(microBehaviorPatternSchema.behaviorName, validatedQuery.behaviorName));
     }
-    
+
     if (validatedQuery.minFrequency !== undefined) {
       conditions.push(gte(microBehaviorPatternSchema.frequency, validatedQuery.minFrequency));
     }
-    
+
     if (validatedQuery.minStrength !== undefined) {
       conditions.push(gte(microBehaviorPatternSchema.strength, validatedQuery.minStrength));
     }
-    
+
     if (validatedQuery.minConfidence !== undefined) {
       conditions.push(gte(microBehaviorPatternSchema.confidence, validatedQuery.minConfidence));
     }
-    
+
     if (validatedQuery.startDate) {
       conditions.push(gte(microBehaviorPatternSchema.createdAt, validatedQuery.startDate));
     }
-    
+
     if (validatedQuery.endDate) {
       conditions.push(lte(microBehaviorPatternSchema.createdAt, validatedQuery.endDate));
     }
@@ -457,7 +481,7 @@ export const POST = async (request: NextRequest) => {
           confidence: pattern.confidence,
         });
       }
-      
+
       if (pattern.strength > 0.8 && pattern.frequency < 0.3) {
         logger.warn('Potentially inconsistent pattern detected', {
           userId,
@@ -494,7 +518,7 @@ export const POST = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('Statistical significance')) {
         return NextResponse.json(
           { error: error.message },
@@ -610,7 +634,7 @@ export const PUT = async (request: NextRequest) => {
           { status: 404 },
         );
       }
-      
+
       if (error.message.includes('Validation failed')) {
         return NextResponse.json(
           { error: error.message },
@@ -694,7 +718,7 @@ export const DELETE = async (request: NextRequest) => {
       // Archive the pattern (soft delete)
       const [archivedPattern] = await db
         .update(microBehaviorPatternSchema)
-        .set({ 
+        .set({
           status: 'archived',
           updatedAt: new Date(),
         })

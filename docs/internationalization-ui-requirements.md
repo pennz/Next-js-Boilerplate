@@ -14,7 +14,7 @@ The health management system contains the most extensive set of translation keys
 ```json
 {
   "label_weight": "Weight / Poids",
-  "label_blood_pressure": "Blood Pressure / Tension Artérielle", 
+  "label_blood_pressure": "Blood Pressure / Tension Artérielle",
   "label_steps": "Steps / Pas",
   "label_heart_rate": "Heart Rate / Fréquence Cardiaque",
   "label_sleep_hours": "Sleep Hours / Heures de Sommeil",
@@ -28,7 +28,7 @@ The health management system contains the most extensive set of translation keys
 ```json
 {
   "label_value": "Value / Valeur",
-  "label_unit": "Unit / Unité", 
+  "label_unit": "Unit / Unité",
   "label_recorded_at": "Recorded At / Enregistré le",
   "label_target_value": "Target Value / Valeur Cible",
   "label_target_date": "Target Date / Date Cible",
@@ -90,7 +90,7 @@ Limited but essential keys for exercise tracking:
 {
   "RootLayout": {
     "home_link": "Home / Accueil",
-    "about_link": "About / A propos", 
+    "about_link": "About / A propos",
     "counter_link": "Counter / Compteur",
     "portfolio_link": "Portfolio / Portfolio",
     "sign_in_link": "Sign in / Se connecter",
@@ -124,7 +124,7 @@ Example of form-specific translations:
   "CounterForm": {
     "presentation": "The counter is stored in the database and incremented by the value you provide.",
     "label_increment": "Increment by / Incrémenter de",
-    "button_increment": "Increment / Incrémenter", 
+    "button_increment": "Increment / Incrémenter",
     "error_increment_range": "Value must be between 1 and 3 / La valeur doit être entre 1 et 3"
   }
 }
@@ -141,7 +141,7 @@ import { useTranslations } from 'next-intl';
 
 export const HealthRecordForm = () => {
   const t = useTranslations('HealthManagement');
-  
+
   return (
     <form>
       <label>{t('label_health_type')}</label>
@@ -149,10 +149,10 @@ export const HealthRecordForm = () => {
         <option value="weight">{t('label_weight')}</option>
         <option value="blood_pressure">{t('label_blood_pressure')}</option>
       </select>
-      
+
       <label>{t('label_value')}</label>
       <input type="number" placeholder={t('label_value')} />
-      
+
       <button type="submit">{t('button_save_record')}</button>
     </form>
   );
@@ -166,17 +166,17 @@ import { getTranslations } from 'next-intl/server';
 
 export default async function HealthOverview() {
   const t = await getTranslations('HealthManagement');
-  
+
   return (
     <div>
       <h1>{t('page_title_overview')}</h1>
       <p>{t('meta_description')}</p>
-      
+
       <section>
         <h2>{t('overview_recent_records')}</h2>
         {/* Health records content */}
       </section>
-      
+
       <section>
         <h2>{t('overview_active_goals')}</h2>
         {/* Goals content */}
@@ -230,9 +230,9 @@ All form fields must have localized labels and placeholders:
 </select>
 
 <label htmlFor="value">{t('label_value')}</label>
-<input 
+<input
   id="value"
-  type="number" 
+  type="number"
   placeholder={t('label_value')}
   aria-label={t('label_value')}
 />
@@ -249,7 +249,7 @@ const healthRecordSchema = z.object({
     required_error: t('error_required_field'),
     invalid_type_error: t('error_invalid_value')
   }).positive(t('error_value_too_low')),
-  
+
   recordedAt: z.date({
     required_error: t('error_required_field'),
     invalid_type_error: t('error_invalid_date')
@@ -265,7 +265,7 @@ const healthRecordSchema = z.object({
 // Success notification
 toast.success(t('success_record_saved'));
 
-// Error notification  
+// Error notification
 toast.error(t('error_invalid_value'));
 
 // Loading state
@@ -290,7 +290,7 @@ toast.error(t('error_invalid_value'));
 const formatDate = (date: Date, locale: string) => {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
-    month: 'long', 
+    month: 'long',
     day: 'numeric'
   }).format(date);
 };
@@ -319,7 +319,7 @@ const formatHealthValue = (value: number, locale: string) => {
 ```json
 {
   "unit_kg": "kg",
-  "unit_lbs": "lbs", 
+  "unit_lbs": "lbs",
   "unit_mmhg": "mmHg",
   "unit_steps": "steps / pas",
   "unit_bpm": "bpm",
@@ -405,14 +405,14 @@ French:  /fr/dashboard/health/analytics/weight
 // Page metadata with i18n
 export async function generateMetadata({ params: { locale } }) {
   const t = await getTranslations({ locale, namespace: 'HealthManagement' });
-  
+
   return {
     title: t('meta_title'),
     description: t('meta_description'),
     alternates: {
       languages: {
-        'en': '/en/dashboard/health',
-        'fr': '/fr/dashboard/health'
+        en: '/en/dashboard/health',
+        fr: '/fr/dashboard/health'
       }
     }
   };
@@ -444,17 +444,17 @@ const localizedTypes = healthTypes.map(type => ({
 // Chart component with i18n
 const HealthChart = ({ data, type }) => {
   const t = useTranslations('HealthManagement');
-  
+
   const chartConfig = {
     title: t(`chart_${type}_trend`),
     xAxis: {
       label: t('label_date')
     },
     yAxis: {
-      label: `${t(`label_${type}`)} (${t(`unit_${getUnit(type)}`)})` 
+      label: `${t(`label_${type}`)} (${t(`unit_${getUnit(type)}`)})`
     }
   };
-  
+
   return <Chart config={chartConfig} data={data} />;
 };
 ```
@@ -472,11 +472,11 @@ const getGoalProgressMessage = (goal: Goal, t: any) => {
   if (goal.isCompleted) {
     return t('goal_completed_on', { date: formatDate(goal.completedAt) });
   }
-  
+
   if (goal.isOverdue) {
     return t('goal_overdue_by', { days: goal.overdueDays });
   }
-  
+
   return t('goal_days_remaining', { days: goal.daysRemaining });
 };
 ```
@@ -487,14 +487,14 @@ const getGoalProgressMessage = (goal: Goal, t: any) => {
 // Empty state messages
 const EmptyState = ({ type }) => {
   const t = useTranslations('HealthManagement');
-  
+
   const messages = {
     records: t('records_empty_state'),
-    goals: t('goals_empty_state'), 
+    goals: t('goals_empty_state'),
     reminders: t('reminders_empty_state'),
     analytics: t('analytics_empty_state')
   };
-  
+
   return (
     <div className="empty-state">
       <p>{messages[type]}</p>
@@ -532,7 +532,7 @@ const EmptyState = ({ type }) => {
 const HealthCard = ({ data }) => {
   const locale = useLocale();
   const isRTL = locale === 'ar' || locale === 'he'; // Future RTL locales
-  
+
   return (
     <div className={`health-card ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="card-content">
@@ -569,7 +569,7 @@ The application includes a `missing_translations.json` file that tracks untransl
   "HealthManagement": {
     "page_description_analytics": "View detailed analytics for {type}",
     "stat_current": "Current",
-    "stat_average": "Average", 
+    "stat_average": "Average",
     "stat_minimum": "Minimum",
     "stat_maximum": "Maximum",
     "goal_progress_title": "Goal Progress",
@@ -585,10 +585,10 @@ The application includes a `missing_translations.json` file that tracks untransl
 // Development helper for missing translations
 if (process.env.NODE_ENV === 'development') {
   const originalT = useTranslations;
-  
+
   const wrappedT = (namespace: string) => {
     const t = originalT(namespace);
-    
+
     return (key: string, values?: any) => {
       try {
         return t(key, values);
@@ -616,7 +616,7 @@ src/
 ### 9.2 Translation Key Naming Conventions
 
 - **Namespace**: Component or feature name (e.g., `HealthManagement`)
-- **Category prefixes**: 
+- **Category prefixes**:
   - `label_` for form labels
   - `button_` for button text
   - `error_` for error messages
@@ -633,14 +633,14 @@ src/
 const validateTranslations = () => {
   const enKeys = extractKeys(enTranslations);
   const frKeys = extractKeys(frTranslations);
-  
+
   const missingInFr = enKeys.filter(key => !frKeys.includes(key));
   const missingInEn = frKeys.filter(key => !enKeys.includes(key));
-  
+
   if (missingInFr.length > 0) {
     console.warn('Missing French translations:', missingInFr);
   }
-  
+
   if (missingInEn.length > 0) {
     console.warn('Missing English translations:', missingInEn);
   }
@@ -687,12 +687,12 @@ const translationCache = new Map();
 
 const getCachedTranslations = (locale: string, namespace: string) => {
   const cacheKey = `${locale}-${namespace}`;
-  
+
   if (!translationCache.has(cacheKey)) {
     const translations = loadTranslations(locale, namespace);
     translationCache.set(cacheKey, translations);
   }
-  
+
   return translationCache.get(cacheKey);
 };
 ```
@@ -707,20 +707,20 @@ describe('Health Management Translations', () => {
   test('should have all required English translations', () => {
     const requiredKeys = [
       'label_weight',
-      'label_blood_pressure', 
+      'label_blood_pressure',
       'button_save_record',
       'error_required_field'
     ];
-    
-    requiredKeys.forEach(key => {
+
+    requiredKeys.forEach((key) => {
       expect(enTranslations.HealthManagement[key]).toBeDefined();
     });
   });
-  
+
   test('should have matching French translations', () => {
     const enKeys = Object.keys(enTranslations.HealthManagement);
     const frKeys = Object.keys(frTranslations.HealthManagement);
-    
+
     expect(frKeys).toEqual(expect.arrayContaining(enKeys));
   });
 });
@@ -737,18 +737,18 @@ describe('HealthRecordForm i18n', () => {
         <HealthRecordForm />
       </NextIntlClientProvider>
     );
-    
+
     expect(screen.getByText('Weight')).toBeInTheDocument();
     expect(screen.getByText('Save Record')).toBeInTheDocument();
   });
-  
+
   test('should render in French', () => {
     render(
       <NextIntlClientProvider locale="fr" messages={frTranslations}>
         <HealthRecordForm />
       </NextIntlClientProvider>
     );
-    
+
     expect(screen.getByText('Poids')).toBeInTheDocument();
     expect(screen.getByText('Enregistrer le Dossier')).toBeInTheDocument();
   });

@@ -34,14 +34,15 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('Behavior Events API', () => {
     test('should create a single behavioral event with valid data', async ({ request }) => {
       const eventData = createSampleEvent();
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('success', true);
       expect(responseJson).toHaveProperty('created_count', 1);
       expect(responseJson.events).toHaveLength(1);
@@ -56,14 +57,15 @@ test.describe('Behavioral Event Tracking', () => {
         createSampleEvent({ eventName: 'health_record_added', entityType: 'health_record' }),
         createSampleEvent({ eventName: 'ui_click', entityType: 'ui_interaction', entityId: null }),
       ];
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.success).toBe(true);
       expect(responseJson.created_count).toBe(3);
       expect(responseJson.events).toHaveLength(3);
@@ -71,42 +73,45 @@ test.describe('Behavioral Event Tracking', () => {
 
     test('shouldn\'t create events with invalid event name', async ({ request }) => {
       const eventData = createSampleEvent({ eventName: '' });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('eventName');
     });
 
     test('shouldn\'t create events with invalid entity type', async ({ request }) => {
       const eventData = createSampleEvent({ entityType: 'invalid_type' });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('entityType');
     });
 
     test('shouldn\'t create more than 50 events in bulk', async ({ request }) => {
       const events = Array.from({ length: 51 }, () => createSampleEvent());
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('maximum');
     });
@@ -117,7 +122,7 @@ test.describe('Behavioral Event Tracking', () => {
         createSampleEvent({ eventName: 'workout_completed' }),
         createSampleEvent({ eventName: 'health_goal_created' }),
       ];
-      
+
       await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
@@ -125,8 +130,9 @@ test.describe('Behavioral Event Tracking', () => {
       const response = await apiRequest(request, 'get', '/api/behavior/events');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('data');
       expect(Array.isArray(responseJson.data)).toBe(true);
       expect(responseJson.data.length).toBeGreaterThan(0);
@@ -140,7 +146,7 @@ test.describe('Behavioral Event Tracking', () => {
         createSampleEvent({ eventName: 'workout_completed', sessionId }),
         createSampleEvent({ eventName: 'health_record_added', sessionId }),
       ];
-      
+
       await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
@@ -148,8 +154,9 @@ test.describe('Behavioral Event Tracking', () => {
       const response = await apiRequest(request, 'get', '/api/behavior/events?eventName=workout_started');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.data.every((event: any) => event.eventName === 'workout_started')).toBe(true);
     });
 
@@ -160,7 +167,7 @@ test.describe('Behavioral Event Tracking', () => {
         createSampleEvent({ entityType: 'health_record', sessionId }),
         createSampleEvent({ entityType: 'ui_interaction', sessionId }),
       ];
-      
+
       await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
@@ -168,8 +175,9 @@ test.describe('Behavioral Event Tracking', () => {
       const response = await apiRequest(request, 'get', '/api/behavior/events?entityType=training_session');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.data.every((event: any) => event.entityType === 'training_session')).toBe(true);
     });
 
@@ -178,22 +186,24 @@ test.describe('Behavioral Event Tracking', () => {
       startDate.setHours(0, 0, 0, 0);
       const endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
-      
+
       const events = [createSampleEvent()];
       await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
 
-      const response = await apiRequest(request, 'get', 
-        `/api/behavior/events?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+      const response = await apiRequest(request, 'get', `/api/behavior/events?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
       );
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.data.length).toBeGreaterThan(0);
+
       responseJson.data.forEach((event: any) => {
         const eventDate = new Date(event.createdAt);
+
         expect(eventDate.getTime()).toBeGreaterThanOrEqual(startDate.getTime());
         expect(eventDate.getTime()).toBeLessThanOrEqual(endDate.getTime());
       });
@@ -201,10 +211,9 @@ test.describe('Behavioral Event Tracking', () => {
 
     test('should paginate events correctly', async ({ request }) => {
       // Create multiple events
-      const events = Array.from({ length: 15 }, (_, i) => 
-        createSampleEvent({ eventName: `test_event_${i}` })
-      );
-      
+      const events = Array.from({ length: 15 }, (_, i) =>
+        createSampleEvent({ eventName: `test_event_${i}` }));
+
       await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
@@ -212,8 +221,9 @@ test.describe('Behavioral Event Tracking', () => {
       const response = await apiRequest(request, 'get', '/api/behavior/events?limit=10&offset=0');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.data.length).toBeLessThanOrEqual(10);
       expect(responseJson.pagination).toHaveProperty('total');
       expect(responseJson.pagination).toHaveProperty('limit', 10);
@@ -225,7 +235,7 @@ test.describe('Behavioral Event Tracking', () => {
     test('should return 503 when ENABLE_BEHAVIOR_TRACKING is disabled', async ({ request }) => {
       // This test assumes the feature flag can be controlled via environment or test setup
       const eventData = createSampleEvent();
-      
+
       // Mock or set environment variable to disable feature
       const response = await request.post('/api/behavior/events', {
         data: { events: [eventData] },
@@ -238,6 +248,7 @@ test.describe('Behavioral Event Tracking', () => {
       // If feature is disabled, should return service unavailable
       if (response.status() === 503) {
         const responseJson = await response.json();
+
         expect(responseJson).toHaveProperty('error');
         expect(responseJson.error).toContain('disabled');
       } else {
@@ -250,24 +261,25 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('Rate Limiting', () => {
     test('should enforce rate limiting for behavioral events', async ({ request }) => {
       const e2eRandomId = faker.number.int({ max: 1000000 }).toString();
-      
+
       // Make multiple rapid requests to trigger rate limiting
       const promises = Array.from({ length: 25 }, () =>
         request.post('/api/behavior/events', {
           data: { events: [createSampleEvent()] },
           headers: { 'x-e2e-random-id': e2eRandomId },
-        })
-      );
+        }));
 
       const responses = await Promise.all(promises);
-      
+
       // At least some requests should be rate limited
       const rateLimitedResponses = responses.filter(r => r.status() === 429);
+
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
-      
+
       // Check rate limit headers
       const rateLimitedResponse = rateLimitedResponses[0];
       const headers = rateLimitedResponse.headers();
+
       expect(headers).toHaveProperty('x-ratelimit-limit');
       expect(headers).toHaveProperty('x-ratelimit-remaining');
     });
@@ -276,7 +288,7 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('Performance Tests', () => {
     test('should handle bulk event processing efficiently', async ({ request }) => {
       const events = Array.from({ length: 50 }, () => createSampleEvent());
-      
+
       const startTime = Date.now();
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events,
@@ -284,11 +296,12 @@ test.describe('Behavioral Event Tracking', () => {
       const endTime = Date.now();
 
       expect(response.status()).toBe(201);
-      
+
       // Should process 50 events in under 5 seconds
       expect(endTime - startTime).toBeLessThan(5000);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.created_count).toBe(50);
     });
 
@@ -296,11 +309,10 @@ test.describe('Behavioral Event Tracking', () => {
       // Create a large number of events
       const batchSize = 50;
       const batches = 3;
-      
+
       for (let i = 0; i < batches; i++) {
-        const events = Array.from({ length: batchSize }, (_, j) => 
-          createSampleEvent({ eventName: `batch_${i}_event_${j}` })
-        );
+        const events = Array.from({ length: batchSize }, (_, j) =>
+          createSampleEvent({ eventName: `batch_${i}_event_${j}` }));
         await apiRequest(request, 'post', '/api/behavior/events', { events });
       }
 
@@ -309,76 +321,81 @@ test.describe('Behavioral Event Tracking', () => {
       const endTime = Date.now();
 
       expect(response.status()).toBe(200);
-      
+
       // Should retrieve events in under 3 seconds
       expect(endTime - startTime).toBeLessThan(3000);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.data.length).toBeGreaterThan(0);
     });
 
     test('should handle concurrent event creation scenarios', async ({ request }) => {
       const sessionId = generateSessionId();
-      
+
       // Create multiple concurrent requests
       const promises = Array.from({ length: 10 }, (_, i) =>
         apiRequest(request, 'post', '/api/behavior/events', {
           events: [
-            createSampleEvent({ 
-              eventName: `concurrent_event_${i}`, 
-              sessionId 
-            })
+            createSampleEvent({
+              eventName: `concurrent_event_${i}`,
+              sessionId,
+            }),
           ],
-        })
-      );
+        }));
 
       const responses = await Promise.all(promises);
-      
+
       // All requests should succeed
       for (const response of responses) {
         expect(response.status()).toBe(201);
       }
-      
+
       // Verify all events were created
       const getResponse = await apiRequest(request, 'get', `/api/behavior/events?sessionId=${sessionId}`);
+
       expect(getResponse.status()).toBe(200);
-      
+
       const responseJson = await getResponse.json();
+
       expect(responseJson.data.length).toBe(10);
     });
 
     test('should maintain data consistency under high concurrency', async ({ request }) => {
       const sessionId = generateSessionId();
-      
+
       // Create a large number of concurrent requests
       const eventCount = 50;
       const promises = Array.from({ length: eventCount }, (_, i) =>
         apiRequest(request, 'post', '/api/behavior/events', {
           events: [
-            createSampleEvent({ 
-              eventName: `consistency_test_event_${i}`, 
-              sessionId 
-            })
+            createSampleEvent({
+              eventName: `consistency_test_event_${i}`,
+              sessionId,
+            }),
           ],
-        })
-      );
+        }));
 
       const responses = await Promise.all(promises);
-      
+
       // All requests should succeed
       const successfulResponses = responses.filter(r => r.status() === 201);
+
       expect(successfulResponses.length).toBeGreaterThan(eventCount * 0.9); // Allow for some failures
-      
+
       // Verify events were created consistently
       const getResponse = await apiRequest(request, 'get', `/api/behavior/events?sessionId=${sessionId}`);
+
       expect(getResponse.status()).toBe(200);
-      
+
       const responseJson = await getResponse.json();
+
       expect(responseJson.data.length).toBeGreaterThanOrEqual(eventCount * 0.9);
-      
+
       // Verify no duplicate events
       const eventNames = responseJson.data.map((event: any) => event.eventName);
       const uniqueEventNames = [...new Set(eventNames)];
+
       expect(eventNames.length).toBe(uniqueEventNames.length);
     });
   });
@@ -386,6 +403,7 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('Authentication and Authorization', () => {
     test('shouldn\'t access behavioral events without authentication', async ({ request }) => {
       const response = await request.get('/api/behavior/events');
+
       expect(response.status()).toBe(401);
     });
 
@@ -393,6 +411,7 @@ test.describe('Behavioral Event Tracking', () => {
       const response = await request.post('/api/behavior/events', {
         data: { events: [createSampleEvent()] },
       });
+
       expect(response.status()).toBe(401);
     });
   });
@@ -401,7 +420,7 @@ test.describe('Behavioral Event Tracking', () => {
     test('should isolate behavioral events between different users', async ({ request }) => {
       const user1Id = faker.number.int({ max: 1000000 });
       const user2Id = faker.number.int({ max: 1000000 });
-      
+
       // Create events for user 1
       await request.post('/api/behavior/events', {
         data: { events: [createSampleEvent({ eventName: 'user1_event' })] },
@@ -444,28 +463,30 @@ test.describe('Behavioral Event Tracking', () => {
           customData: { feature: 'quick_actions', buttonId: 'add_record' },
         },
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.events[0].context).toEqual(eventData.context);
     });
 
     test('should handle missing context data gracefully', async ({ request }) => {
       const eventData = createSampleEvent();
       delete eventData.context;
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.events[0]).toHaveProperty('context');
     });
 
@@ -490,17 +511,18 @@ test.describe('Behavioral Event Tracking', () => {
           },
         },
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
 
       // System should handle data gracefully without crashing
       expect([201, 422]).toContain(response.status());
-      
+
       // If successful, verify the event was created
       if (response.status() === 201) {
         const responseJson = await response.json();
+
         expect(responseJson.events[0]).toHaveProperty('id');
         expect(responseJson.events[0]).toHaveProperty('eventName');
       }
@@ -518,13 +540,13 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       const healthRecordJson = await healthRecord.json();
-      
+
       const eventData = createSampleEvent({
         eventName: 'health_record_viewed',
         entityType: 'health_record',
         entityId: healthRecordJson.id,
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
@@ -538,7 +560,7 @@ test.describe('Behavioral Event Tracking', () => {
         entityType: 'health_record',
         entityId: 999999, // Non-existent ID
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
@@ -557,17 +579,17 @@ test.describe('Behavioral Event Tracking', () => {
         createSampleEvent({ eventName: 'button_click', sessionId }),
         createSampleEvent({ eventName: 'session_end', sessionId }),
       ];
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
 
       expect(response.status()).toBe(201);
-      
+
       // Retrieve events for this session
       const sessionEvents = await apiRequest(request, 'get', `/api/behavior/events?sessionId=${sessionId}`);
       const sessionEventsJson = await sessionEvents.json();
-      
+
       expect(sessionEventsJson.data.length).toBe(4);
       expect(sessionEventsJson.data.every((event: any) => event.sessionId === sessionId)).toBe(true);
     });
@@ -592,8 +614,9 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
     });
 
@@ -603,8 +626,9 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('empty');
     });
@@ -612,7 +636,7 @@ test.describe('Behavioral Event Tracking', () => {
     test('should gracefully handle network failures when external services are unavailable', async ({ request }) => {
       // This test simulates network issues by using an invalid endpoint
       const eventData = createSampleEvent();
-      
+
       // Temporarily override the API endpoint to simulate network failure
       const response = await request.post('/api/nonexistent/endpoint', {
         data: { events: [eventData] },
@@ -624,12 +648,12 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Should handle network errors gracefully
       expect([404, 500, 502, 503, 504]).toContain(response.status());
-      
+
       // Create a valid event to ensure system still works after network issue
       const validResponse = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [eventData],
       });
-      
+
       // Should still be able to create events normally
       expect(validResponse.status()).toBe(201);
     });
@@ -646,16 +670,16 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       expect(healthRecord.status()).toBe(201);
-      
+
       // Check if behavioral event was automatically created
       const events = await apiRequest(request, 'get', '/api/behavior/events?eventName=health_record_created');
       const eventsJson = await events.json();
-      
+
       // Should have at least one health record creation event
       expect(eventsJson.data.length).toBeGreaterThan(0);
-      expect(eventsJson.data.some((event: any) => 
-        event.eventName === 'health_record_created' && 
-        event.entityType === 'health_record'
+      expect(eventsJson.data.some((event: any) =>
+        event.eventName === 'health_record_created'
+        && event.entityType === 'health_record',
       )).toBe(true);
     });
 
@@ -671,14 +695,15 @@ test.describe('Behavioral Event Tracking', () => {
           exercises: ['bench_press', 'squats'],
         },
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events: [exerciseEvent],
       });
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.events[0].context.workoutType).toBe('strength_training');
     });
   });
@@ -687,29 +712,29 @@ test.describe('Behavioral Event Tracking', () => {
     test('should create events suitable for analytics aggregation', async ({ request }) => {
       const now = new Date();
       const events = [
-        createSampleEvent({ 
+        createSampleEvent({
           eventName: 'feature_usage',
           entityType: 'ui_interaction',
-          context: { feature: 'health_dashboard', action: 'view' }
+          context: { feature: 'health_dashboard', action: 'view' },
         }),
-        createSampleEvent({ 
+        createSampleEvent({
           eventName: 'feature_usage',
           entityType: 'ui_interaction',
-          context: { feature: 'exercise_tracker', action: 'start_workout' }
+          context: { feature: 'exercise_tracker', action: 'start_workout' },
         }),
-        createSampleEvent({ 
+        createSampleEvent({
           eventName: 'goal_progress',
           entityType: 'health_goal',
-          context: { progress: 75, goalType: 'weight_loss' }
+          context: { progress: 75, goalType: 'weight_loss' },
         }),
       ];
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/events', {
         events,
       });
 
       expect(response.status()).toBe(201);
-      
+
       // Verify events are structured for analytics
       const responseJson = await response.json();
       responseJson.events.forEach((event: any) => {

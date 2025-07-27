@@ -136,10 +136,10 @@ describe('Form Validation', () => {
   it('shows validation error for empty required field', async () => {
     const user = userEvent.setup();
     render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-    
+
     const submitButton = screen.getByRole('button', { name: /save record/i });
     await user.click(submitButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/field is required/i)).toBeInTheDocument();
     });
@@ -148,11 +148,11 @@ describe('Form Validation', () => {
   it('shows validation error for invalid value range', async () => {
     const user = userEvent.setup();
     render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-    
+
     const valueInput = screen.getByLabelText(/value/i);
     await user.clear(valueInput);
     await user.type(valueInput, '-5');
-    
+
     await waitFor(() => {
       expect(screen.getByText(/value must be greater than 0/i)).toBeInTheDocument();
     });
@@ -175,11 +175,11 @@ describe('Form Validation', () => {
 it('updates field value when user types', async () => {
   const user = userEvent.setup();
   render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-  
+
   const valueInput = screen.getByLabelText(/value/i);
   await user.clear(valueInput);
   await user.type(valueInput, '75.5');
-  
+
   expect(valueInput).toHaveValue(75.5);
 });
 ```
@@ -212,7 +212,7 @@ it('updates field value when user types', async () => {
 describe('Accessibility', () => {
   it('has proper form labels associated with inputs', () => {
     render(<TestWrapper><HealthRecordForm /></TestWrapper>);
-    
+
     const valueInput = screen.getByLabelText(/value/i);
     expect(valueInput).toHaveAttribute('id', 'value');
   });
@@ -241,9 +241,9 @@ describe('HealthOverview', () => {
   it('renders all main sections with mock data', async () => {
     vi.spyOn(Clerk, 'currentUser').mockResolvedValue(mockClerkUser);
     mockHealthOverviewData(mockData);
-    
+
     render(<HealthOverview />);
-    
+
     expect(await screen.findByTestId('health-overview')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-stats')).toBeInTheDocument();
     expect(screen.getByText('Weight')).toBeInTheDocument();
@@ -261,14 +261,14 @@ describe('HealthOverview', () => {
 
 ```typescript
 it('shows empty state for no records or goals', async () => {
-  mockHealthOverviewData({ 
-    recentRecords: [], 
-    activeGoals: [], 
-    stats: { totalRecords: 0, activeGoals: 0, completedGoals: 0, weeklyProgress: 0 } 
+  mockHealthOverviewData({
+    recentRecords: [],
+    activeGoals: [],
+    stats: { totalRecords: 0, activeGoals: 0, completedGoals: 0, weeklyProgress: 0 }
   });
-  
+
   render(<HealthOverview />);
-  
+
   expect(await screen.findByText('No recent records')).toBeInTheDocument();
   expect(screen.getByText('No active goals')).toBeInTheDocument();
 });
@@ -286,7 +286,7 @@ it('shows empty state for no records or goals', async () => {
 it('returns null if not authenticated', async () => {
   vi.spyOn(Clerk, 'currentUser').mockResolvedValue(null);
   render(<HealthOverview />);
-  
+
   expect(screen.queryByTestId('health-overview')).not.toBeInTheDocument();
 });
 ```
@@ -340,7 +340,7 @@ export const ErrorState: Story = {
 
 **Viewport Testing Requirements:**
 - Mobile (375px width)
-- Tablet (768px width)  
+- Tablet (768px width)
 - Desktop (1200px width)
 - Component layout adapts correctly across viewports
 - Touch interactions work on mobile devices
@@ -368,7 +368,7 @@ export const parameters = {
           enabled: true,
         },
         {
-          id: 'focus-order-semantics', 
+          id: 'focus-order-semantics',
           enabled: true,
         },
       ],
@@ -453,10 +453,10 @@ export const parameters = {
 it('supports keyboard navigation', async () => {
   const user = userEvent.setup();
   render(<TestWrapper><Component /></TestWrapper>);
-  
+
   await user.tab();
   expect(screen.getByRole('button')).toHaveFocus();
-  
+
   await user.keyboard('{Enter}');
   // Assert expected behavior
 });

@@ -11,7 +11,7 @@ export const Env = createEnv({
     /**
      * Enables behavioral tracking functionality.
      * When set to 'true', client-side behavioral events will be collected and sent.
-     * Note: Client-side buffer settings (NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE and 
+     * Note: Client-side buffer settings (NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE and
      * NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL) are only used when this is enabled.
      */
     ENABLE_BEHAVIOR_TRACKING: z.string().transform(val => val === 'true').optional().default(false),
@@ -32,7 +32,7 @@ export const Env = createEnv({
      * Must be between 1 and 100. Default is 80%.
      */
     PROFILE_COMPLETION_THRESHOLD: z.string()
-      .transform(val => parseInt(val, 10))
+      .transform(val => Number.parseInt(val, 10))
       .pipe(z.number().int().positive().min(1).max(100))
       .optional()
       .default(80),
@@ -55,7 +55,7 @@ export const Env = createEnv({
      * Must be between 1 and 100.
      */
     NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE: z.string()
-      .transform(val => parseInt(val, 10))
+      .transform(val => Number.parseInt(val, 10))
       .pipe(z.number().int().positive().min(1).max(100))
       .optional()
       .default(10),
@@ -65,7 +65,7 @@ export const Env = createEnv({
      * Must be between 1000ms (1 second) and 300000ms (5 minutes).
      */
     NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL: z.string()
-      .transform(val => parseInt(val, 10))
+      .transform(val => Number.parseInt(val, 10))
       .pipe(z.number().int().positive().min(1000).max(300000))
       .optional()
       .default(30000),
@@ -75,7 +75,7 @@ export const Env = createEnv({
      * Must be between 5000ms (5 seconds) and 300000ms (5 minutes).
      */
     NEXT_PUBLIC_PROFILE_AUTO_SAVE_INTERVAL: z.string()
-      .transform(val => parseInt(val, 10))
+      .transform(val => Number.parseInt(val, 10))
       .pipe(z.number().int().positive().min(5000).max(300000))
       .optional()
       .default(60000),
@@ -85,7 +85,7 @@ export const Env = createEnv({
      * Must be between 1 and 100.
      */
     NEXT_PUBLIC_MICRO_BEHAVIOR_BUFFER_SIZE: z.string()
-      .transform(val => parseInt(val, 10))
+      .transform(val => Number.parseInt(val, 10))
       .pipe(z.number().int().positive().min(1).max(100))
       .optional()
       .default(20),

@@ -341,7 +341,7 @@ BEHAVIOR_METADATA: ${JSON.stringify(behaviorMetadata)}`;
     console.log('   - Context Suitability: Environments where exercise can be performed');
     console.log('   - Time Requirement: Typical duration for exercise session');
     console.log('   - Progress Trackability: Ease of measuring improvement');
-    
+
     console.log('📊 Exercise Distribution:');
     const beginnerCount = exercises.filter(e => e.difficulty === 'beginner').length;
     const intermediateCount = exercises.filter(e => e.difficulty === 'intermediate').length;

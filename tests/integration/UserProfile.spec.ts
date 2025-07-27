@@ -83,12 +83,13 @@ test.describe('User Profile Management', () => {
   test.describe('Profile API Endpoints', () => {
     test('should create a new user profile with valid data', async ({ request }) => {
       const profileData = createSampleProfile();
-      
+
       const response = await apiRequest(request, 'post', '/api/profile', profileData);
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('success', true);
       expect(responseJson).toHaveProperty('profile');
       expect(responseJson.profile).toHaveProperty('id');
@@ -105,8 +106,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/profile');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('profile');
       expect(responseJson.profile).toHaveProperty('id');
       expect(responseJson.profile).toHaveProperty('fitnessGoals');
@@ -129,8 +131,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'put', '/api/profile', updateData);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.profile.fitnessLevel).toBe(updateData.fitnessLevel);
       expect(responseJson.profile.weight).toBe(updateData.weight);
       expect(responseJson.profile.primaryGoals).toEqual(updateData.primaryGoals);
@@ -144,51 +147,56 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'delete', '/api/profile');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('success', true);
       expect(responseJson).toHaveProperty('message');
 
       // Verify profile is no longer accessible
       const getResponse = await apiRequest(request, 'get', '/api/profile');
+
       expect(getResponse.status()).toBe(404);
     });
 
     test('shouldn\'t create profile with invalid fitness level', async ({ request }) => {
       const profileData = createSampleProfile({ fitnessLevel: 'invalid_level' });
-      
+
       const response = await apiRequest(request, 'post', '/api/profile', profileData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('fitnessLevel');
     });
 
     test('shouldn\'t create profile with invalid primary goals', async ({ request }) => {
       const profileData = createSampleProfile({ primaryGoals: ['invalid_goal'] });
-      
+
       const response = await apiRequest(request, 'post', '/api/profile', profileData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('primaryGoals');
     });
 
     test('shouldn\'t create profile with unrealistic measurements', async ({ request }) => {
-      const profileData = createSampleProfile({ 
+      const profileData = createSampleProfile({
         height: 300, // Unrealistic height
         weight: 500, // Unrealistic weight
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/profile', profileData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
     });
   });
@@ -200,12 +208,13 @@ test.describe('User Profile Management', () => {
       await apiRequest(request, 'post', '/api/profile', profileData);
 
       const goalData = createSampleFitnessGoal();
-      
+
       const response = await apiRequest(request, 'post', '/api/profile/goals', goalData);
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('goal');
       expect(responseJson.goal.goalType).toBe(goalData.goalType);
       expect(responseJson.goal.targetValue).toBe(goalData.targetValue);
@@ -221,8 +230,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/profile/goals?goalType=weight_loss');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.goals.every((goal: any) => goal.goalType === 'weight_loss')).toBe(true);
     });
 
@@ -240,8 +250,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'put', `/api/profile/goals/${goalJson.goal.id}`, updateData);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.goal.currentValue).toBe(updateData.currentValue);
       expect(responseJson.goal.progress).toBe(updateData.progress);
     });
@@ -255,23 +266,25 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'patch', `/api/profile/goals/${goalJson.goal.id}/archive`);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.goal.status).toBe('archived');
     });
 
     test('shouldn\'t create goal with invalid target date', async ({ request }) => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
-      const goalData = createSampleFitnessGoal({ 
-        targetDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // Past date
+      const goalData = createSampleFitnessGoal({
+        targetDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Past date
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/profile/goals', goalData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('targetDate');
     });
@@ -283,12 +296,13 @@ test.describe('User Profile Management', () => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
       const preferencesData = createSamplePreferences();
-      
+
       const response = await apiRequest(request, 'put', '/api/profile/preferences', preferencesData);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.preferences.workoutTypes).toEqual(preferencesData.workoutTypes);
       expect(responseJson.preferences.preferredTimes).toEqual(preferencesData.preferredTimes);
       expect(responseJson.preferences.sessionDuration).toBe(preferencesData.sessionDuration);
@@ -301,8 +315,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/profile/preferences');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('preferences');
       expect(responseJson.preferences).toHaveProperty('workoutTypes');
       expect(responseJson.preferences).toHaveProperty('preferredTimes');
@@ -317,8 +332,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'post', '/api/profile/preferences/reset');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('success', true);
       expect(responseJson.preferences).toHaveProperty('workoutTypes');
     });
@@ -326,15 +342,16 @@ test.describe('User Profile Management', () => {
     test('shouldn\'t set invalid workout types in preferences', async ({ request }) => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
-      const preferencesData = createSamplePreferences({ 
-        workoutTypes: ['invalid_type', 'another_invalid'] 
+      const preferencesData = createSamplePreferences({
+        workoutTypes: ['invalid_type', 'another_invalid'],
       });
-      
+
       const response = await apiRequest(request, 'put', '/api/profile/preferences', preferencesData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('workoutTypes');
     });
@@ -342,15 +359,16 @@ test.describe('User Profile Management', () => {
     test('shouldn\'t set invalid session duration', async ({ request }) => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
-      const preferencesData = createSamplePreferences({ 
-        sessionDuration: 300 // 5 hours - unrealistic
+      const preferencesData = createSamplePreferences({
+        sessionDuration: 300, // 5 hours - unrealistic
       });
-      
+
       const response = await apiRequest(request, 'put', '/api/profile/preferences', preferencesData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('sessionDuration');
     });
@@ -362,12 +380,13 @@ test.describe('User Profile Management', () => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
       const constraintData = createSampleConstraint();
-      
+
       const response = await apiRequest(request, 'post', '/api/profile/constraints', constraintData);
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.constraint.constraintType).toBe(constraintData.constraintType);
       expect(responseJson.constraint.severity).toBe(constraintData.severity);
       expect(responseJson.constraint.description).toBe(constraintData.description);
@@ -382,8 +401,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/profile/constraints?constraintType=injury');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.constraints.every((constraint: any) => constraint.constraintType === 'injury')).toBe(true);
     });
 
@@ -401,8 +421,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'put', `/api/profile/constraints/${constraintJson.constraint.id}`, updateData);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.constraint.severity).toBe(updateData.severity);
       expect(responseJson.constraint.status).toBe(updateData.status);
     });
@@ -416,8 +437,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'delete', `/api/profile/constraints/${constraintJson.constraint.id}`);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('success', true);
     });
 
@@ -425,12 +447,13 @@ test.describe('User Profile Management', () => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
       const constraintData = createSampleConstraint({ severity: 'invalid_severity' });
-      
+
       const response = await apiRequest(request, 'post', '/api/profile/constraints', constraintData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('severity');
     });
@@ -438,15 +461,16 @@ test.describe('User Profile Management', () => {
     test('shouldn\'t create constraint with past end date', async ({ request }) => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
-      const constraintData = createSampleConstraint({ 
-        expectedEndDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // Past date
+      const constraintData = createSampleConstraint({
+        expectedEndDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Past date
       });
-      
+
       const response = await apiRequest(request, 'post', '/api/profile/constraints', constraintData);
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
       expect(responseJson.error).toContain('expectedEndDate');
     });
@@ -458,12 +482,13 @@ test.describe('User Profile Management', () => {
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
 
       const microBehaviorData = createSampleMicroBehavior();
-      
+
       const response = await apiRequest(request, 'post', '/api/behavior/micro-patterns', microBehaviorData);
 
       expect(response.status()).toBe(201);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.pattern.behaviorType).toBe(microBehaviorData.behaviorType);
       expect(responseJson.pattern.frequency).toBe(microBehaviorData.frequency);
       expect(responseJson.pattern.triggers).toEqual(microBehaviorData.triggers);
@@ -477,8 +502,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/behavior/micro-patterns?includeAnalysis=true');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('patterns');
       expect(responseJson).toHaveProperty('analysis');
       expect(responseJson.analysis).toHaveProperty('insights');
@@ -494,8 +520,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/behavior/micro-patterns/correlations');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('correlations');
       expect(responseJson.correlations).toHaveProperty('preferenceAlignment');
       expect(responseJson.correlations).toHaveProperty('behaviorConsistency');
@@ -508,8 +535,8 @@ test.describe('User Profile Management', () => {
       const patternJson = await patternResponse.json();
 
       // Update profile preferences
-      await apiRequest(request, 'put', '/api/profile/preferences', createSamplePreferences({ 
-        preferredTimes: ['afternoon'] 
+      await apiRequest(request, 'put', '/api/profile/preferences', createSamplePreferences({
+        preferredTimes: ['afternoon'],
       }));
 
       const updateData = {
@@ -522,8 +549,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'put', `/api/behavior/micro-patterns/${patternJson.pattern.id}`, updateData);
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.pattern.context.timeOfDay).toBe('afternoon');
       expect(responseJson.pattern.context.adaptedToPreferences).toBe(true);
     });
@@ -538,8 +566,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/profile/completion');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('completionScore');
       expect(responseJson).toHaveProperty('missingFields');
       expect(responseJson).toHaveProperty('recommendations');
@@ -550,7 +579,7 @@ test.describe('User Profile Management', () => {
     test('should improve completion score with additional data', async ({ request }) => {
       // Create basic profile
       await apiRequest(request, 'post', '/api/profile', createSampleProfile());
-      
+
       const initialResponse = await apiRequest(request, 'get', '/api/profile/completion');
       const initialJson = await initialResponse.json();
       const initialScore = initialJson.completionScore;
@@ -572,8 +601,9 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/profile/completion');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.recommendations).toBeInstanceOf(Array);
       expect(responseJson.recommendations.length).toBeGreaterThan(0);
       expect(responseJson.recommendations[0]).toHaveProperty('field');
@@ -601,8 +631,9 @@ test.describe('User Profile Management', () => {
       // Check if profile goal progress was updated
       const goalsResponse = await apiRequest(request, 'get', '/api/profile/goals');
       const goalsJson = await goalsResponse.json();
-      
+
       const weightLossGoal = goalsJson.goals.find((goal: any) => goal.goalType === 'weight_loss');
+
       expect(weightLossGoal).toBeDefined();
       expect(weightLossGoal.currentValue).toBe(68);
     });
@@ -620,17 +651,19 @@ test.describe('User Profile Management', () => {
       const response = await apiRequest(request, 'get', '/api/workouts/recommendations');
 
       expect(response.status()).toBe(200);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson.recommendations).toBeInstanceOf(Array);
-      
+
       // Verify recommendations exclude restricted exercises
       const hasRestrictedExercises = responseJson.recommendations.some((workout: any) =>
-        workout.exercises?.some((exercise: any) => 
-          exercise.name?.toLowerCase().includes('deadlift') || 
-          exercise.name?.toLowerCase().includes('squat')
-        )
+        workout.exercises?.some((exercise: any) =>
+          exercise.name?.toLowerCase().includes('deadlift')
+          || exercise.name?.toLowerCase().includes('squat'),
+        ),
       );
+
       expect(hasRestrictedExercises).toBe(false);
     });
 
@@ -653,13 +686,15 @@ test.describe('User Profile Management', () => {
       };
 
       const workoutResponse = await apiRequest(request, 'post', '/api/workouts/sessions', workoutData);
+
       expect(workoutResponse.status()).toBe(201);
 
       // Check if goal progress was updated
       const goalsResponse = await apiRequest(request, 'get', '/api/profile/goals');
       const goalsJson = await goalsResponse.json();
-      
+
       const enduranceGoal = goalsJson.goals.find((goal: any) => goal.goalType === 'endurance');
+
       expect(enduranceGoal.progress).toBeGreaterThan(0);
     });
   });
@@ -667,7 +702,7 @@ test.describe('User Profile Management', () => {
   test.describe('Feature Flag Behavior', () => {
     test('should return 503 when ENABLE_USER_PROFILES is disabled', async ({ request }) => {
       const profileData = createSampleProfile();
-      
+
       const response = await request.post('/api/profile', {
         data: profileData,
         headers: {
@@ -678,6 +713,7 @@ test.describe('User Profile Management', () => {
 
       if (response.status() === 503) {
         const responseJson = await response.json();
+
         expect(responseJson).toHaveProperty('error');
         expect(responseJson.error).toContain('disabled');
       } else {
@@ -687,7 +723,7 @@ test.describe('User Profile Management', () => {
 
     test('should return 503 when ENABLE_MICRO_BEHAVIOR_TRACKING is disabled', async ({ request }) => {
       const microBehaviorData = createSampleMicroBehavior();
-      
+
       const response = await request.post('/api/behavior/micro-patterns', {
         data: microBehaviorData,
         headers: {
@@ -698,6 +734,7 @@ test.describe('User Profile Management', () => {
 
       if (response.status() === 503) {
         const responseJson = await response.json();
+
         expect(responseJson).toHaveProperty('error');
         expect(responseJson.error).toContain('disabled');
       } else {
@@ -709,31 +746,32 @@ test.describe('User Profile Management', () => {
   test.describe('Rate Limiting', () => {
     test('should enforce rate limiting for profile endpoints', async ({ request }) => {
       const e2eRandomId = faker.number.int({ max: 1000000 }).toString();
-      
+
       // Make multiple rapid requests to trigger rate limiting
       const promises = Array.from({ length: 15 }, () =>
         request.post('/api/profile', {
           data: createSampleProfile(),
           headers: { 'x-e2e-random-id': e2eRandomId },
-        })
-      );
+        }));
 
       const responses = await Promise.all(promises);
-      
+
       // At least some requests should be rate limited
       const rateLimitedResponses = responses.filter(r => r.status() === 429);
+
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
-      
+
       // Check rate limit headers
       const rateLimitedResponse = rateLimitedResponses[0];
       const headers = rateLimitedResponse.headers();
+
       expect(headers).toHaveProperty('x-ratelimit-limit');
       expect(headers).toHaveProperty('x-ratelimit-remaining');
     });
 
     test('should enforce rate limiting for preferences updates', async ({ request }) => {
       const e2eRandomId = faker.number.int({ max: 1000000 }).toString();
-      
+
       // Create profile first
       await request.post('/api/profile', {
         data: createSampleProfile(),
@@ -745,12 +783,12 @@ test.describe('User Profile Management', () => {
         request.put('/api/profile/preferences', {
           data: createSamplePreferences(),
           headers: { 'x-e2e-random-id': e2eRandomId },
-        })
-      );
+        }));
 
       const responses = await Promise.all(promises);
-      
+
       const rateLimitedResponses = responses.filter(r => r.status() === 429);
+
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
     });
   });
@@ -758,6 +796,7 @@ test.describe('User Profile Management', () => {
   test.describe('Authentication and Authorization', () => {
     test('shouldn\'t access profile without authentication', async ({ request }) => {
       const response = await request.get('/api/profile');
+
       expect(response.status()).toBe(401);
     });
 
@@ -765,16 +804,19 @@ test.describe('User Profile Management', () => {
       const response = await request.post('/api/profile', {
         data: createSampleProfile(),
       });
+
       expect(response.status()).toBe(401);
     });
 
     test('shouldn\'t access preferences without authentication', async ({ request }) => {
       const response = await request.get('/api/profile/preferences');
+
       expect(response.status()).toBe(401);
     });
 
     test('shouldn\'t access constraints without authentication', async ({ request }) => {
       const response = await request.get('/api/profile/constraints');
+
       expect(response.status()).toBe(401);
     });
   });
@@ -783,7 +825,7 @@ test.describe('User Profile Management', () => {
     test('should isolate profile data between different users', async ({ request }) => {
       const user1Id = faker.number.int({ max: 1000000 });
       const user2Id = faker.number.int({ max: 1000000 });
-      
+
       // Create profiles for both users
       await request.post('/api/profile', {
         data: createSampleProfile({ primaryGoals: ['user1_goal'] }),
@@ -817,7 +859,7 @@ test.describe('User Profile Management', () => {
     test('should isolate fitness goals between users', async ({ request }) => {
       const user1Id = faker.number.int({ max: 1000000 });
       const user2Id = faker.number.int({ max: 1000000 });
-      
+
       // Create profiles and goals for both users
       await request.post('/api/profile', {
         data: createSampleProfile(),
@@ -859,7 +901,7 @@ test.describe('User Profile Management', () => {
     test('should isolate constraints between users', async ({ request }) => {
       const user1Id = faker.number.int({ max: 1000000 });
       const user2Id = faker.number.int({ max: 1000000 });
-      
+
       // Create profiles and constraints for both users
       await request.post('/api/profile', {
         data: createSampleProfile(),
@@ -928,13 +970,16 @@ test.describe('User Profile Management', () => {
 
       // Delete profile
       const deleteResponse = await apiRequest(request, 'delete', '/api/profile');
+
       expect(deleteResponse.status()).toBe(200);
 
       // Verify related data is handled correctly
       const goalsResponse = await apiRequest(request, 'get', '/api/profile/goals');
+
       expect(goalsResponse.status()).toBe(404);
 
       const constraintsResponse = await apiRequest(request, 'get', '/api/profile/constraints');
+
       expect(constraintsResponse.status()).toBe(404);
     });
 
@@ -960,7 +1005,7 @@ test.describe('User Profile Management', () => {
       // Verify final state is consistent
       const finalProfile = await apiRequest(request, 'get', '/api/profile');
       const finalJson = await finalProfile.json();
-      
+
       expect(finalJson.profile).toHaveProperty('id');
       expect(finalJson.profile).toHaveProperty('completionScore');
     });
@@ -986,15 +1031,16 @@ test.describe('User Profile Management', () => {
       });
 
       expect(response.status()).toBe(422);
-      
+
       const responseJson = await response.json();
+
       expect(responseJson).toHaveProperty('error');
     });
 
     test('should handle database failures gracefully', async ({ request }) => {
       // This test simulates database issues
       const profileData = createSampleProfile();
-      
+
       // Add header to simulate database failure
       const response = await request.post('/api/profile', {
         data: profileData,
@@ -1010,13 +1056,13 @@ test.describe('User Profile Management', () => {
 
     test('should recover from temporary failures', async ({ request }) => {
       const profileData = createSampleProfile();
-      
+
       // First request might fail
       const firstResponse = await apiRequest(request, 'post', '/api/profile', profileData);
-      
+
       // Second request should succeed
       const secondResponse = await apiRequest(request, 'post', '/api/profile', profileData);
-      
+
       // At least one should succeed
       expect([firstResponse.status(), secondResponse.status()]).toContain(201);
     });
@@ -1050,12 +1096,10 @@ test.describe('User Profile Management', () => {
 
       // Add multiple goals, preferences, and constraints
       const promises = [
-        ...Array.from({ length: 10 }, () => 
-          apiRequest(request, 'post', '/api/profile/goals', createSampleFitnessGoal())
-        ),
-        ...Array.from({ length: 5 }, () => 
-          apiRequest(request, 'post', '/api/profile/constraints', createSampleConstraint())
-        ),
+        ...Array.from({ length: 10 }, () =>
+          apiRequest(request, 'post', '/api/profile/goals', createSampleFitnessGoal())),
+        ...Array.from({ length: 5 }, () =>
+          apiRequest(request, 'post', '/api/profile/constraints', createSampleConstraint())),
       ];
 
       await Promise.all(promises);
@@ -1073,9 +1117,15 @@ test.describe('User Profile Management', () => {
 
       // Perform multiple concurrent operations
       const promises = Array.from({ length: 20 }, (_, i) => {
-        if (i % 4 === 0) return apiRequest(request, 'get', '/api/profile');
-        if (i % 4 === 1) return apiRequest(request, 'put', '/api/profile', { weight: 70 + i });
-        if (i % 4 === 2) return apiRequest(request, 'get', '/api/profile/goals');
+        if (i % 4 === 0) {
+          return apiRequest(request, 'get', '/api/profile');
+        }
+        if (i % 4 === 1) {
+          return apiRequest(request, 'put', '/api/profile', { weight: 70 + i });
+        }
+        if (i % 4 === 2) {
+          return apiRequest(request, 'get', '/api/profile/goals');
+        }
         return apiRequest(request, 'get', '/api/profile/preferences');
       });
 
@@ -1085,6 +1135,7 @@ test.describe('User Profile Management', () => {
 
       // Most operations should succeed
       const successfulResponses = responses.filter(r => [200, 201].includes(r.status()));
+
       expect(successfulResponses.length).toBeGreaterThan(responses.length * 0.8);
 
       // Should complete in reasonable time

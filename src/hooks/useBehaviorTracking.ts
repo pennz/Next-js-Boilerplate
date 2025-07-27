@@ -1,36 +1,36 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePostHog } from 'posthog-js/react';
+import type { BehaviorEventInput, ContextData, EntityType } from '@/validations/BehaviorEventValidation';
 import { useUser } from '@clerk/nextjs';
+import { usePostHog } from 'posthog-js/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Env } from '@/libs/Env';
-import type { BehaviorEventInput, EntityType, ContextData } from '@/validations/BehaviorEventValidation';
 
 // Types for the hook
-interface TrackEventParams {
+type TrackEventParams = {
   eventName: string;
   entityType: EntityType;
   entityId?: number;
   context?: ContextData;
-}
+};
 
-interface BehaviorTrackingState {
+type BehaviorTrackingState = {
   isLoading: boolean;
   error: string | null;
-}
+};
 
-interface UseBehaviorTrackingReturn {
+type UseBehaviorTrackingReturn = {
   trackEvent: (params: TrackEventParams) => Promise<void>;
   isLoading: boolean;
   error: string | null;
   flushEvents: () => Promise<void>;
-}
+};
 
 // Internal event structure for batching
-interface QueuedEvent extends BehaviorEventInput {
+type QueuedEvent = {
   timestamp: number;
   retryCount: number;
-}
+} & BehaviorEventInput;
 
 // Session ID generation
 const generateSessionId = (): string => {
@@ -41,28 +41,37 @@ const generateSessionId = (): string => {
 
 // Device info collection
 const getDeviceInfo = () => {
-  if (typeof window === 'undefined') return undefined;
-  
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
   return {
     userAgent: navigator.userAgent,
     platform: navigator.platform,
     screenWidth: window.screen.width,
     screenHeight: window.screen.height,
-    deviceType: window.innerWidth < 768 ? 'mobile' as const : 
-                window.innerWidth < 1024 ? 'tablet' as const : 'desktop' as const,
-    browser: navigator.userAgent.includes('Chrome') ? 'Chrome' :
-             navigator.userAgent.includes('Firefox') ? 'Firefox' :
-             navigator.userAgent.includes('Safari') ? 'Safari' : 'Unknown',
-    os: navigator.platform.includes('Win') ? 'Windows' :
-        navigator.platform.includes('Mac') ? 'macOS' :
-        navigator.platform.includes('Linux') ? 'Linux' : 'Unknown',
+    deviceType: window.innerWidth < 768
+      ? 'mobile' as const
+      : window.innerWidth < 1024 ? 'tablet' as const : 'desktop' as const,
+    browser: navigator.userAgent.includes('Chrome')
+      ? 'Chrome'
+      : navigator.userAgent.includes('Firefox')
+        ? 'Firefox'
+        : navigator.userAgent.includes('Safari') ? 'Safari' : 'Unknown',
+    os: navigator.platform.includes('Win')
+      ? 'Windows'
+      : navigator.platform.includes('Mac')
+        ? 'macOS'
+        : navigator.platform.includes('Linux') ? 'Linux' : 'Unknown',
   };
 };
 
 // Environment info collection
 const getEnvironmentInfo = () => {
-  if (typeof window === 'undefined') return undefined;
-  
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
   return {
     timestamp: new Date(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -75,23 +84,23 @@ const getEnvironmentInfo = () => {
 export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
   const { user, isLoaded: isUserLoaded } = useUser();
   const posthog = usePostHog();
-  
+
   // State management
   const [state, setState] = useState<BehaviorTrackingState>({
     isLoading: false,
     error: null,
   });
-  
+
   // Event queue for batching
   const eventQueue = useRef<QueuedEvent[]>([]);
   const flushTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sessionIdRef = useRef<string>(generateSessionId());
   const isFlushingRef = useRef<boolean>(false);
-  
+
   // Configuration from environment
   const bufferSize = Env.NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE;
   const flushInterval = Env.NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL;
-  
+
   // Clear error after some time
   useEffect(() => {
     if (state.error) {
@@ -101,13 +110,13 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
       return () => clearTimeout(timer);
     }
   }, [state.error]);
-  
+
   // Flush events to server API
   const flushEventsToServer = useCallback(async (events: QueuedEvent[]): Promise<void> => {
     if (!isUserLoaded || !user || events.length === 0) {
       return;
     }
-    
+
     try {
       const response = await fetch('/api/behavior/events', {
         method: 'POST',
@@ -118,7 +127,7 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
           events: events.map(({ timestamp, retryCount, ...event }) => event),
         }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Server error: ${response.status}`);
@@ -128,34 +137,34 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
       const retriableEvents = events
         .filter(event => event.retryCount < 3)
         .map(event => ({ ...event, retryCount: event.retryCount + 1 }));
-      
+
       if (retriableEvents.length > 0) {
         eventQueue.current.unshift(...retriableEvents);
       }
-      
+
       throw error;
     }
   }, [isUserLoaded, user]);
-  
+
   // Flush events function
   const flushEvents = useCallback(async (): Promise<void> => {
     if (isFlushingRef.current || eventQueue.current.length === 0) {
       return;
     }
-    
+
     isFlushingRef.current = true;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+
     try {
       const eventsToFlush = [...eventQueue.current];
       eventQueue.current = [];
-      
+
       // Clear any pending flush timeout
       if (flushTimeoutRef.current) {
         clearTimeout(flushTimeoutRef.current);
         flushTimeoutRef.current = null;
       }
-      
+
       await flushEventsToServer(eventsToFlush);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to flush events';
@@ -165,29 +174,29 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
       isFlushingRef.current = false;
     }
   }, [flushEventsToServer]);
-  
+
   // Schedule automatic flush
   const scheduleFlush = useCallback(() => {
     if (flushTimeoutRef.current) {
       clearTimeout(flushTimeoutRef.current);
     }
-    
+
     flushTimeoutRef.current = setTimeout(() => {
       flushEvents().catch(() => {
         // Error handling is done in flushEvents
       });
     }, flushInterval);
   }, [flushEvents, flushInterval]);
-  
+
   // Track event function
   const trackEvent = useCallback(async (params: TrackEventParams): Promise<void> => {
     const { eventName, entityType, entityId, context } = params;
-    
+
     // Early return if user is not loaded or behavior tracking is disabled
     if (!isUserLoaded) {
       return;
     }
-    
+
     try {
       // Enrich context with device and environment info
       const enrichedContext: ContextData = {
@@ -198,7 +207,7 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
           loadTime: performance.now(),
         },
       };
-      
+
       const behaviorEvent: QueuedEvent = {
         eventName,
         entityType,
@@ -208,7 +217,7 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
         timestamp: Date.now(),
         retryCount: 0,
       };
-      
+
       // Send to PostHog immediately for client-side analytics
       if (posthog) {
         try {
@@ -228,11 +237,11 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
           console.warn('PostHog tracking failed:', posthogError);
         }
       }
-      
+
       // Add to queue for server-side tracking (only if user is authenticated)
       if (user) {
         eventQueue.current.push(behaviorEvent);
-        
+
         // Flush immediately if buffer is full
         if (eventQueue.current.length >= bufferSize) {
           await flushEvents();
@@ -253,14 +262,14 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
     flushEvents,
     scheduleFlush,
   ]);
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (flushTimeoutRef.current) {
         clearTimeout(flushTimeoutRef.current);
       }
-      
+
       // Attempt to flush remaining events on unmount
       if (eventQueue.current.length > 0) {
         flushEvents().catch(() => {
@@ -269,7 +278,7 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
       }
     };
   }, [flushEvents]);
-  
+
   // Flush events when user changes or component unmounts
   useEffect(() => {
     if (isUserLoaded && eventQueue.current.length > 0) {
@@ -278,7 +287,7 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
       });
     }
   }, [isUserLoaded, user?.id, flushEvents]);
-  
+
   // Handle page visibility change to flush events when page becomes hidden
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -288,12 +297,12 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
           try {
             const eventsToSend = [...eventQueue.current];
             eventQueue.current = [];
-            
+
             navigator.sendBeacon(
               '/api/behavior/events',
               JSON.stringify({
                 events: eventsToSend.map(({ timestamp, retryCount, ...event }) => event),
-              })
+              }),
             );
           } catch (error) {
             // Restore events to queue if sendBeacon fails
@@ -302,11 +311,11 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
         }
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user]);
-  
+
   return {
     trackEvent,
     isLoading: state.isLoading,

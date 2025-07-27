@@ -97,22 +97,22 @@ BaseTemplate
      - Central health dashboard
      - Quick access to all health features
      - Statistics and recent activity display
-   
+
    - **Health Records** (`/dashboard/health/records/page.tsx`)
      - Comprehensive record management
      - Advanced filtering and search
      - Pagination for large datasets
-   
+
    - **Health Goals** (`/dashboard/health/goals/page.tsx`)
      - Goal creation and tracking
      - Progress visualization
      - Template-based goal setup
-   
+
    - **Health Reminders** (`/dashboard/health/reminders/page.tsx`)
      - Reminder scheduling with cron expressions
      - Toggle activation/deactivation
      - Notification management
-   
+
    - **Health Analytics** (`/dashboard/health/analytics/[type]/page.tsx`)
      - Dynamic route for different health metrics
      - Data visualization with Recharts
@@ -154,17 +154,17 @@ BaseTemplate
    ├── Dropdown with 8 health types
    ├── Dynamic unit update on selection
    └── Validation: Required field
-   
+
    Value Input
    ├── Numeric input with step validation
    ├── Unit display based on selected type
    └── Validation: Positive values only
-   
+
    Date/Time Selection
    ├── datetime-local input
    ├── Default to current time
    └── Validation: No future dates
-   
+
    Submission Process
    ├── Loading state during API call
    ├── Success/error message display
@@ -206,7 +206,7 @@ BaseTemplate
    ├── Target date selection
    ├── Health metric type
    └── Progress tracking setup
-   
+
    Validation Rules
    ├── Realistic target values
    ├── Future target dates only
@@ -237,7 +237,7 @@ BaseTemplate
    ├── Custom message creation
    ├── Schedule type selection
    └── Activation toggle
-   
+
    Schedule Options
    ├── Daily reminders
    ├── Weekly reminders
@@ -273,13 +273,13 @@ BaseTemplate
    ├── Aggregation level (daily/weekly/monthly)
    ├── Data export options
    └── Real-time filter application
-   
+
    Chart Display
    ├── Recharts integration
    ├── Multiple chart types (line, bar, area)
    ├── Goal line overlays
    └── Interactive tooltips
-   
+
    Statistics Panel
    ├── Current value display
    ├── Average calculations
@@ -546,7 +546,7 @@ Navigation Process
    ├── Form-level error summaries
    ├── Visual error indicators
    └── Accessibility announcements
-   
+
    Error Recovery
    ├── Clear error on field correction
    ├── Retry mechanisms

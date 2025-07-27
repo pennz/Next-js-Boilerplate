@@ -9,14 +9,14 @@ erDiagram
     health_type {
         serial id PK
         varchar slug UK "max 50 chars"
-        varchar display_name "max 100 chars" 
+        varchar display_name "max 100 chars"
         varchar unit "max 20 chars"
         numeric typical_range_low "precision 10,2"
         numeric typical_range_high "precision 10,2"
         timestamp created_at
         timestamp updated_at
     }
-    
+
     health_record {
         serial id PK
         varchar user_id "max 255 chars"
@@ -27,7 +27,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     health_goal {
         serial id PK
         varchar user_id "max 255 chars"
@@ -38,7 +38,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     health_reminder {
         serial id PK
         varchar user_id "max 255 chars"
@@ -50,7 +50,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     muscle_group {
         serial id PK
         varchar name UK "max 50 chars"
@@ -59,7 +59,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     exercise {
         serial id PK
         varchar name "max 100 chars"
@@ -73,7 +73,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     training_plan {
         serial id PK
         varchar user_id "max 255 chars"
@@ -88,7 +88,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     training_session {
         serial id PK
         varchar user_id "max 255 chars"
@@ -102,7 +102,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     workout_exercise {
         serial id PK
         integer training_session_id FK
@@ -117,7 +117,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     exercise_log {
         serial id PK
         varchar user_id "max 255 chars"
@@ -135,19 +135,19 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     counter {
         serial id PK
         integer count "default 0"
         timestamp created_at
         timestamp updated_at
     }
-    
+
     %% Health Management Relationships
     health_type ||--o{ health_record : "defines metric type"
     health_type ||--o{ health_goal : "sets target for"
     health_type ||--o{ health_reminder : "reminds about"
-    
+
     %% Exercise Management Relationships
     muscle_group ||--o{ exercise : "primary muscle target"
     training_plan ||--o{ training_session : "contains sessions"
@@ -299,7 +299,7 @@ The schema uses default RESTRICT behavior for foreign key constraints:
 
 #### Required Relationships (NOT NULL Foreign Keys)
 - health_record.type_id → health_type.id
-- health_goal.type_id → health_type.id  
+- health_goal.type_id → health_type.id
 - health_reminder.type_id → health_type.id
 - exercise.primary_muscle_group_id → muscle_group.id
 - workout_exercise.training_session_id → training_session.id

@@ -1,14 +1,12 @@
 import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { db } from '@/libs/DB';
-import { 
-  behavioralEventSchema, 
-  microBehaviorPatternSchema, 
-  contextPatternSchema,
-  healthRecordSchema,
-  exerciseLogSchema 
+import {
+  behavioralEventSchema,
+  exerciseLogSchema,
+  microBehaviorPatternSchema,
 } from '@/models/Schema';
 
-export interface HabitStrengthCalculation {
+export type HabitStrengthCalculation = {
   habitStrength: number;
   consistencyScore: number;
   frequencyScore: number;
@@ -17,9 +15,9 @@ export interface HabitStrengthCalculation {
   confidence: number;
   sampleSize: number;
   predictiveFactors: string[];
-}
+};
 
-export interface PatternRecognitionResult {
+export type PatternRecognitionResult = {
   patternId: string;
   behaviorType: string;
   strength: number;
@@ -29,16 +27,16 @@ export interface PatternRecognitionResult {
   outcomes: string[];
   confidence: number;
   recommendation: string;
-}
+};
 
-export interface ContextAnalysisResult {
+export type ContextAnalysisResult = {
   context: string;
   successRate: number;
   frequency: number;
   predictivePower: number;
   conditions: Record<string, any>;
   optimization: string;
-}
+};
 
 export class HabitStrengthAnalyticsService {
   /**
@@ -47,11 +45,11 @@ export class HabitStrengthAnalyticsService {
   static async calculateHabitStrength(
     userId: string,
     behaviorType?: string,
-    timeRange: '7d' | '30d' | '90d' | '1y' = '30d'
+    timeRange: '7d' | '30d' | '90d' | '1y' = '30d',
   ): Promise<HabitStrengthCalculation> {
     const endDate = new Date();
     const startDate = new Date();
-    
+
     switch (timeRange) {
       case '7d':
         startDate.setDate(endDate.getDate() - 7);
@@ -76,8 +74,8 @@ export class HabitStrengthAnalyticsService {
           eq(behavioralEventSchema.userId, userId),
           gte(behavioralEventSchema.createdAt, startDate),
           lte(behavioralEventSchema.createdAt, endDate),
-          behaviorType ? sql`${behavioralEventSchema.context}->>'behaviorType' = ${behaviorType}` : sql`true`
-        )
+          behaviorType ? sql`${behavioralEventSchema.context}->>'behaviorType' = ${behaviorType}` : sql`true`,
+        ),
       )
       .orderBy(desc(behavioralEventSchema.createdAt));
 
@@ -88,16 +86,16 @@ export class HabitStrengthAnalyticsService {
       .where(
         and(
           eq(microBehaviorPatternSchema.userId, userId),
-          behaviorType ? eq(microBehaviorPatternSchema.behaviorType, behaviorType) : sql`true`
-        )
+          behaviorType ? eq(microBehaviorPatternSchema.behaviorType, behaviorType) : sql`true`,
+        ),
       );
 
     // Calculate frequency score (0-100)
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const eventDays = new Set(
-      behaviorEvents.map(event => 
-        new Date(event.createdAt).toDateString()
-      )
+      behaviorEvents.map(event =>
+        new Date(event.createdAt).toDateString(),
+      ),
     ).size;
     const frequencyScore = Math.min(100, (eventDays / totalDays) * 100);
 
@@ -110,9 +108,9 @@ export class HabitStrengthAnalyticsService {
 
     // Calculate overall habit strength (weighted average)
     const habitStrength = Math.round(
-      (frequencyScore * 0.4) + 
-      (consistencyScore * 0.4) + 
-      (contextScore * 0.2)
+      (frequencyScore * 0.4)
+      + (consistencyScore * 0.4)
+      + (contextScore * 0.2),
     );
 
     // Calculate trend
@@ -142,7 +140,7 @@ export class HabitStrengthAnalyticsService {
   static async recognizePatterns(
     userId: string,
     behaviorType?: string,
-    minConfidence = 70
+    minConfidence = 70,
   ): Promise<PatternRecognitionResult[]> {
     // Get recent behavioral events with context
     const events = await db
@@ -152,8 +150,8 @@ export class HabitStrengthAnalyticsService {
         and(
           eq(behavioralEventSchema.userId, userId),
           gte(behavioralEventSchema.createdAt, new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)),
-          behaviorType ? sql`${behavioralEventSchema.context}->>'behaviorType' = ${behaviorType}` : sql`true`
-        )
+          behaviorType ? sql`${behavioralEventSchema.context}->>'behaviorType' = ${behaviorType}` : sql`true`,
+        ),
       )
       .orderBy(desc(behavioralEventSchema.createdAt));
 
@@ -168,18 +166,18 @@ export class HabitStrengthAnalyticsService {
     for (const [behavior, behaviorEvents] of behaviorGroups) {
       // Analyze frequency patterns
       const frequencyAnalysis = this.analyzeFrequencyPatterns(behaviorEvents);
-      
+
       // Analyze temporal patterns
       const temporalPatterns = this.analyzeTemporalPatterns(behaviorEvents);
-      
+
       // Analyze context patterns
       const contextAnalysis = this.analyzeContextPatterns(behaviorEvents);
-      
+
       // Calculate pattern strength
       const strength = this.calculatePatternStrength(
         frequencyAnalysis,
         temporalPatterns,
-        contextAnalysis
+        contextAnalysis,
       );
 
       // Calculate confidence
@@ -208,11 +206,11 @@ export class HabitStrengthAnalyticsService {
    */
   static async analyzeWorkoutContexts(
     userId: string,
-    timeRange: '30d' | '90d' | '1y' = '90d'
+    timeRange: '30d' | '90d' | '1y' = '90d',
   ): Promise<ContextAnalysisResult[]> {
     const endDate = new Date();
     const startDate = new Date();
-    
+
     switch (timeRange) {
       case '30d':
         startDate.setDate(endDate.getDate() - 30);
@@ -234,8 +232,8 @@ export class HabitStrengthAnalyticsService {
           eq(behavioralEventSchema.userId, userId),
           gte(behavioralEventSchema.createdAt, startDate),
           lte(behavioralEventSchema.createdAt, endDate),
-          sql`${behavioralEventSchema.context}->>'entityType' IN ('training_session', 'exercise_log', 'workout_completed')`
-        )
+          sql`${behavioralEventSchema.context}->>'entityType' IN ('training_session', 'exercise_log', 'workout_completed')`,
+        ),
       );
 
     // Get corresponding exercise logs for success metrics
@@ -246,8 +244,8 @@ export class HabitStrengthAnalyticsService {
         and(
           eq(exerciseLogSchema.userId, userId),
           gte(exerciseLogSchema.createdAt, startDate),
-          lte(exerciseLogSchema.createdAt, endDate)
-        )
+          lte(exerciseLogSchema.createdAt, endDate),
+        ),
       );
 
     // Analyze context patterns
@@ -280,11 +278,11 @@ export class HabitStrengthAnalyticsService {
   private static calculateDailyFrequencies(
     events: any[],
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): number[] {
     const dailyMap = new Map<string, number>();
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     // Initialize all days with 0
     for (let i = 0; i < totalDays; i++) {
       const date = new Date(startDate);
@@ -293,7 +291,7 @@ export class HabitStrengthAnalyticsService {
     }
 
     // Count events per day
-    events.forEach(event => {
+    events.forEach((event) => {
       const eventDate = new Date(event.createdAt).toDateString();
       dailyMap.set(eventDate, (dailyMap.get(eventDate) || 0) + 1);
     });
@@ -302,19 +300,23 @@ export class HabitStrengthAnalyticsService {
   }
 
   private static calculateConsistencyScore(dailyFrequencies: number[]): number {
-    if (dailyFrequencies.length === 0) return 0;
+    if (dailyFrequencies.length === 0) {
+      return 0;
+    }
 
     const mean = dailyFrequencies.reduce((sum, freq) => sum + freq, 0) / dailyFrequencies.length;
-    const variance = dailyFrequencies.reduce((sum, freq) => sum + Math.pow(freq - mean, 2), 0) / dailyFrequencies.length;
+    const variance = dailyFrequencies.reduce((sum, freq) => sum + (freq - mean) ** 2, 0) / dailyFrequencies.length;
     const standardDeviation = Math.sqrt(variance);
-    
+
     // Convert to consistency score (lower std dev = higher consistency)
     const maxStdDev = Math.max(mean, 1); // Prevent division by zero
     return Math.max(0, 100 - (standardDeviation / maxStdDev) * 100);
   }
 
   private static calculateContextScore(patterns: any[]): number {
-    if (patterns.length === 0) return 0;
+    if (patterns.length === 0) {
+      return 0;
+    }
 
     const avgStrength = patterns.reduce((sum, pattern) => sum + (pattern.strength || 0), 0) / patterns.length;
     const avgConfidence = patterns.reduce((sum, pattern) => sum + (pattern.confidence || 0), 0) / patterns.length;
@@ -324,26 +326,35 @@ export class HabitStrengthAnalyticsService {
 
   private static calculateTrend(
     events: any[],
-    timeRange: string
+    timeRange: string,
   ): 'increasing' | 'decreasing' | 'stable' {
-    if (events.length < 4) return 'stable';
+    if (events.length < 4) {
+      return 'stable';
+    }
 
     const periods = timeRange === '7d' ? 2 : timeRange === '30d' ? 4 : 8;
     const periodLength = events.length / periods;
-    
+
     let increasingPeriods = 0;
     let decreasingPeriods = 0;
 
     for (let i = 0; i < periods - 1; i++) {
       const currentPeriodCount = Math.floor(periodLength);
       const nextPeriodCount = Math.floor(periodLength);
-      
-      if (nextPeriodCount > currentPeriodCount) increasingPeriods++;
-      else if (nextPeriodCount < currentPeriodCount) decreasingPeriods++;
+
+      if (nextPeriodCount > currentPeriodCount) {
+        increasingPeriods++;
+      } else if (nextPeriodCount < currentPeriodCount) {
+        decreasingPeriods++;
+      }
     }
 
-    if (increasingPeriods > decreasingPeriods) return 'increasing';
-    if (decreasingPeriods > increasingPeriods) return 'decreasing';
+    if (increasingPeriods > decreasingPeriods) {
+      return 'increasing';
+    }
+    if (decreasingPeriods > increasingPeriods) {
+      return 'decreasing';
+    }
     return 'stable';
   }
 
@@ -351,19 +362,19 @@ export class HabitStrengthAnalyticsService {
     // Confidence based on sample size and consistency
     const sampleConfidence = Math.min(100, (sampleSize / 30) * 100); // 30 events = 100% sample confidence
     const consistencyWeight = consistency / 100;
-    
+
     return sampleConfidence * 0.7 + consistency * 0.3;
   }
 
   private static identifyPredictiveFactors(patterns: any[]): string[] {
     const factors: string[] = [];
-    
-    patterns.forEach(pattern => {
+
+    patterns.forEach((pattern) => {
       if (pattern.triggers && Array.isArray(pattern.triggers)) {
         factors.push(...pattern.triggers);
       }
       if (pattern.context && typeof pattern.context === 'object') {
-        Object.keys(pattern.context).forEach(key => {
+        Object.keys(pattern.context).forEach((key) => {
           if (pattern.context[key] && typeof pattern.context[key] === 'string') {
             factors.push(pattern.context[key]);
           }
@@ -398,25 +409,29 @@ export class HabitStrengthAnalyticsService {
     const dailyEvents = this.calculateDailyFrequencies(
       events,
       new Date(events[events.length - 1].createdAt),
-      new Date(events[0].createdAt)
+      new Date(events[0].createdAt),
     );
 
     const avgFrequency = dailyEvents.reduce((sum, freq) => sum + freq, 0) / dailyEvents.length;
-    
+
     // Simple pattern detection
     let pattern = 'irregular';
-    if (avgFrequency >= 0.8) pattern = 'daily';
-    else if (avgFrequency >= 0.4) pattern = 'frequent';
-    else if (avgFrequency >= 0.1) pattern = 'weekly';
+    if (avgFrequency >= 0.8) {
+      pattern = 'daily';
+    } else if (avgFrequency >= 0.4) {
+      pattern = 'frequent';
+    } else if (avgFrequency >= 0.1) {
+      pattern = 'weekly';
+    }
 
     return { avgFrequency, pattern };
   }
 
   private static analyzeTemporalPatterns(events: any[]): { consistency: number; peakTimes: string[] } {
-    const hourCounts = new Array(24).fill(0);
-    const dayOfWeekCounts = new Array(7).fill(0);
+    const hourCounts = Array.from({ length: 24 }).fill(0);
+    const dayOfWeekCounts = Array.from({ length: 7 }).fill(0);
 
-    events.forEach(event => {
+    events.forEach((event) => {
       const date = new Date(event.createdAt);
       hourCounts[date.getHours()]++;
       dayOfWeekCounts[date.getDay()]++;
@@ -431,10 +446,10 @@ export class HabitStrengthAnalyticsService {
     const peakHour = hourCounts.indexOf(Math.max(...hourCounts));
     const peakDay = dayOfWeekCounts.indexOf(Math.max(...dayOfWeekCounts));
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
+
     const peakTimes = [
       `${peakHour}:00`,
-      dayNames[peakDay]
+      dayNames[peakDay],
     ];
 
     return { consistency, peakTimes };
@@ -444,30 +459,42 @@ export class HabitStrengthAnalyticsService {
     const triggers: string[] = [];
     const outcomes: string[] = [];
 
-    events.forEach(event => {
+    events.forEach((event) => {
       const context = event.context || {};
-      
+
       // Extract potential triggers
-      if (context.mood) triggers.push(`mood:${context.mood}`);
-      if (context.energyLevel) triggers.push(`energy:${context.energyLevel}`);
-      if (context.location) triggers.push(`location:${context.location}`);
-      if (context.timeOfDay) triggers.push(`time:${context.timeOfDay}`);
-      
+      if (context.mood) {
+        triggers.push(`mood:${context.mood}`);
+      }
+      if (context.energyLevel) {
+        triggers.push(`energy:${context.energyLevel}`);
+      }
+      if (context.location) {
+        triggers.push(`location:${context.location}`);
+      }
+      if (context.timeOfDay) {
+        triggers.push(`time:${context.timeOfDay}`);
+      }
+
       // Extract outcomes
-      if (context.outcome) outcomes.push(context.outcome);
-      if (context.success !== undefined) outcomes.push(`success:${context.success}`);
+      if (context.outcome) {
+        outcomes.push(context.outcome);
+      }
+      if (context.success !== undefined) {
+        outcomes.push(`success:${context.success}`);
+      }
     });
 
     return {
       triggers: [...new Set(triggers)].slice(0, 5),
-      outcomes: [...new Set(outcomes)].slice(0, 3)
+      outcomes: [...new Set(outcomes)].slice(0, 3),
     };
   }
 
   private static calculatePatternStrength(
     frequency: any,
     temporal: any,
-    context: any
+    context: any,
   ): number {
     const frequencyScore = Math.min(100, frequency.avgFrequency * 100);
     const temporalScore = temporal.consistency;
@@ -480,17 +507,17 @@ export class HabitStrengthAnalyticsService {
     const sampleSize = events.length;
     const timeSpan = new Date(events[0].createdAt).getTime() - new Date(events[events.length - 1].createdAt).getTime();
     const days = Math.ceil(timeSpan / (1000 * 60 * 60 * 24));
-    
+
     const sampleConfidence = Math.min(100, (sampleSize / Math.max(days, 1)) * 100);
     const strengthConfidence = strength;
-    
+
     return (sampleConfidence * 0.6) + (strengthConfidence * 0.4);
   }
 
   private static generateRecommendation(
     behaviorType: string,
     strength: number,
-    contextAnalysis: any
+    contextAnalysis: any,
   ): string {
     if (strength >= 80) {
       return `Excellent ${behaviorType} habit! Focus on maintaining consistency.`;
@@ -516,24 +543,32 @@ export class HabitStrengthAnalyticsService {
 
   private static extractPrimaryContext(event: any): string {
     const context = event.context || {};
-    
+
     // Priority order for context extraction
-    if (context.timeOfDay) return `time:${context.timeOfDay}`;
-    if (context.location) return `location:${context.location}`;
-    if (context.mood) return `mood:${context.mood}`;
-    if (context.energyLevel) return `energy:${context.energyLevel}`;
-    
+    if (context.timeOfDay) {
+      return `time:${context.timeOfDay}`;
+    }
+    if (context.location) {
+      return `location:${context.location}`;
+    }
+    if (context.mood) {
+      return `mood:${context.mood}`;
+    }
+    if (context.energyLevel) {
+      return `energy:${context.energyLevel}`;
+    }
+
     return 'general';
   }
 
   private static calculateWorkoutSuccessRate(workoutEvents: any[], exerciseLogs: any[]): number {
     // Define success criteria (completed workouts, achieved targets, etc.)
     let successfulWorkouts = 0;
-    let totalWorkouts = workoutEvents.length;
+    const totalWorkouts = workoutEvents.length;
 
-    workoutEvents.forEach(event => {
-      const relatedLogs = exerciseLogs.filter(log => 
-        Math.abs(new Date(log.createdAt).getTime() - new Date(event.createdAt).getTime()) < 2 * 60 * 60 * 1000 // Within 2 hours
+    workoutEvents.forEach((event) => {
+      const relatedLogs = exerciseLogs.filter(log =>
+        Math.abs(new Date(log.createdAt).getTime() - new Date(event.createdAt).getTime()) < 2 * 60 * 60 * 1000, // Within 2 hours
       );
 
       // Consider workout successful if:
@@ -557,7 +592,7 @@ export class HabitStrengthAnalyticsService {
     const contextSuccessRate = this.calculateWorkoutSuccessRate(events, exerciseLogs);
     const overallSuccessRate = this.calculateWorkoutSuccessRate(
       events, // This would ideally be all workout events, simplified for this example
-      exerciseLogs
+      exerciseLogs,
     );
 
     // Predictive power is how much better this context performs vs average
@@ -567,27 +602,29 @@ export class HabitStrengthAnalyticsService {
 
   private static extractContextConditions(events: any[]): Record<string, any> {
     const conditions: Record<string, any> = {};
-    
-    events.forEach(event => {
+
+    events.forEach((event) => {
       const context = event.context || {};
-      Object.keys(context).forEach(key => {
-        if (!conditions[key]) conditions[key] = [];
+      Object.keys(context).forEach((key) => {
+        if (!conditions[key]) {
+          conditions[key] = [];
+        }
         conditions[key].push(context[key]);
       });
     });
 
     // Get most common values for each condition
-    Object.keys(conditions).forEach(key => {
+    Object.keys(conditions).forEach((key) => {
       const values = conditions[key];
       const counts = values.reduce((acc: Record<string, number>, val: any) => {
         const strVal = String(val);
         acc[strVal] = (acc[strVal] || 0) + 1;
         return acc;
       }, {});
-      
+
       const mostCommon = Object.entries(counts)
         .sort(([, a], [, b]) => (b as number) - (a as number))[0];
-      
+
       conditions[key] = mostCommon ? mostCommon[0] : null;
     });
 
@@ -597,7 +634,7 @@ export class HabitStrengthAnalyticsService {
   private static generateContextOptimization(
     context: string,
     successRate: number,
-    conditions: Record<string, any>
+    conditions: Record<string, any>,
   ): string {
     if (successRate >= 80) {
       return `Excellent context! Maintain these conditions: ${Object.entries(conditions)
@@ -613,7 +650,7 @@ export class HabitStrengthAnalyticsService {
 
   private static calculateVariance(values: number[]): number {
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    const variance = values.reduce((sum, val) => sum + (val - mean) ** 2, 0) / values.length;
     return variance;
   }
 }

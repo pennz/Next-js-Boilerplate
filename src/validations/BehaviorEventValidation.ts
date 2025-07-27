@@ -12,7 +12,7 @@ export const EntityTypeEnum = z.enum([
 // Event name validation with predefined common events
 const eventNameValidation = z.string().min(1).max(100).refine((eventName) => {
   // Allow alphanumeric, underscores, and hyphens
-  const validPattern = /^[a-zA-Z0-9_-]+$/;
+  const validPattern = /^[\w-]+$/;
   return validPattern.test(eventName);
 }, {
   message: 'Event name must contain only alphanumeric characters, underscores, and hyphens',
@@ -44,7 +44,7 @@ const eventNameValidation = z.string().min(1).max(100).refine((eventName) => {
     'stats_viewed',
     'quick_action_clicked',
   ];
-  
+
   // Allow custom events but they should follow naming convention
   return commonEvents.includes(eventName) || eventName.includes('_');
 }, {
@@ -94,16 +94,16 @@ const EnvironmentalDataValidation = z.object({
 export const ContextDataValidation = z.object({
   // Device information
   device: DeviceInfoValidation,
-  
+
   // UI state information
   ui: UIStateValidation,
-  
+
   // Environmental data
   environment: EnvironmentalDataValidation,
-  
+
   // Custom data for specific events
   custom: z.record(z.string(), z.any()).optional(),
-  
+
   // Health-specific context
   healthData: z.object({
     recordType: z.string().max(50).optional(),
@@ -111,7 +111,7 @@ export const ContextDataValidation = z.object({
     unit: z.string().max(20).optional(),
     goalId: z.number().int().positive().optional(),
   }).optional(),
-  
+
   // Exercise-specific context
   exerciseData: z.object({
     exerciseType: z.string().max(100).optional(),
@@ -120,7 +120,7 @@ export const ContextDataValidation = z.object({
     planId: z.number().int().positive().optional(),
     sessionId: z.number().int().positive().optional(),
   }).optional(),
-  
+
   // Performance metrics
   performance: z.object({
     loadTime: z.number().min(0).optional(),
@@ -132,7 +132,7 @@ export const ContextDataValidation = z.object({
 // Session ID validation
 const sessionIdValidation = z.string().min(1).max(100).refine((sessionId) => {
   // Allow alphanumeric, hyphens, and underscores
-  const validPattern = /^[a-zA-Z0-9_-]+$/;
+  const validPattern = /^[\w-]+$/;
   return validPattern.test(sessionId);
 }, {
   message: 'Session ID must contain only alphanumeric characters, underscores, and hyphens',
@@ -165,8 +165,8 @@ export const BehaviorEventValidation = z.object({
   path: ['context', 'ui'],
 }).refine((data) => {
   // Business logic: Health-related events should have health context when available
-  if ((data.entityType === 'health_record' || data.entityType === 'health_goal') && 
-      data.context && !data.context.healthData && data.eventName.includes('health')) {
+  if ((data.entityType === 'health_record' || data.entityType === 'health_goal')
+    && data.context && !data.context.healthData && data.eventName.includes('health')) {
     // This is a warning rather than an error, so we'll allow it
     return true;
   }
@@ -185,7 +185,7 @@ export const BehaviorEventBulkValidation = z.object({
   const sessionIds = data.events
     .map(event => event.sessionId)
     .filter(id => id !== undefined);
-  
+
   if (sessionIds.length > 0) {
     const uniqueSessionIds = new Set(sessionIds);
     if (uniqueSessionIds.size > 1) {

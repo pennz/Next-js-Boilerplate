@@ -6,7 +6,6 @@ import { expect, test } from '@playwright/test';
 import {
   addHealthGoal,
   addHealthRecord,
-  addHealthReminder,
   getFutureDate,
 } from './helpers/healthTestHelpers';
 
@@ -86,8 +85,8 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Check PostHog events
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const pageViewEvent = capturedEvents.find(event => 
-        event.eventName === 'health_overview_viewed'
+      const pageViewEvent = capturedEvents.find(event =>
+        event.eventName === 'health_overview_viewed',
       );
 
       expect(pageViewEvent).toBeTruthy();
@@ -103,7 +102,7 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Intercept behavioral event API calls
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         behaviorEventRequests.push(route.request().postData());
         route.continue();
       });
@@ -114,9 +113,9 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Verify PostHog event
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const clickEvent = capturedEvents.find(event => 
-        event.eventName === 'ui_click' && 
-        event.properties.buttonType === 'quick_action_add_record'
+      const clickEvent = capturedEvents.find(event =>
+        event.eventName === 'ui_click'
+        && event.properties.buttonType === 'quick_action_add_record',
       );
 
       expect(clickEvent).toBeTruthy();
@@ -128,6 +127,7 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Verify server-side event (may be batched)
       await page.waitForTimeout(2000);
+
       expect(behaviorEventRequests.length).toBeGreaterThan(0);
     });
 
@@ -141,8 +141,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(1500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const statsEvent = capturedEvents.find(event => 
-        event.eventName === 'health_stats_viewed'
+      const statsEvent = capturedEvents.find(event =>
+        event.eventName === 'health_stats_viewed',
       );
 
       expect(statsEvent).toBeTruthy();
@@ -161,8 +161,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const goalEvent = capturedEvents.find(event => 
-        event.eventName === 'goal_progress_viewed'
+      const goalEvent = capturedEvents.find(event =>
+        event.eventName === 'goal_progress_viewed',
       );
 
       expect(goalEvent).toBeTruthy();
@@ -176,7 +176,7 @@ test.describe('Behavioral Event Tracking', () => {
       // Add test records
       await addHealthRecord(page, 'weight', '75.5', 'kg');
       await addHealthRecord(page, 'steps', '10000', 'steps');
-      
+
       await page.goto('/dashboard/health');
       await page.waitForLoadState('networkidle');
 
@@ -185,8 +185,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const recordEvent = capturedEvents.find(event => 
-        event.eventName === 'recent_record_viewed'
+      const recordEvent = capturedEvents.find(event =>
+        event.eventName === 'recent_record_viewed',
       );
 
       expect(recordEvent).toBeTruthy();
@@ -202,8 +202,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(1000);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const pageViewEvent = capturedEvents.find(event => 
-        event.eventName === 'exercise_overview_viewed'
+      const pageViewEvent = capturedEvents.find(event =>
+        event.eventName === 'exercise_overview_viewed',
       );
 
       expect(pageViewEvent).toBeTruthy();
@@ -222,9 +222,9 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const clickEvent = capturedEvents.find(event => 
-        event.eventName === 'ui_click' && 
-        event.properties.buttonType === 'quick_action_start_workout'
+      const clickEvent = capturedEvents.find(event =>
+        event.eventName === 'ui_click'
+        && event.properties.buttonType === 'quick_action_start_workout',
       );
 
       expect(clickEvent).toBeTruthy();
@@ -246,8 +246,8 @@ test.describe('Behavioral Event Tracking', () => {
         await page.waitForTimeout(500);
 
         const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-        const planEvent = capturedEvents.find(event => 
-          event.eventName === 'training_plan_viewed'
+        const planEvent = capturedEvents.find(event =>
+          event.eventName === 'training_plan_viewed',
         );
 
         expect(planEvent).toBeTruthy();
@@ -262,8 +262,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(1500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const statsEvent = capturedEvents.find(event => 
-        event.eventName === 'exercise_stats_viewed'
+      const statsEvent = capturedEvents.find(event =>
+        event.eventName === 'exercise_stats_viewed',
       );
 
       expect(statsEvent).toBeTruthy();
@@ -275,7 +275,7 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('Server-Side Event Tracking', () => {
     test('should track health record creation events', async ({ page }) => {
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -290,11 +290,11 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(3000);
 
       // Check if health record creation event was tracked
-      const hasCreationEvent = behaviorEventRequests.some(request => 
-        request.events && request.events.some(event => 
-          event.eventName === 'health_record_created' &&
-          event.entityType === 'health_record'
-        )
+      const hasCreationEvent = behaviorEventRequests.some(request =>
+        request.events && request.events.some(event =>
+          event.eventName === 'health_record_created'
+          && event.entityType === 'health_record',
+        ),
       );
 
       expect(hasCreationEvent).toBeTruthy();
@@ -306,7 +306,7 @@ test.describe('Behavioral Event Tracking', () => {
       await addHealthRecord(page, 'weight', '75.0', 'kg');
 
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -323,11 +323,11 @@ test.describe('Behavioral Event Tracking', () => {
       // Wait for events
       await page.waitForTimeout(3000);
 
-      const hasUpdateEvent = behaviorEventRequests.some(request => 
-        request.events && request.events.some(event => 
-          event.eventName === 'health_record_updated' &&
-          event.entityType === 'health_record'
-        )
+      const hasUpdateEvent = behaviorEventRequests.some(request =>
+        request.events && request.events.some(event =>
+          event.eventName === 'health_record_updated'
+          && event.entityType === 'health_record',
+        ),
       );
 
       expect(hasUpdateEvent).toBeTruthy();
@@ -339,7 +339,7 @@ test.describe('Behavioral Event Tracking', () => {
       await addHealthRecord(page, 'steps', '10000', 'steps');
 
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -355,11 +355,11 @@ test.describe('Behavioral Event Tracking', () => {
       // Wait for events
       await page.waitForTimeout(3000);
 
-      const hasDeleteEvent = behaviorEventRequests.some(request => 
-        request.events && request.events.some(event => 
-          event.eventName === 'health_record_deleted' &&
-          event.entityType === 'health_record'
-        )
+      const hasDeleteEvent = behaviorEventRequests.some(request =>
+        request.events && request.events.some(event =>
+          event.eventName === 'health_record_deleted'
+          && event.entityType === 'health_record',
+        ),
       );
 
       expect(hasDeleteEvent).toBeTruthy();
@@ -367,7 +367,7 @@ test.describe('Behavioral Event Tracking', () => {
 
     test('should track health records query events', async ({ page }) => {
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -376,7 +376,7 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       await page.goto('/dashboard/health/records');
-      
+
       // Apply a filter to trigger query event
       await page.getByLabel('Filter by Type').selectOption('weight');
       await page.getByRole('button', { name: 'Apply Filter' }).click();
@@ -385,10 +385,10 @@ test.describe('Behavioral Event Tracking', () => {
       // Wait for events
       await page.waitForTimeout(3000);
 
-      const hasQueryEvent = behaviorEventRequests.some(request => 
-        request.events && request.events.some(event => 
-          event.eventName === 'health_records_queried'
-        )
+      const hasQueryEvent = behaviorEventRequests.some(request =>
+        request.events && request.events.some(event =>
+          event.eventName === 'health_records_queried',
+        ),
       );
 
       expect(hasQueryEvent).toBeTruthy();
@@ -398,7 +398,7 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('Client-Side Event Batching', () => {
     test('should batch multiple events before sending to server', async ({ page }) => {
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -413,7 +413,7 @@ test.describe('Behavioral Event Tracking', () => {
       await page.getByTestId('quick-action-add-record').click();
       await page.waitForTimeout(100);
       await page.getByRole('button', { name: 'Cancel' }).click();
-      
+
       await page.getByTestId('quick-action-view-analytics').click();
       await page.waitForTimeout(100);
       await page.goBack();
@@ -427,11 +427,12 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Should have batched events in fewer requests than individual events
       expect(behaviorEventRequests.length).toBeGreaterThan(0);
-      
+
       // Check that at least one request contains multiple events
-      const hasBatchedEvents = behaviorEventRequests.some(request => 
-        request.events && request.events.length > 1
+      const hasBatchedEvents = behaviorEventRequests.some(request =>
+        request.events && request.events.length > 1,
       );
+
       expect(hasBatchedEvents).toBeTruthy();
     });
 
@@ -442,7 +443,7 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -466,9 +467,10 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Should have flushed when buffer reached limit
       expect(behaviorEventRequests.length).toBeGreaterThan(0);
-      
+
       // First batch should have exactly 3 events (buffer size)
       const firstBatch = behaviorEventRequests[0];
+
       expect(firstBatch.events).toHaveLength(3);
     });
 
@@ -479,7 +481,7 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         const postData = route.request().postData();
         if (postData) {
           behaviorEventRequests.push(JSON.parse(postData));
@@ -514,8 +516,8 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Check PostHog captured the event
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const clickEvent = capturedEvents.find(event => 
-        event.eventName === 'ui_click'
+      const clickEvent = capturedEvents.find(event =>
+        event.eventName === 'ui_click',
       );
 
       expect(clickEvent).toBeTruthy();
@@ -539,8 +541,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const statsEvent = capturedEvents.find(event => 
-        event.eventName === 'health_stats_viewed'
+      const statsEvent = capturedEvents.find(event =>
+        event.eventName === 'health_stats_viewed',
       );
 
       expect(statsEvent).toBeTruthy();
@@ -567,13 +569,13 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const healthEvent = capturedEvents.find(event => 
-        event.eventName === 'ui_click' && 
-        event.properties.component === 'HealthOverview'
+      const healthEvent = capturedEvents.find(event =>
+        event.eventName === 'ui_click'
+        && event.properties.component === 'HealthOverview',
       );
-      const exerciseEvent = capturedEvents.find(event => 
-        event.eventName === 'ui_click' && 
-        event.properties.component === 'ExerciseOverview'
+      const exerciseEvent = capturedEvents.find(event =>
+        event.eventName === 'ui_click'
+        && event.properties.component === 'ExerciseOverview',
       );
 
       // Both events should have the same session ID
@@ -584,12 +586,12 @@ test.describe('Behavioral Event Tracking', () => {
   test.describe('User Experience and Performance', () => {
     test('should not interfere with normal user workflows', async ({ page }) => {
       await page.goto('/dashboard/health/records');
-      
+
       // Measure time to complete normal workflow
       const startTime = Date.now();
-      
+
       await addHealthRecord(page, 'weight', '75.5', 'kg');
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -603,7 +605,7 @@ test.describe('Behavioral Event Tracking', () => {
 
     test('should handle tracking errors gracefully', async ({ page }) => {
       // Simulate API failure for behavior events
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         route.abort('failed');
       });
 
@@ -612,13 +614,13 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Normal functionality should still work despite tracking failure
       await page.getByTestId('quick-action-add-record').click();
-      
+
       // Should still navigate to add record form
       await expect(page.getByLabel('Health Type')).toBeVisible();
-      
+
       // Cancel and verify no user-facing errors
       await page.getByRole('button', { name: 'Cancel' }).click();
-      
+
       // Should return to health overview without errors
       await expect(page.getByTestId('health-overview')).toBeVisible();
     });
@@ -626,10 +628,10 @@ test.describe('Behavioral Event Tracking', () => {
     test('should not impact page load performance', async ({ page }) => {
       // Measure page load time
       const startTime = Date.now();
-      
+
       await page.goto('/dashboard/health');
       await page.waitForLoadState('networkidle');
-      
+
       const loadTime = Date.now() - startTime;
 
       // Page should load in reasonable time (less than 5 seconds)
@@ -639,6 +641,7 @@ test.describe('Behavioral Event Tracking', () => {
       const hasTracking = await page.evaluate(() => {
         return typeof window.posthog !== 'undefined';
       });
+
       expect(hasTracking).toBeTruthy();
     });
 
@@ -649,7 +652,7 @@ test.describe('Behavioral Event Tracking', () => {
       });
 
       const behaviorEventRequests = [];
-      await page.route('**/api/behavior/events', route => {
+      await page.route('**/api/behavior/events', (route) => {
         behaviorEventRequests.push(route.request());
         route.continue();
       });
@@ -684,9 +687,9 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const onboardingEvent = capturedEvents.find(event => 
-        event.eventName === 'onboarding_action' ||
-        (event.eventName === 'ui_click' && event.properties.context?.isFirstTime)
+      const onboardingEvent = capturedEvents.find(event =>
+        event.eventName === 'onboarding_action'
+        || (event.eventName === 'ui_click' && event.properties.context?.isFirstTime),
       );
 
       expect(onboardingEvent).toBeTruthy();
@@ -695,7 +698,7 @@ test.describe('Behavioral Event Tracking', () => {
     test('should track power user interaction patterns', async ({ page }) => {
       // Create multiple records to simulate power user
       await page.goto('/dashboard/health/records');
-      
+
       for (let i = 0; i < 3; i++) {
         await addHealthRecord(page, 'weight', `${75 + i}.0`, 'kg');
         await page.waitForTimeout(200);
@@ -703,33 +706,35 @@ test.describe('Behavioral Event Tracking', () => {
 
       // Create goals
       await addHealthGoal(page, 'weight', '70', getFutureDate(3));
-      
+
       // Navigate to analytics
       await page.goto('/dashboard/health/analytics/weight');
       await page.waitForLoadState('networkidle');
 
       // Power user interactions should be tracked
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      
+
       // Should have multiple record creation events
-      const recordEvents = capturedEvents.filter(event => 
-        event.eventName === 'ui_click' && 
-        event.properties.action === 'add_health_record'
+      const recordEvents = capturedEvents.filter(event =>
+        event.eventName === 'ui_click'
+        && event.properties.action === 'add_health_record',
       );
+
       expect(recordEvents.length).toBeGreaterThanOrEqual(3);
 
       // Should have analytics view event
-      const analyticsEvent = capturedEvents.find(event => 
-        event.eventName === 'analytics_viewed' ||
-        event.eventName === 'health_analytics_viewed'
+      const analyticsEvent = capturedEvents.find(event =>
+        event.eventName === 'analytics_viewed'
+        || event.eventName === 'health_analytics_viewed',
       );
+
       expect(analyticsEvent).toBeTruthy();
     });
 
     test('should track mobile vs desktop interaction differences', async ({ page, browserName }) => {
       // Simulate mobile viewport
       await page.setViewportSize({ width: 375, height: 667 });
-      
+
       await page.goto('/dashboard/health');
       await page.waitForLoadState('networkidle');
 
@@ -738,8 +743,8 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForTimeout(500);
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      const mobileEvent = capturedEvents.find(event => 
-        event.properties.context?.viewport?.width === 375
+      const mobileEvent = capturedEvents.find(event =>
+        event.properties.context?.viewport?.width === 375,
       );
 
       expect(mobileEvent).toBeTruthy();
@@ -762,16 +767,16 @@ test.describe('Behavioral Event Tracking', () => {
       await page.waitForLoadState('networkidle');
 
       const capturedEvents = await page.evaluate(() => window.capturedEvents || []);
-      
+
       // Should track both error and recovery
-      const errorEvent = capturedEvents.find(event => 
-        event.eventName === 'validation_error' ||
-        (event.eventName === 'form_error' && event.properties.errorType === 'validation')
+      const errorEvent = capturedEvents.find(event =>
+        event.eventName === 'validation_error'
+        || (event.eventName === 'form_error' && event.properties.errorType === 'validation'),
       );
-      
-      const recoveryEvent = capturedEvents.find(event => 
-        event.eventName === 'error_recovery' ||
-        (event.eventName === 'form_success' && event.properties.hadPreviousError)
+
+      const recoveryEvent = capturedEvents.find(event =>
+        event.eventName === 'error_recovery'
+        || (event.eventName === 'form_success' && event.properties.hadPreviousError),
       );
 
       expect(errorEvent).toBeTruthy();

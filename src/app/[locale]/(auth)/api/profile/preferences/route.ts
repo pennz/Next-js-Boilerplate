@@ -1,16 +1,16 @@
 import type { NextRequest } from 'next/server';
+import type { UserPreferenceInput } from '@/validations/UserProfileValidation';
 import arcjet, { tokenBucket } from '@arcjet/next';
 import { currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 
+import { z } from 'zod';
 import { Env } from '@/libs/Env';
 import { logger } from '@/libs/Logger';
 import { UserProfileService } from '@/services/profile/UserProfileService';
 import {
-  UserPreferenceValidation,
   UserPreferenceUpdateValidation,
-  type UserPreferenceInput,
+
 } from '@/validations/UserProfileValidation';
 
 // Arcjet rate limiting configuration
@@ -106,7 +106,7 @@ export const GET = async (request: NextRequest) => {
     // If no preferences found and includeDefaults is true, return defaults
     if (!preferences && includeDefaults) {
       const defaultPreferences = getDefaultPreferences();
-      
+
       logger.info('Default preferences returned', {
         userId,
         hasCustomPreferences: false,
@@ -229,11 +229,11 @@ export const PUT = async (request: NextRequest) => {
       const categoryFields = {
         workout: [
           'preferred_workout_types',
-          'preferred_times', 
+          'preferred_times',
           'preferred_days',
           'available_equipment',
           'workout_intensity_preference',
-          'rest_day_preference'
+          'rest_day_preference',
         ],
         notifications: ['notification_preferences'],
         privacy: ['privacy_settings'],
@@ -245,7 +245,7 @@ export const PUT = async (request: NextRequest) => {
 
       if (invalidFields.length > 0) {
         return NextResponse.json(
-          { 
+          {
             error: `Invalid fields for category '${category}': ${invalidFields.join(', ')}`,
             allowedFields,
           },
@@ -289,8 +289,8 @@ export const PUT = async (request: NextRequest) => {
 
     // Update preferences using service
     const updatedPreferences = await UserProfileService.updatePreferences(
-      userId, 
-      validatedPreferences
+      userId,
+      validatedPreferences,
     );
 
     logger.info('User preferences updated', {
@@ -317,7 +317,7 @@ export const PUT = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('User profile not found')) {
         return NextResponse.json(
           { error: 'User profile not found. Please create a profile first.' },
@@ -379,9 +379,9 @@ export const POST = async (request: NextRequest) => {
         backupPreferences = await UserProfileService.getPreferences(userId);
       } catch (error) {
         // If getting current preferences fails, continue with reset
-        logger.warn('Could not create backup of current preferences', { 
-          userId, 
-          error: error instanceof Error ? error.message : 'Unknown error' 
+        logger.warn('Could not create backup of current preferences', {
+          userId,
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -405,7 +405,7 @@ export const POST = async (request: NextRequest) => {
       const currentPreferences = await UserProfileService.getPreferences(userId);
       if (currentPreferences) {
         preferencesToSet = { ...currentPreferences };
-        
+
         // Reset only the specified category
         switch (category.toLowerCase()) {
           case 'workout':
@@ -428,8 +428,8 @@ export const POST = async (request: NextRequest) => {
 
     // Reset preferences using service
     const resetPreferences = await UserProfileService.updatePreferences(
-      userId, 
-      preferencesToSet
+      userId,
+      preferencesToSet,
     );
 
     logger.info('User preferences reset to defaults', {

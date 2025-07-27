@@ -300,7 +300,7 @@ type ReminderListProps = {
 
 **Purpose**: User greeting with authentication integration.
 
-**Dependencies**: 
+**Dependencies**:
 - Clerk authentication
 - next-intl translations
 - Sponsors component (referenced but not found)
@@ -401,7 +401,9 @@ const result = await db.query.schema.findMany({
 **Authentication Integration**:
 ```typescript
 const user = await currentUser();
-if (!user) return null;
+if (!user) {
+  return null;
+}
 ```
 
 **Translation Loading**:

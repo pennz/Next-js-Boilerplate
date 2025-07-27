@@ -84,12 +84,12 @@ if (isAuthPage(request) || isProtectedRoute(request)) {
     if (isProtectedRoute(req)) {
       const locale = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
       const signInUrl = new URL(`${locale}/sign-in`, req.url);
-      
+
       await auth.protect({
         unauthenticatedUrl: signInUrl.toString(),
       });
     }
-    
+
     return handleI18nRouting(request);
   })(request, event);
 }
@@ -129,7 +129,7 @@ const isProtectedRoute = createRouteMatcher([
 API routes under `(auth)` directory are automatically protected:
 
 - `/api/health/records` - Health records management
-- `/api/health/goals` - Health goals management  
+- `/api/health/goals` - Health goals management
 - `/api/health/reminders` - Health reminders management
 - `/api/health/analytics` - Health analytics data
 
@@ -219,7 +219,9 @@ Each API endpoint implements consistent authentication checks:
 export const GET = async (request: NextRequest) => {
   // 1. Check feature flag
   const featureCheck = checkHealthFeatureFlag();
-  if (featureCheck) return featureCheck;
+  if (featureCheck) {
+    return featureCheck;
+  }
 
   // 2. Check authentication
   const userId = await getCurrentUserId();
@@ -321,8 +323,8 @@ const aj = arcjet.withRule(
     mode: 'LIVE',
     allow: [
       'CATEGORY:SEARCH_ENGINE', // Allow search engines
-      'CATEGORY:PREVIEW',       // Allow preview links
-      'CATEGORY:MONITOR',       // Allow uptime monitoring
+      'CATEGORY:PREVIEW', // Allow preview links
+      'CATEGORY:MONITOR', // Allow uptime monitoring
     ],
   }),
 );
@@ -379,7 +381,7 @@ const conditions = [eq(healthRecordSchema.userId, userId)];
 and(
   eq(healthRecordSchema.id, id),
   eq(healthRecordSchema.userId, userId),
-)
+);
 ```
 
 ### Multi-Level Authorization

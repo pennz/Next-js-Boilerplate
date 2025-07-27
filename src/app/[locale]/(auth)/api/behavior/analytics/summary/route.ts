@@ -1,15 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/libs/DB';
 import { Env } from '@/libs/Env';
-import { 
-  behavioralEventSchema, 
+import {
+  behavioralEventSchema,
   microBehaviorPatternSchema,
-  healthRecordSchema,
-  exerciseLogSchema
 } from '@/models/Schema';
 import { HabitStrengthAnalyticsService } from '@/services/analytics/HabitStrengthAnalyticsService';
 
@@ -61,7 +59,7 @@ export const GET = async (request: NextRequest) => {
     // Calculate date range
     const endDate = new Date();
     const startDate = new Date();
-    
+
     switch (timeRange) {
       case '7d':
         startDate.setDate(endDate.getDate() - 7);
@@ -85,8 +83,8 @@ export const GET = async (request: NextRequest) => {
         and(
           eq(behavioralEventSchema.userId, user.id),
           gte(behavioralEventSchema.createdAt, startDate),
-          lte(behavioralEventSchema.createdAt, endDate)
-        )
+          lte(behavioralEventSchema.createdAt, endDate),
+        ),
       );
 
     const totalEvents = Number(totalEventsResult[0]?.count || 0);
@@ -98,8 +96,8 @@ export const GET = async (request: NextRequest) => {
       .where(
         and(
           eq(microBehaviorPatternSchema.userId, user.id),
-          gte(microBehaviorPatternSchema.strength, 50) // Consider patterns with strength >= 50% as active
-        )
+          gte(microBehaviorPatternSchema.strength, 50), // Consider patterns with strength >= 50% as active
+        ),
       );
 
     const activePatterns = Number(activePatternsResult[0]?.count || 0);
@@ -108,7 +106,7 @@ export const GET = async (request: NextRequest) => {
     const habitStrengthData = await HabitStrengthAnalyticsService.calculateHabitStrength(
       user.id,
       undefined,
-      timeRange
+      timeRange,
     );
 
     // Calculate consistency score (average of all active patterns)
@@ -121,14 +119,13 @@ export const GET = async (request: NextRequest) => {
       .where(
         and(
           eq(microBehaviorPatternSchema.userId, user.id),
-          gte(microBehaviorPatternSchema.strength, 30) // Include patterns with strength >= 30%
-        )
+          gte(microBehaviorPatternSchema.strength, 30), // Include patterns with strength >= 30%
+        ),
       );
 
     const consistencyScore = patternsForConsistency.length > 0
-      ? patternsForConsistency.reduce((sum, pattern) => 
-          sum + (Number(pattern.consistency) * Number(pattern.strength) / 100), 0
-        ) / patternsForConsistency.length
+      ? patternsForConsistency.reduce((sum, pattern) =>
+        sum + (Number(pattern.consistency) * Number(pattern.strength) / 100), 0) / patternsForConsistency.length
       : 0;
 
     // Find top context (most frequent successful context)
@@ -142,13 +139,13 @@ export const GET = async (request: NextRequest) => {
           eq(behavioralEventSchema.userId, user.id),
           gte(behavioralEventSchema.createdAt, startDate),
           lte(behavioralEventSchema.createdAt, endDate),
-          sql`${behavioralEventSchema.context}->>'success' = 'true'`
-        )
+          sql`${behavioralEventSchema.context}->>'success' = 'true'`,
+        ),
       );
 
     // Analyze contexts to find the most common
     const contextCounts: Record<string, number> = {};
-    contextEvents.forEach(event => {
+    contextEvents.forEach((event) => {
       const context = event.context as any;
       if (context?.timeOfDay) {
         const key = `time:${context.timeOfDay}`;
@@ -172,9 +169,8 @@ export const GET = async (request: NextRequest) => {
 
     // Calculate prediction accuracy (simplified - based on pattern confidence)
     const predictionAccuracy = patternsForConsistency.length > 0
-      ? patternsForConsistency.reduce((sum, pattern) => 
-          sum + Number(pattern.strength), 0
-        ) / patternsForConsistency.length
+      ? patternsForConsistency.reduce((sum, pattern) =>
+        sum + Number(pattern.strength), 0) / patternsForConsistency.length
       : 0;
 
     const summary = {

@@ -29,7 +29,7 @@ Pattern Detected: 85% workout completion rate at 6:30 AM on weekdays
 15% completion rate for evening workouts
 Context: After morning coffee, before kids wake up
 
-App Action: "Your success rate is 5x higher with morning workouts. 
+App Action: "Your success rate is 5x higher with morning workouts.
 Want to set up automatic 6:20 AM reminders and pre-set your workout gear the night before?"
 ```
 
@@ -40,7 +40,7 @@ Pattern Detected: 90% completion when temperature is 65-75°F
 25% completion when it's raining
 Prefers outdoor activities over gym
 
-App Action: "Rain forecast tomorrow. Here's an indoor HIIT routine that 
+App Action: "Rain forecast tomorrow. Here's an indoor HIIT routine that
 matches your usual outdoor intensity. Users like you have 78% success with this alternative."
 ```
 
@@ -51,7 +51,7 @@ Pattern Detected: 95% adherence when working out with her sister
 40% adherence for solo workouts
 Sister available Tuesday/Thursday/Saturday
 
-App Action: "You're 2.4x more likely to complete workouts with your sister. 
+App Action: "You're 2.4x more likely to complete workouts with your sister.
 Want me to send joint reminders and suggest partner workouts for your scheduled days?"
 ```
 
@@ -78,8 +78,8 @@ Pattern Detected: Skips workouts after 2+ nights of <6 hours sleep
 Current Status: 5.5 hours last night, 4.8 hours night before
 Probability of workout skip: 87%
 
-App Action: "Your energy is likely low today based on your sleep patterns. 
-Try this 10-minute energizing walk instead of your planned 45-minute gym session. 
+App Action: "Your energy is likely low today based on your sleep patterns.
+Try this 10-minute energizing walk instead of your planned 45-minute gym session.
 Users who adapt on low-sleep days maintain habits 3x longer."
 ```
 
@@ -89,7 +89,7 @@ User: Maria
 Pattern Detected: Abandons workouts when work stress > 7/10
 Current Status: Back-to-back meetings + project deadline = predicted stress 8/10
 
-App Action: "Today looks stressful. Swap your HIIT session for this 
+App Action: "Today looks stressful. Swap your HIIT session for this
 15-minute stress-relief yoga routine. It'll lower cortisol AND maintain your habit streak."
 ```
 
@@ -175,7 +175,7 @@ Use data to identify optimal social support structures and accountability mechan
 **Accountability Partner Matching**
 ```
 User: Lisa
-Pattern Detected: 
+Pattern Detected:
 - Responds well to gentle encouragement (not competition)
 - Morning workout preference
 - Prefers text check-ins over social media posts
@@ -234,7 +234,7 @@ User: Mark
 Current Status: Missing 40% of strength training goals, showing frustration signs
 Data Analysis: Goals set too high for current fitness level + available time
 
-App Intervention: 
+App Intervention:
 "Your goals need recalibration. Based on your schedule and current fitness:
 - Reduce from 4x/week to 3x/week (+33% achievable)
 - Shorter 25-minute sessions instead of 45-minute
@@ -249,7 +249,7 @@ User: Sophie
 Pattern Detected: Weight loss plateaued for 3 weeks, motivation declining
 Historical Data: This pattern previously led to 6-week habit breaks
 
-App Action: "Plateau detected - this is normal and temporary! 
+App Action: "Plateau detected - this is normal and temporary!
 Shifting focus from weight to strength gains. You've increased squat weight 15% this month.
 New celebration metrics: consistency streaks + strength improvements."
 ```
@@ -318,7 +318,7 @@ Opportunity: Bundle workout cue with existing strong habit
 
 App Suggestion: "While your coffee brews (6 minutes), do this energizing routine:
 - 2 minutes stretching
-- 2 minutes bodyweight exercises  
+- 2 minutes bodyweight exercises
 - 2 minutes meditation
 Your coffee becomes the automatic workout trigger."
 ```

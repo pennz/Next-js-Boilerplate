@@ -5,7 +5,7 @@ Here are the main ways your fitness app can help individual customers:
 ## **Core Value Propositions:**
 
 1. **Smart Training Decisions**: Using HRV, sleep data, and recovery metrics to recommend when to push hard vs. when to rest
-2. **Personalized Goal Achievement**: Adaptive targets that adjust based on individual progress patterns and lifestyle factors  
+2. **Personalized Goal Achievement**: Adaptive targets that adjust based on individual progress patterns and lifestyle factors
 3. **Health Pattern Recognition**: Identifying what specific habits, timing, and conditions lead to best results for each person
 4. **Predictive Insights**: Preventing injuries, predicting performance, and optimizing training before problems occur
 
@@ -13,7 +13,7 @@ Here are the main ways your fitness app can help individual customers:
 
 - **Recovery & Readiness Scores** - Tells them if today is a good day to train hard
 - **Sleep Optimization** - Shows how sleep quality affects performance and provides specific bedtime recommendations
-- **Nutrition Timing** - Reveals how meal timing affects sleep, energy, and workout performance  
+- **Nutrition Timing** - Reveals how meal timing affects sleep, energy, and workout performance
 - **Progress Prediction** - Estimates when they'll reach goals based on current patterns
 - **Habit Impact Analysis** - Shows which daily habits help or hurt their fitness goals
 

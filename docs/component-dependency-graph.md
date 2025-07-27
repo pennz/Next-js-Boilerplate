@@ -13,20 +13,20 @@ flowchart TD
     MarketingLayout[MarketingLayout - Public Pages]
     DashboardLayout[DashboardLayout - Protected Pages]
     BaseTemplate[BaseTemplate - Foundation Layout]
-    
+
     RootLayout --> AuthLayout
     RootLayout --> MarketingLayout
     AuthLayout --> DashboardLayout
     MarketingLayout --> BaseTemplate
     DashboardLayout --> BaseTemplate
-    
+
     subgraph "Shared Components"
         LocaleSwitcher[LocaleSwitcher]
         DemoBanner[DemoBanner]
         DemoBadge[DemoBadge]
         PostHogProvider[PostHogProvider]
     end
-    
+
     RootLayout --> PostHogProvider
     RootLayout --> DemoBadge
     MarketingLayout --> DemoBanner
@@ -43,7 +43,7 @@ flowchart TD
     HealthChart[HealthChart - Client Component]
     GoalCard[GoalCard - Client Component]
     ReminderList[ReminderList - Client Component]
-    
+
     subgraph "External Dependencies"
         Clerk[Clerk Authentication]
         Drizzle[Drizzle ORM]
@@ -52,18 +52,18 @@ flowchart TD
         Recharts[Recharts]
         Zod[Zod Validation]
     end
-    
+
     HealthOverview --> Clerk
     HealthOverview --> Drizzle
     HealthOverview --> NextIntl
-    
+
     HealthRecordForm --> ReactHookForm
     HealthRecordForm --> Zod
     HealthRecordForm --> NextIntl
-    
+
     HealthChart --> Recharts
     HealthChart --> NextIntl
-    
+
     GoalCard --> NextIntl
     ReminderList --> NextIntl
 ```
@@ -73,13 +73,13 @@ flowchart TD
 ```mermaid
 flowchart TD
     ExerciseOverview[ExerciseOverview - Server Component]
-    
+
     subgraph "External Dependencies"
         Clerk[Clerk Authentication]
         Drizzle[Drizzle ORM]
         NextIntl[next-intl]
     end
-    
+
     ExerciseOverview --> Clerk
     ExerciseOverview --> Drizzle
     ExerciseOverview --> NextIntl
@@ -132,12 +132,12 @@ Server components compose client components to create optimal user experiences:
 // Server Component (HealthOverview)
 export const HealthOverview = async () => {
   const data = await fetchHealthData(); // Server-side data fetching
-  
+
   return (
     <div>
       {/* Server-rendered static content */}
       <StatCard data={data.stats} />
-      
+
       {/* Client component for interactivity */}
       <HealthChart data={data.chartData} />
     </div>
@@ -157,10 +157,10 @@ export const HealthOverview = async () => {
 **Composition Pattern:**
 ```typescript
 BaseTemplate({
-  leftNav: React.ReactNode,    // Navigation links
-  rightNav: React.ReactNode,   // User actions
-  children: React.ReactNode    // Page content
-})
+  leftNav: React.ReactNode, // Navigation links
+  rightNav: React.ReactNode, // User actions
+  children: React.ReactNode // Page content
+});
 ```
 
 ### Layout Inheritance Chain
@@ -170,27 +170,27 @@ flowchart TD
     BaseTemplate[BaseTemplate - Foundation]
     DashboardLayout[DashboardLayout - Protected]
     MarketingLayout[MarketingLayout - Public]
-    
+
     BaseTemplate --> DashboardLayout
     BaseTemplate --> MarketingLayout
-    
+
     subgraph "Dashboard Navigation"
         DashNav[Dashboard Links]
         HealthNav[Health Links]
         ExerciseNav[Exercise Links]
         UserActions[User Profile/Sign Out]
     end
-    
+
     subgraph "Marketing Navigation"
         PublicNav[Public Links]
         AuthLinks[Sign In/Sign Up]
     end
-    
+
     DashboardLayout --> DashNav
     DashboardLayout --> HealthNav
     DashboardLayout --> ExerciseNav
     DashboardLayout --> UserActions
-    
+
     MarketingLayout --> PublicNav
     MarketingLayout --> AuthLinks
 ```
@@ -277,7 +277,7 @@ flowchart LR
     ServerComponent[Server Component]
     StaticHTML[Static HTML]
     Client[Client Browser]
-    
+
     Database --> DrizzleORM
     DrizzleORM --> ServerComponent
     ServerComponent --> StaticHTML
@@ -302,7 +302,7 @@ flowchart TD
     ServerAction[Server Action]
     DatabaseUpdate[Database Update]
     RouterRefresh[Router Refresh]
-    
+
     UserInput --> ReactState
     ReactState --> Validation
     Validation --> APICall
@@ -332,7 +332,7 @@ flowchart TD
 // Server Component
 const HealthOverview = async () => {
   const data = await fetchData();
-  
+
   return (
     <div>
       <StatCard stats={data.stats} />
@@ -350,8 +350,13 @@ const HealthOverview = async () => {
 **Integration Pattern:**
 ```typescript
 import {
-  LineChart, BarChart, AreaChart,
-  ResponsiveContainer, Tooltip, XAxis, YAxis
+  AreaChart,
+  BarChart,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 ```
 
@@ -400,7 +405,9 @@ const t = useTranslations('Namespace');
 import { currentUser } from '@clerk/nextjs/server';
 
 const user = await currentUser();
-if (!user) return null;
+if (!user) {
+  return null;
+}
 ```
 
 **Layout Integration:**
@@ -423,29 +430,29 @@ flowchart TD
     DashboardPage[Dashboard Page]
     HealthOverview[Health Overview]
     ExerciseOverview[Exercise Overview]
-    
+
     subgraph "Health Components"
         StatCards[Stat Cards]
         RecentRecords[Recent Records]
         GoalProgress[Goal Progress]
         QuickActions[Quick Actions]
     end
-    
+
     subgraph "Exercise Components"
         ExerciseStats[Exercise Stats]
         RecentWorkouts[Recent Workouts]
         TrainingPlans[Training Plans]
         ExerciseActions[Exercise Actions]
     end
-    
+
     DashboardPage --> HealthOverview
     DashboardPage --> ExerciseOverview
-    
+
     HealthOverview --> StatCards
     HealthOverview --> RecentRecords
     HealthOverview --> GoalProgress
     HealthOverview --> QuickActions
-    
+
     ExerciseOverview --> ExerciseStats
     ExerciseOverview --> RecentWorkouts
     ExerciseOverview --> TrainingPlans
@@ -500,7 +507,7 @@ describe('HealthOverview', () => {
     mockDatabaseQueries();
     mockTranslations();
   });
-  
+
   it('renders health statistics', () => {
     // Test component rendering
   });

@@ -1,22 +1,21 @@
-import { and, desc, eq, gte, lte, asc } from 'drizzle-orm';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { db } from '@/libs/DB';
-import { 
-  userProfileSchema,
-  userFitnessGoalSchema,
-  userPreferenceSchema,
-  userConstraintSchema,
-  goalStatusEnum
-} from '@/models/Schema';
-import { UserProfileService } from './UserProfileService';
-import { logger } from '@/libs/Logger';
-import type { 
-  UserProfileInput,
+import type {
+  UserConstraintInput,
   UserFitnessGoalInput,
   UserPreferenceInput,
-  UserConstraintInput,
-  UserProfileUpdateInput
+  UserProfileInput,
+  UserProfileUpdateInput,
 } from '@/validations/UserProfileValidation';
+import { and, asc, desc, eq, gte, lte } from 'drizzle-orm';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { db } from '@/libs/DB';
+import { logger } from '@/libs/Logger';
+import {
+  userConstraintSchema,
+  userFitnessGoalSchema,
+  userPreferenceSchema,
+  userProfileSchema,
+} from '@/models/Schema';
+import { UserProfileService } from './UserProfileService';
 
 // Mock the database
 vi.mock('@/libs/DB', () => ({
@@ -240,10 +239,11 @@ describe('UserProfileService', () => {
 
       // Verify completeness calculation was called
       const insertCall = mockDb.insert().values;
+
       expect(insertCall).toHaveBeenCalledWith(
         expect.objectContaining({
           profileCompleteness: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -389,10 +389,11 @@ describe('UserProfileService', () => {
 
       // Verify completeness was recalculated
       const setCall = mockDb.update().set;
+
       expect(setCall).toHaveBeenCalledWith(
         expect.objectContaining({
           profileCompleteness: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -412,10 +413,11 @@ describe('UserProfileService', () => {
 
       // Verify completeness was not recalculated
       const setCall = mockDb.update().set;
+
       expect(setCall).toHaveBeenCalledWith(
         expect.objectContaining({
           profileCompleteness: mockProfile.profileCompleteness,
-        })
+        }),
       );
     });
 
@@ -468,7 +470,7 @@ describe('UserProfileService', () => {
   describe('getProfile', () => {
     it('should retrieve profile with related data by default', async () => {
       mockDb.query.userProfileSchema.findFirst.mockResolvedValue(mockProfile);
-      
+
       // Mock related data retrieval
       vi.spyOn(UserProfileService, 'getFitnessGoals').mockResolvedValue([mockFitnessGoal]);
       vi.spyOn(UserProfileService, 'getPreferences').mockResolvedValue(mockPreferences);
@@ -540,7 +542,7 @@ describe('UserProfileService', () => {
   describe('deleteProfile', () => {
     it('should delete profile and related data successfully', async () => {
       mockDb.query.userProfileSchema.findFirst.mockResolvedValue(mockProfile);
-      
+
       const mockTransaction = vi.fn().mockImplementation(async (callback) => {
         return await callback({
           delete: vi.fn().mockReturnValue({
@@ -548,7 +550,7 @@ describe('UserProfileService', () => {
           }),
         });
       });
-      
+
       mockDb.transaction.mockImplementation(mockTransaction);
 
       const result = await UserProfileService.deleteProfile(mockUserId);
@@ -581,13 +583,13 @@ describe('UserProfileService', () => {
 
     it('should handle cascade deletion properly', async () => {
       mockDb.query.userProfileSchema.findFirst.mockResolvedValue(mockProfile);
-      
+
       const mockTx = {
         delete: vi.fn().mockReturnValue({
           where: vi.fn().mockResolvedValue({ rowCount: 1 }),
         }),
       };
-      
+
       mockDb.transaction.mockImplementation(async (callback) => {
         return await callback(mockTx);
       });
@@ -797,7 +799,7 @@ describe('UserProfileService', () => {
 
       expect(mockAnd).toHaveBeenCalledWith(
         expect.any(Function), // eq(userFitnessGoalSchema.id, goalId)
-        expect.any(Function)  // eq(userFitnessGoalSchema.userId, userId)
+        expect.any(Function), // eq(userFitnessGoalSchema.userId, userId)
       );
     });
   });
@@ -805,7 +807,7 @@ describe('UserProfileService', () => {
   describe('getFitnessGoals', () => {
     it('should retrieve all goals for user', async () => {
       const mockGoals = [mockFitnessGoal];
-      
+
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -827,7 +829,7 @@ describe('UserProfileService', () => {
 
     it('should filter goals by status', async () => {
       const mockGoals = [mockFitnessGoal];
-      
+
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -844,7 +846,7 @@ describe('UserProfileService', () => {
 
     it('should filter goals by goal type', async () => {
       const mockGoals = [mockFitnessGoal];
-      
+
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -895,7 +897,7 @@ describe('UserProfileService', () => {
       expect(UserProfileService.updateFitnessGoal).toHaveBeenCalledWith(
         mockUserId,
         mockGoalId,
-        { status: 'completed' }
+        { status: 'completed' },
       );
       expect(result.status).toBe('completed');
     });
@@ -1035,7 +1037,7 @@ describe('UserProfileService', () => {
           musicPreference: true,
           reminderEnabled: true,
           autoProgressionEnabled: true,
-        })
+        }),
       );
       expect(result).toEqual(mockPreferences);
     });
@@ -1223,7 +1225,7 @@ describe('UserProfileService', () => {
 
       expect(mockAnd).toHaveBeenCalledWith(
         expect.any(Function), // eq(userConstraintSchema.id, constraintId)
-        expect.any(Function)  // eq(userConstraintSchema.userId, userId)
+        expect.any(Function), // eq(userConstraintSchema.userId, userId)
       );
     });
   });
@@ -1277,7 +1279,7 @@ describe('UserProfileService', () => {
   describe('getActiveConstraints', () => {
     it('should retrieve active constraints for user', async () => {
       const mockConstraints = [mockConstraint];
-      
+
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockReturnValue({
@@ -1292,7 +1294,7 @@ describe('UserProfileService', () => {
       expect(mockDb.select).toHaveBeenCalled();
       expect(mockAnd).toHaveBeenCalledWith(
         expect.any(Function), // eq(userConstraintSchema.userId, userId)
-        expect.any(Function)  // eq(userConstraintSchema.isActive, true)
+        expect.any(Function), // eq(userConstraintSchema.isActive, true)
       );
       expect(mockLogger.debug).toHaveBeenCalledWith('Active constraints retrieved', {
         userId: mockUserId,
@@ -1393,6 +1395,7 @@ describe('UserProfileService', () => {
 
       // Access private method through service
       const completeness = (UserProfileService as any).calculateProfileCompleteness(completeProfile);
+
       expect(completeness).toBe(100);
     });
 
@@ -1408,6 +1411,7 @@ describe('UserProfileService', () => {
       };
 
       const completeness = (UserProfileService as any).calculateProfileCompleteness(partialProfile);
+
       expect(completeness).toBeLessThan(100);
       expect(completeness).toBeGreaterThan(0);
     });
@@ -1451,6 +1455,7 @@ describe('UserProfileService', () => {
 
       // First creation should succeed
       const result1 = await UserProfileService.createProfile(mockUserId, profileData);
+
       expect(result1).toEqual(mockProfile);
 
       // Second creation should fail
@@ -1469,6 +1474,7 @@ describe('UserProfileService', () => {
 
       // Should not throw error, just return the data as-is
       const result = await UserProfileService.getPreferences(mockUserId);
+
       expect(result).toEqual(preferencesWithMalformedJson);
     });
 
@@ -1508,6 +1514,7 @@ describe('UserProfileService', () => {
       mockDb.query.userProfileSchema.findFirst.mockResolvedValue(profileWithNulls);
 
       const result = await UserProfileService.getProfile(mockUserId);
+
       expect(result).toEqual(profileWithNulls);
     });
 
@@ -1538,7 +1545,7 @@ describe('UserProfileService', () => {
 
     it('should handle partial transaction failures gracefully', async () => {
       mockDb.query.userProfileSchema.findFirst.mockResolvedValue(mockProfile);
-      
+
       const mockTx = {
         delete: vi.fn()
           .mockReturnValueOnce({ where: vi.fn().mockResolvedValue({ rowCount: 1 }) }) // constraints
@@ -1546,7 +1553,7 @@ describe('UserProfileService', () => {
           .mockReturnValueOnce({ where: vi.fn().mockResolvedValue({ rowCount: 1 }) }) // goals
           .mockReturnValueOnce({ where: vi.fn().mockRejectedValue(new Error('Profile deletion failed')) }), // profile
       };
-      
+
       mockDb.transaction.mockImplementation(async (callback) => {
         return await callback(mockTx);
       });
@@ -1591,6 +1598,7 @@ describe('UserProfileService', () => {
       });
 
       const result = await UserProfileService.getFitnessGoals(mockUserId);
+
       expect(result).toHaveLength(1000);
     });
 

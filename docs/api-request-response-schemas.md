@@ -41,10 +41,10 @@ This document provides comprehensive documentation of all API request and respon
 ```typescript
 // HealthRecordValidation
 {
-  type_id: number;         // Required positive integer
-  value: number;           // Required positive number (max: 10000)
-  unit: string;            // Required valid unit (1-20 chars)
-  recorded_at: Date;       // Required date (not future, max 1 year ago)
+  type_id: number; // Required positive integer
+  value: number; // Required positive number (max: 10000)
+  unit: string; // Required valid unit (1-20 chars)
+  recorded_at: Date; // Required date (not future, max 1 year ago)
 }
 ```
 
@@ -74,9 +74,9 @@ Valid units: `kg`, `lbs`, `mmHg`, `bpm`, `steps`, `hours`, `ml`, `oz`, `kcal`, `
 ```typescript
 // HealthGoalValidation
 {
-  type_id: number;         // Required positive integer
-  target_value: number;    // Required positive number
-  target_date: Date;       // Required future date
+  type_id: number; // Required positive integer
+  target_value: number; // Required positive number
+  target_date: Date; // Required future date
   status: 'active' | 'completed' | 'paused'; // Default: 'active'
 }
 ```
@@ -106,10 +106,10 @@ Valid units: `kg`, `lbs`, `mmHg`, `bpm`, `steps`, `hours`, `ml`, `oz`, `kcal`, `
 ```typescript
 // HealthReminderValidation
 {
-  type_id: number;         // Required positive integer
-  cron_expr: string;       // Required valid cron expression
-  message: string;         // Required (1-500 chars, trimmed)
-  active: boolean;         // Required boolean
+  type_id: number; // Required positive integer
+  cron_expr: string; // Required valid cron expression
+  message: string; // Required (1-500 chars, trimmed)
+  active: boolean; // Required boolean
 }
 ```
 
@@ -165,7 +165,7 @@ Valid units: `kg`, `lbs`, `mmHg`, `bpm`, `steps`, `hours`, `ml`, `oz`, `kcal`, `
 ```typescript
 // CounterValidation
 {
-  increment: number;       // Required (1-3 range)
+  increment: number; // Required (1-3 range)
 }
 ```
 
@@ -189,15 +189,15 @@ Valid units: `kg`, `lbs`, `mmHg`, `bpm`, `steps`, `hours`, `ml`, `oz`, `kcal`, `
 #### Single Health Record Response
 ```typescript
 {
-  id: number;              // Unique record identifier
-  user_id: string;         // Clerk user ID
-  type_id: number;         // Health type identifier
-  type: HealthType;        // Nested health type object
-  value: number;           // Measured value
-  unit: string;            // Measurement unit
-  recorded_at: string;     // ISO datetime string
-  created_at: string;      // ISO datetime string
-  updated_at: string;      // ISO datetime string
+  id: number; // Unique record identifier
+  user_id: string; // Clerk user ID
+  type_id: number; // Health type identifier
+  type: HealthType; // Nested health type object
+  value: number; // Measured value
+  unit: string; // Measurement unit
+  recorded_at: string; // ISO datetime string
+  created_at: string; // ISO datetime string
+  updated_at: string; // ISO datetime string
 }
 ```
 
@@ -250,21 +250,21 @@ Valid units: `kg`, `lbs`, `mmHg`, `bpm`, `steps`, `hours`, `ml`, `oz`, `kcal`, `
 #### Health Analytics Response
 ```typescript
 {
-  type: HealthType;        // Health type information
+  type: HealthType; // Health type information
   period: {
-    start_date: string;    // ISO date string
-    end_date: string;      // ISO date string
-    aggregation: string;   // Aggregation level
+    start_date: string; // ISO date string
+    end_date: string; // ISO date string
+    aggregation: string; // Aggregation level
   };
   data_points: Array<{
-    date: string;          // ISO date string
-    value: number;         // Aggregated value
-    count: number;         // Record count for period
+    date: string; // ISO date string
+    value: number; // Aggregated value
+    count: number; // Record count for period
   }>;
   statistics: {
-    min: number;           // Minimum value
-    max: number;           // Maximum value
-    avg: number;           // Average value
+    min: number; // Minimum value
+    max: number; // Maximum value
+    avg: number; // Average value
     trend: 'increasing' | 'decreasing' | 'stable';
     total_records: number; // Total records in period
   };
@@ -317,13 +317,13 @@ Valid units: `kg`, `lbs`, `mmHg`, `bpm`, `steps`, `hours`, `ml`, `oz`, `kcal`, `
 #### 1. Coercion and Transformation
 ```typescript
 // Automatic type coercion
-z.coerce.number()        // Converts strings to numbers
-z.coerce.date()          // Converts strings to dates
-z.coerce.boolean()       // Converts strings to booleans
+z.coerce.number(); // Converts strings to numbers
+z.coerce.date(); // Converts strings to dates
+z.coerce.boolean(); // Converts strings to booleans
 
 // Custom transformations
-z.string().transform(val => new Date(val))
-z.string().transform(val => val.split(',').map(Number))
+z.string().transform(val => new Date(val));
+z.string().transform(val => val.split(',').map(Number));
 ```
 
 #### 2. Custom Validation Rules
@@ -385,8 +385,8 @@ end_date?: Date          // Range end
 
 #### 2. Pagination Parameters
 ```typescript
-limit: number = 20       // Page size (1-100)
-offset: number = 0       // Skip count (≥0)
+limit: number = 20; // Page size (1-100)
+offset: number = 0; // Skip count (≥0)
 ```
 
 #### 3. Aggregation Parameters
@@ -405,24 +405,24 @@ type_ids?: number[]      // Array of type IDs
 
 ```typescript
 // Optional with defaults
-z.coerce.number().min(1).max(100).default(20)
+z.coerce.number().min(1).max(100).default(20);
 
 // Array handling
 z.union([
   z.string().transform(val => val.split(',').map(Number)),
   z.array(z.string().transform(val => Number(val)))
-]).pipe(z.array(z.number().positive()).max(10))
+]).pipe(z.array(z.number().positive()).max(10));
 
 // Date range validation
 z.object({
   start_date: z.coerce.date().optional(),
   end_date: z.coerce.date().optional()
-}).refine(data => {
+}).refine((data) => {
   if (data.start_date && data.end_date) {
     return data.start_date <= data.end_date;
   }
   return true;
-})
+});
 ```
 
 ## Request Body Structures
@@ -586,11 +586,11 @@ z.object({
   // Resource data
   id: 123,
   // ... resource fields
-  
+
   // Computed fields
   progress_percentage?: number;
   next_run_at?: string;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -698,18 +698,18 @@ z.object({
 ### Pagination Metadata Structure
 ```typescript
 {
-  total: number;           // Total items across all pages
-  limit: number;           // Items per page (requested)
-  offset: number;          // Items skipped (requested)
-  has_more: boolean;       // More pages available
+  total: number; // Total items across all pages
+  limit: number; // Items per page (requested)
+  offset: number; // Items skipped (requested)
+  has_more: boolean; // More pages available
 }
 ```
 
 ### Pagination Query Parameters
 ```typescript
 {
-  limit: number = 20;      // Page size (1-100)
-  offset: number = 0;      // Skip count (≥0)
+  limit: number = 20; // Page size (1-100)
+  offset: number = 0; // Skip count (≥0)
 }
 ```
 
@@ -729,19 +729,19 @@ z.object({
 ### Pagination Calculation Logic
 ```typescript
 // has_more calculation
-has_more = (offset + limit) < total
+has_more = (offset + limit) < total;
 
 // Next page offset
-next_offset = offset + limit
+next_offset = offset + limit;
 
 // Previous page offset
-prev_offset = Math.max(0, offset - limit)
+prev_offset = Math.max(0, offset - limit);
 
 // Total pages
-total_pages = Math.ceil(total / limit)
+total_pages = Math.ceil(total / limit);
 
 // Current page number (1-based)
-current_page = Math.floor(offset / limit) + 1
+current_page = Math.floor(offset / limit) + 1;
 ```
 
 ## OpenAPI Schema Alignment

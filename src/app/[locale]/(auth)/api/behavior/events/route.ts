@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import arcjet, { tokenBucket } from '@arcjet/next';
 import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -13,7 +13,6 @@ import { BehaviorEventService } from '@/services/behavior/BehaviorEventService';
 import {
   BehaviorEventBulkValidation,
   BehaviorEventQueryValidation,
-  BehaviorEventValidation,
 } from '@/validations/BehaviorEventValidation';
 
 // Arcjet rate limiting configuration
@@ -227,9 +226,9 @@ export const POST = async (request: NextRequest) => {
         },
         custom: {
           requestId: crypto.randomUUID(),
-          ipAddress: request.headers.get('x-forwarded-for') || 
-                    request.headers.get('x-real-ip') || 
-                    'unknown',
+          ipAddress: request.headers.get('x-forwarded-for')
+            || request.headers.get('x-real-ip')
+            || 'unknown',
         },
       }),
     }));
@@ -260,7 +259,7 @@ export const POST = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('Invalid entity reference')) {
         return NextResponse.json(
           { error: error.message },

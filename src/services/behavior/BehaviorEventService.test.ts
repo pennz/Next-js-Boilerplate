@@ -1,16 +1,12 @@
-import { and, desc, eq, gte, lte, asc } from 'drizzle-orm';
+import type { BehaviorEventInput, ContextData, EntityType } from '@/validations/BehaviorEventValidation';
+import { and, asc, desc, eq, gte, lte } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '@/libs/DB';
-import { 
-  behavioralEventSchema, 
-  healthRecordSchema, 
-  trainingSessionSchema, 
-  exerciseLogSchema, 
-  healthGoalSchema 
+import { logger } from '@/libs/Logger';
+import {
+  behavioralEventSchema,
 } from '@/models/Schema';
 import { BehaviorEventService } from './BehaviorEventService';
-import { logger } from '@/libs/Logger';
-import type { BehaviorEventInput, ContextData, EntityType } from '@/validations/BehaviorEventValidation';
 
 // Mock the database
 vi.mock('@/libs/DB', () => ({

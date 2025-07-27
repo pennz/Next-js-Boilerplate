@@ -19,6 +19,32 @@ export async function generateMetadata(props: {
   };
 }
 
+// Define types for the data
+type ExerciseLog = {
+  id: number;
+  exercise: string;
+  sets: number;
+  reps: number | null;
+  weight: number | null;
+  logged_at: string;
+};
+
+type TrainingPlan = {
+  id: number;
+  name: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  sessions_per_week: number;
+  is_active: boolean;
+  start_date: string | null;
+};
+
+type Stats = {
+  totalExerciseLogs: number;
+  activePlans: number;
+  completedSessions: number;
+  weeklyProgress: number;
+};
+
 async function getExerciseOverviewData(userId: string) {
   // Fetch recent exercise logs (last 5)
   const recentLogsRaw = await db
@@ -136,7 +162,7 @@ export default async function ExerciseDashboard() {
           </p>
         </div>
       </div>
-      <ExerciseOverview 
+      <ExerciseOverview
         recentLogs={recentLogs}
         activeTrainingPlans={activeTrainingPlans}
         stats={stats}

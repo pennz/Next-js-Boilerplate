@@ -418,7 +418,7 @@ stateDiagram-v2
     Limited_Beta --> Gradual_Rollout
     Gradual_Rollout --> Full_Release
     Full_Release --> [*]
-    
+
     Limited_Beta --> Rollback
     Gradual_Rollout --> Rollback
     Full_Release --> Rollback

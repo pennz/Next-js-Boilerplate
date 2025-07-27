@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EntityTypeEnum, ContextDataValidation } from './BehaviorEventValidation';
+import { ContextDataValidation, EntityTypeEnum } from './BehaviorEventValidation';
 
 // Behavior pattern type enum
 export const BehaviorPatternTypeEnum = z.enum([
@@ -74,10 +74,10 @@ export const BehaviorTriggerValidation = z.object({
     timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']).optional(),
     dayOfWeek: z.array(z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])).optional(),
     timeRange: z.object({
-      start: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
-      end: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+      start: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).optional(),
+      end: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/).optional(),
     }).optional(),
-    
+
     // Location-based conditions
     location: z.object({
       type: z.enum(['home', 'work', 'gym', 'outdoor', 'specific_address']).optional(),
@@ -87,12 +87,12 @@ export const BehaviorTriggerValidation = z.object({
         radius: z.number().min(0).max(10000).optional(), // meters
       }).optional(),
     }).optional(),
-    
+
     // Emotional/physiological conditions
     emotionalState: z.enum(['stressed', 'relaxed', 'motivated', 'tired', 'energetic', 'anxious', 'happy', 'neutral']).optional(),
     energyLevel: z.number().min(1).max(10).optional(),
     stressLevel: z.number().min(1).max(10).optional(),
-    
+
     // Environmental conditions
     weather: z.enum(['sunny', 'rainy', 'cloudy', 'snowy', 'windy']).optional(),
     temperature: z.object({
@@ -100,10 +100,10 @@ export const BehaviorTriggerValidation = z.object({
       max: z.number().optional(),
       unit: z.enum(['celsius', 'fahrenheit']).default('celsius'),
     }).optional(),
-    
+
     // Social context
     socialContext: z.enum(['alone', 'with_family', 'with_friends', 'with_colleagues', 'in_group']).optional(),
-    
+
     // Custom conditions
     custom: z.record(z.string(), z.any()).optional(),
   }),
@@ -119,8 +119,8 @@ export const BehaviorTriggerValidation = z.object({
   if (data.conditions.timeRange?.start && data.conditions.timeRange?.end) {
     const start = data.conditions.timeRange.start;
     const end = data.conditions.timeRange.end;
-    const startMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
-    const endMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
+    const startMinutes = Number.parseInt(start.split(':')[0]) * 60 + Number.parseInt(start.split(':')[1]);
+    const endMinutes = Number.parseInt(end.split(':')[0]) * 60 + Number.parseInt(end.split(':')[1]);
     return startMinutes < endMinutes;
   }
   return true;
@@ -131,8 +131,8 @@ export const BehaviorTriggerValidation = z.object({
   // Business logic: Location coordinates validation
   if (data.conditions.location?.coordinates) {
     const coords = data.conditions.location.coordinates;
-    return (coords.latitude !== undefined && coords.longitude !== undefined) || 
-           (coords.latitude === undefined && coords.longitude === undefined);
+    return (coords.latitude !== undefined && coords.longitude !== undefined)
+      || (coords.latitude === undefined && coords.longitude === undefined);
   }
   return true;
 }, {
@@ -152,20 +152,20 @@ export const BehaviorOutcomeValidation = z.object({
     baseline: z.number().optional(),
     target: z.number().optional(),
     improvement: z.number().optional(),
-    
+
     // Qualitative metrics
     rating: z.number().min(1).max(10).optional(),
     category: z.string().max(50).optional(),
-    
+
     // Success criteria
     successThreshold: z.number().optional(),
     isSuccess: z.boolean().optional(),
-    
+
     // Temporal metrics
     duration: z.number().min(0).optional(), // in minutes
     frequency: z.number().min(0).optional(),
     consistency: z.number().min(0).max(1).optional(),
-    
+
     // Custom metrics
     custom: z.record(z.string(), z.any()).optional(),
   }),
@@ -229,8 +229,8 @@ export const ContextPatternValidation = z.object({
 }).refine((data) => {
   // Business logic: Correlation validation
   if (data.correlations) {
-    return data.correlations.every(corr => 
-      Math.abs(corr.correlationStrength) >= 0.1 || corr.significance === 'very_low'
+    return data.correlations.every(corr =>
+      Math.abs(corr.correlationStrength) >= 0.1 || corr.significance === 'very_low',
     );
   }
   return true;
@@ -246,7 +246,7 @@ export const MicroBehaviorPatternValidation = z.object({
   patternType: BehaviorPatternTypeEnum,
   entityType: EntityTypeEnum,
   entityId: z.number().int().positive().optional(),
-  
+
   // Pattern characteristics
   frequency: z.object({
     pattern: FrequencyPatternEnum,
@@ -255,19 +255,19 @@ export const MicroBehaviorPatternValidation = z.object({
     variance: z.number().min(0).optional(),
     trend: z.enum(['increasing', 'decreasing', 'stable', 'cyclical']).optional(),
   }),
-  
+
   // Pattern strength and reliability
   strength: PatternStrengthEnum,
   confidence: z.number().min(0).max(1),
   reliability: z.number().min(0).max(1).optional(),
-  
+
   // Triggers and outcomes
   triggers: z.array(BehaviorTriggerValidation).optional(),
   outcomes: z.array(BehaviorOutcomeValidation).optional(),
-  
+
   // Context patterns
   contextPatterns: z.array(z.string().max(100)).optional(), // References to context pattern names
-  
+
   // Statistical data
   statistics: z.object({
     sampleSize: z.number().int().min(1),
@@ -279,7 +279,7 @@ export const MicroBehaviorPatternValidation = z.object({
     pValue: z.number().min(0).max(1).optional(),
     effectSize: z.number().optional(),
   }),
-  
+
   // Metadata
   discoveredAt: z.coerce.date(),
   lastUpdated: z.coerce.date(),
@@ -323,36 +323,36 @@ export const PatternAnalysisValidation = z.object({
   analysisType: z.enum(['correlation', 'trend', 'anomaly', 'prediction', 'clustering']),
   entityType: EntityTypeEnum.optional(),
   entityId: z.number().int().positive().optional(),
-  
+
   // Time range for analysis
   timeRange: z.object({
     start: z.coerce.date(),
     end: z.coerce.date(),
   }),
-  
+
   // Analysis parameters
   parameters: z.object({
     minPatternStrength: PatternStrengthEnum.optional(),
     minConfidence: z.number().min(0).max(1).default(0.5),
     minSampleSize: z.number().int().min(1).default(10),
     significanceLevel: SignificanceLevelEnum.optional(),
-    
+
     // Correlation analysis specific
     correlationThreshold: z.number().min(0).max(1).default(0.3),
-    
+
     // Trend analysis specific
     trendWindow: z.number().int().min(1).default(7), // days
-    
+
     // Anomaly detection specific
     anomalyThreshold: z.number().min(0).max(1).default(0.05),
-    
+
     // Prediction specific
     predictionHorizon: z.number().int().min(1).max(365).default(30), // days
-    
+
     // Clustering specific
     maxClusters: z.number().int().min(2).max(20).default(5),
   }).optional(),
-  
+
   // Filters
   filters: z.object({
     patternTypes: z.array(BehaviorPatternTypeEnum).optional(),
@@ -362,7 +362,7 @@ export const PatternAnalysisValidation = z.object({
     tags: z.array(z.string().max(50)).optional(),
     isActive: z.boolean().optional(),
   }).optional(),
-  
+
   // Output preferences
   output: z.object({
     includeStatistics: z.boolean().default(true),
@@ -421,13 +421,13 @@ export const MicroBehaviorPatternQueryValidation = z.object({
   significance: SignificanceLevelEnum.optional(),
   isActive: z.boolean().optional(),
   tags: z.array(z.string().max(50)).optional(),
-  
+
   // Time range filters
   discoveredAfter: z.coerce.date().optional(),
   discoveredBefore: z.coerce.date().optional(),
   updatedAfter: z.coerce.date().optional(),
   updatedBefore: z.coerce.date().optional(),
-  
+
   // Pagination and sorting
   limit: z.coerce.number().int().min(1).max(1000).default(100),
   offset: z.coerce.number().int().min(0).default(0),

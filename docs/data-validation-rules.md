@@ -158,22 +158,22 @@ exercise_log.rpe: integer (1-10 scale, optional)
 #### Health Management Enums
 ```typescript
 // Goal Status (goalStatusEnum)
-type GoalStatus = 'active' | 'completed' | 'paused'
+type GoalStatus = 'active' | 'completed' | 'paused';
 // Default: 'active'
 
-// Training Status (trainingStatusEnum)  
-type TrainingStatus = 'scheduled' | 'completed' | 'skipped' | 'in_progress'
+// Training Status (trainingStatusEnum)
+type TrainingStatus = 'scheduled' | 'completed' | 'skipped' | 'in_progress';
 // Default: 'scheduled'
 ```
 
 #### Exercise Management Enums
 ```typescript
 // Exercise Type (exerciseTypeEnum)
-type ExerciseType = 'strength' | 'cardio' | 'flexibility' | 'balance' | 'sports'
+type ExerciseType = 'strength' | 'cardio' | 'flexibility' | 'balance' | 'sports';
 // Required field, no default
 
 // Difficulty Level (difficultyLevelEnum)
-type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced'
+type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
 // Default: 'beginner'
 ```
 
@@ -185,36 +185,48 @@ type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced'
 ```typescript
 type_id: z.coerce.number().int().positive({
   message: 'Health type ID must be a positive integer'
-})
+});
 
 value: z.coerce.number().positive({
   message: 'Value must be a positive number'
 }).refine(value => value <= 10000, {
   message: 'Value exceeds maximum allowed range'
-})
+});
 
 unit: z.string().min(1).max(20).refine((unit) => {
   const validUnits = [
-    'kg', 'lbs', 'mmHg', 'bpm', 'steps', 'hours', 
-    'ml', 'oz', 'kcal', 'minutes', 'mg/dL', 'mmol/L', 
-    '°C', '°F', '%'
+    'kg',
+    'lbs',
+    'mmHg',
+    'bpm',
+    'steps',
+    'hours',
+    'ml',
+    'oz',
+    'kcal',
+    'minutes',
+    'mg/dL',
+    'mmol/L',
+    '°C',
+    '°F',
+    '%'
   ];
   return validUnits.includes(unit);
 }, {
   message: 'Invalid unit. Must be one of: kg, lbs, mmHg, bpm, steps, hours, ml, oz, kcal, minutes, mg/dL, mmol/L, °C, °F, %'
-})
+});
 
 recorded_at: z.coerce.date()
   .refine(date => date <= new Date(), {
     message: 'Recorded date cannot be in the future'
   })
-  .refine(date => {
+  .refine((date) => {
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
     return date >= oneYearAgo;
   }, {
     message: 'Recorded date cannot be more than one year ago'
-  })
+  });
 ```
 
 #### Cross-Field Business Logic Validation
@@ -246,14 +258,14 @@ HealthRecordQueryValidation: z.object({
   return true;
 }, {
   message: 'Start date must be before or equal to end date'
-})
+});
 
 // Bulk operation limits
 HealthRecordBulkValidation: z.object({
   records: z.array(HealthRecordValidation).min(1).max(50, {
     message: 'Cannot process more than 50 records at once'
   })
-})
+});
 ```
 
 ### Health Analytics Validation (`HealthAnalyticsValidation`)
@@ -266,28 +278,28 @@ HealthAnalyticsValidation: z.object({
   start_date: z.string()
     .datetime({ message: 'start_date must be a valid ISO datetime string' })
     .transform(val => new Date(val)),
-    
+
   end_date: z.string()
     .datetime({ message: 'end_date must be a valid ISO datetime string' })
     .transform(val => new Date(val)),
-    
+
   type_ids: z.array(z.number().int().positive())
     .min(1, { message: 'At least one type_id must be provided' })
     .max(10, { message: 'Maximum 10 type_ids allowed' })
     .optional(),
-    
+
   aggregation: z.enum(['daily', 'weekly', 'monthly']).default('daily')
 })
-.refine(data => data.end_date > data.start_date, {
-  message: 'end_date must be after start_date'
-})
-.refine(data => {
-  const diffInMs = data.end_date.getTime() - data.start_date.getTime();
-  const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-  return diffInDays <= MAX_DATE_RANGE_DAYS;
-}, {
-  message: `Date range cannot exceed ${MAX_DATE_RANGE_DAYS} days`
-})
+  .refine(data => data.end_date > data.start_date, {
+    message: 'end_date must be after start_date'
+  })
+  .refine((data) => {
+    const diffInMs = data.end_date.getTime() - data.start_date.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays <= MAX_DATE_RANGE_DAYS;
+  }, {
+    message: `Date range cannot exceed ${MAX_DATE_RANGE_DAYS} days`
+  });
 ```
 
 ### Health Goal Validation (`HealthGoalValidation`)
@@ -303,24 +315,24 @@ HealthGoalValidation: z.object({
   ),
   status: z.enum(['active', 'completed', 'paused']).default('active')
 })
-.refine((data) => {
+  .refine((data) => {
   // Type-specific reasonable ranges
-  const reasonableRanges: Record<number, { min: number; max: number }> = {
-    1: { min: 30, max: 300 },    // Weight (kg)
-    2: { min: 50, max: 200 },    // Systolic BP (mmHg)
-    3: { min: 1000, max: 50000 }, // Daily steps
-    4: { min: 10, max: 50 },     // BMI
-    5: { min: 30, max: 300 },    // Heart rate (bpm)
-  };
-  
-  const range = reasonableRanges[data.type_id];
-  if (range) {
-    return data.target_value >= range.min && data.target_value <= range.max;
-  }
-  return data.target_value > 0;
-}, {
-  message: 'Target value is outside reasonable range for this health metric type'
-})
+    const reasonableRanges: Record<number, { min: number; max: number }> = {
+      1: { min: 30, max: 300 }, // Weight (kg)
+      2: { min: 50, max: 200 }, // Systolic BP (mmHg)
+      3: { min: 1000, max: 50000 }, // Daily steps
+      4: { min: 10, max: 50 }, // BMI
+      5: { min: 30, max: 300 }, // Heart rate (bpm)
+    };
+
+    const range = reasonableRanges[data.type_id];
+    if (range) {
+      return data.target_value >= range.min && data.target_value <= range.max;
+    }
+    return data.target_value > 0;
+  }, {
+    message: 'Target value is outside reasonable range for this health metric type'
+  });
 ```
 
 ### Health Reminder Validation (`HealthReminderValidation`)
@@ -348,7 +360,7 @@ HealthReminderValidation: z.object({
     required_error: 'Active status is required',
     invalid_type_error: 'Active status must be a boolean'
   })
-})
+});
 ```
 
 ## Cross-Field Validation Rules
@@ -404,18 +416,18 @@ HealthReminderValidation: z.object({
 #### Health Metric Ranges
 ```typescript
 const healthMetricRanges = {
-  weight: { min: 20, max: 500 },              // kg or lbs
-  blood_pressure_systolic: { min: 70, max: 250 },   // mmHg
-  blood_pressure_diastolic: { min: 40, max: 150 },  // mmHg
-  heart_rate: { min: 30, max: 220 },          // bpm
-  steps: { min: 0, max: 100000 },             // steps per day
-  sleep_hours: { min: 0, max: 24 },           // hours
-  water_intake: { min: 0, max: 10000 },       // ml or oz
-  calories: { min: 0, max: 10000 },           // kcal
-  exercise_minutes: { min: 0, max: 1440 },    // minutes per day
-  blood_sugar: { min: 20, max: 600 },         // mg/dL or mmol/L
-  temperature: { min: 90, max: 110 },         // °F or 32-43°C
-  oxygen_saturation: { min: 70, max: 100 }    // %
+  weight: { min: 20, max: 500 }, // kg or lbs
+  blood_pressure_systolic: { min: 70, max: 250 }, // mmHg
+  blood_pressure_diastolic: { min: 40, max: 150 }, // mmHg
+  heart_rate: { min: 30, max: 220 }, // bpm
+  steps: { min: 0, max: 100000 }, // steps per day
+  sleep_hours: { min: 0, max: 24 }, // hours
+  water_intake: { min: 0, max: 10000 }, // ml or oz
+  calories: { min: 0, max: 10000 }, // kcal
+  exercise_minutes: { min: 0, max: 1440 }, // minutes per day
+  blood_sugar: { min: 20, max: 600 }, // mg/dL or mmol/L
+  temperature: { min: 90, max: 110 }, // °F or 32-43°C
+  oxygen_saturation: { min: 70, max: 100 } // %
 };
 ```
 
@@ -439,14 +451,14 @@ rpe: integer between 1-10 (Rate of Perceived Exertion)
 // Health record bulk operations
 records: z.array(HealthRecordValidation).min(1).max(50, {
   message: 'Cannot process more than 50 records at once'
-})
+});
 
 // Analytics query limits
 type_ids: z.array(z.number().int().positive())
-  .max(10, { message: 'Maximum 10 type_ids allowed' })
+  .max(10, { message: 'Maximum 10 type_ids allowed' });
 
 // Date range limits
-MAX_DATE_RANGE_DAYS = 365 // Maximum analytics query range
+MAX_DATE_RANGE_DAYS = 365; // Maximum analytics query range
 ```
 
 ### Pagination Validation
@@ -466,23 +478,23 @@ thirtyDaysAgo: new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000))
 #### Field-Specific Messages
 ```typescript
 // Clear, actionable error messages
-'Health type ID must be a positive integer'
-'Value must be a positive number'
-'Recorded date cannot be in the future'
-'Target date must be in the future'
-'Invalid cron expression format. Use standard cron syntax (e.g., "0 9 * * *") or named schedules (e.g., "@daily")'
-'Value is not reasonable for the specified unit'
-'Start date must be before or equal to end date'
-'Cannot process more than 50 records at once'
+'Health type ID must be a positive integer';
+'Value must be a positive number';
+'Recorded date cannot be in the future';
+'Target date must be in the future';
+'Invalid cron expression format. Use standard cron syntax (e.g., "0 9 * * *") or named schedules (e.g., "@daily")';
+'Value is not reasonable for the specified unit';
+'Start date must be before or equal to end date';
+'Cannot process more than 50 records at once';
 ```
 
 #### Context-Aware Messages
 ```typescript
 // Messages include acceptable ranges
-'Invalid unit. Must be one of: kg, lbs, mmHg, bpm, steps, hours, ml, oz, kcal, minutes, mg/dL, mmol/L, °C, °F, %'
-'Target value is outside reasonable range for this health metric type'
-'Date range cannot exceed 365 days'
-'Maximum 10 type_ids allowed'
+'Invalid unit. Must be one of: kg, lbs, mmHg, bpm, steps, hours, ml, oz, kcal, minutes, mg/dL, mmol/L, °C, °F, %';
+'Target value is outside reasonable range for this health metric type';
+'Date range cannot exceed 365 days';
+'Maximum 10 type_ids allowed';
 ```
 
 ### Error Handling Patterns
@@ -500,13 +512,13 @@ thirtyDaysAgo: new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000))
 #### Service Layer Error Handling
 ```typescript
 // From HealthRecordService.test.ts
-'Health type not found'
-'Value outside typical range'
-'Cannot record health data for future dates'
-'Health record not found'
-'Failed to update health record'
-'Invalid user ID'
-'Invalid health record data'
+'Health type not found';
+'Value outside typical range';
+'Cannot record health data for future dates';
+'Health record not found';
+'Failed to update health record';
+'Invalid user ID';
+'Invalid health record data';
 ```
 
 ## Custom Validation Logic
@@ -517,7 +529,7 @@ thirtyDaysAgo: new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000))
 ```typescript
 // Typical range validation (from service tests)
 validateHealthValue(value: number, healthType: HealthType): boolean {
-  return value >= healthType.typical_range_low && 
+  return value >= healthType.typical_range_low &&
          value <= healthType.typical_range_high;
 }
 

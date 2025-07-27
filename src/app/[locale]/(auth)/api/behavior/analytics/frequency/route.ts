@@ -1,13 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/libs/DB';
 import { Env } from '@/libs/Env';
-import { 
-  behavioralEventSchema, 
-  microBehaviorPatternSchema
+import {
+  behavioralEventSchema,
+  microBehaviorPatternSchema,
 } from '@/models/Schema';
 
 const logger = {
@@ -62,7 +62,7 @@ export const GET = async (request: NextRequest) => {
     // Calculate date range
     const endDate = new Date();
     const startDate = new Date();
-    
+
     switch (timeRange) {
       case '7d':
         startDate.setDate(endDate.getDate() - 7);
@@ -102,10 +102,10 @@ export const GET = async (request: NextRequest) => {
           eq(behavioralEventSchema.userId, user.id),
           gte(behavioralEventSchema.createdAt, startDate),
           lte(behavioralEventSchema.createdAt, endDate),
-          behaviorType 
+          behaviorType
             ? sql`${behavioralEventSchema.context}->>'behaviorType' = ${behaviorType}`
-            : sql`true`
-        )
+            : sql`true`,
+        ),
       )
       .groupBy(sql`TO_CHAR(${behavioralEventSchema.createdAt}, ${dateFormat})`)
       .orderBy(sql`TO_CHAR(${behavioralEventSchema.createdAt}, ${dateFormat})`);
@@ -122,10 +122,10 @@ export const GET = async (request: NextRequest) => {
       .where(
         and(
           eq(microBehaviorPatternSchema.userId, user.id),
-          behaviorType 
+          behaviorType
             ? eq(microBehaviorPatternSchema.behaviorType, behaviorType)
-            : sql`true`
-        )
+            : sql`true`,
+        ),
       );
 
     // Calculate moving averages for consistency and strength
@@ -135,21 +135,21 @@ export const GET = async (request: NextRequest) => {
       const startIndex = Math.max(0, index - Math.floor(windowSize / 2));
       const endIndex = Math.min(frequencyData.length, startIndex + windowSize);
       const window = frequencyData.slice(startIndex, endIndex);
-      
+
       const frequencies = window.map(d => Number(d.frequency));
       const mean = frequencies.reduce((sum, freq) => sum + freq, 0) / frequencies.length;
-      const variance = frequencies.reduce((sum, freq) => sum + Math.pow(freq - mean, 2), 0) / frequencies.length;
+      const variance = frequencies.reduce((sum, freq) => sum + (freq - mean) ** 2, 0) / frequencies.length;
       const standardDeviation = Math.sqrt(variance);
-      
+
       // Convert to consistency score (lower std dev = higher consistency)
       const maxStdDev = Math.max(mean, 1);
       const consistency = Math.max(0, 100 - (standardDeviation / maxStdDev) * 100);
 
       // Calculate strength based on frequency relative to patterns
-      const relevantPatterns = patterns.filter(p => 
-        !behaviorType || p.behaviorType === behaviorType
+      const relevantPatterns = patterns.filter(p =>
+        !behaviorType || p.behaviorType === behaviorType,
       );
-      
+
       const avgPatternStrength = relevantPatterns.length > 0
         ? relevantPatterns.reduce((sum, p) => sum + Number(p.strength), 0) / relevantPatterns.length
         : 50; // Default to 50 if no patterns
@@ -174,11 +174,11 @@ export const GET = async (request: NextRequest) => {
     // Calculate overall statistics
     const totalFrequency = frequencyData.reduce((sum, d) => sum + Number(d.frequency), 0);
     const avgFrequency = frequencyData.length > 0 ? totalFrequency / frequencyData.length : 0;
-    const avgConsistency = enrichedData.length > 0 
-      ? enrichedData.reduce((sum, d) => sum + d.consistency, 0) / enrichedData.length 
+    const avgConsistency = enrichedData.length > 0
+      ? enrichedData.reduce((sum, d) => sum + d.consistency, 0) / enrichedData.length
       : 0;
-    const avgStrength = enrichedData.length > 0 
-      ? enrichedData.reduce((sum, d) => sum + d.strength, 0) / enrichedData.length 
+    const avgStrength = enrichedData.length > 0
+      ? enrichedData.reduce((sum, d) => sum + d.strength, 0) / enrichedData.length
       : 0;
 
     logger.info('Frequency analytics retrieved', {

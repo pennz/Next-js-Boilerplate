@@ -2,19 +2,17 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Env } from '@/libs/Env';
 import {
   behavioralEventSchema,
-  microBehaviorPatternSchema,
   contextPatternSchema,
-  userProfileSchema,
-  userFitnessGoalSchema,
-  userPreferenceSchema,
-  userConstraintSchema,
-  healthRecordSchema,
-  healthTypeSchema,
   exerciseLogSchema,
   exerciseSchema,
-  trainingSessionSchema,
+  healthRecordSchema,
+  healthTypeSchema,
+  microBehaviorPatternSchema,
+  userConstraintSchema,
+  userFitnessGoalSchema,
+  userPreferenceSchema,
+  userProfileSchema,
 } from '@/models/Schema';
-import { eq } from 'drizzle-orm';
 
 const db = drizzle({
   connection: {
@@ -26,7 +24,7 @@ const db = drizzle({
 // Sample user IDs for testing (in production, these would be real Clerk user IDs)
 const SAMPLE_USER_IDS = [
   'user_test_behavior_001',
-  'user_test_behavior_002', 
+  'user_test_behavior_002',
   'user_test_behavior_003',
 ];
 
@@ -37,7 +35,7 @@ async function seedSampleBehavioralData() {
     // Get exercise and health type IDs for references
     const exercises = await db.select().from(exerciseSchema);
     const healthTypes = await db.select().from(healthTypeSchema);
-    
+
     const exerciseMap = new Map(exercises.map(e => [e.name, e.id]));
     const healthTypeMap = new Map(healthTypes.map(ht => [ht.slug, ht.id]));
 
@@ -95,7 +93,7 @@ async function createUserProfile(userId: string) {
     timezone: 'UTC',
     dateOfBirth: new Date(1980 + Math.floor(Math.random() * 30), Math.floor(Math.random() * 12), 1),
     height: 160 + Math.random() * 40, // 160-200cm
-    weight: 60 + Math.random() * 40,  // 60-100kg
+    weight: 60 + Math.random() * 40, // 60-100kg
     activityLevel: ['sedentary', 'light', 'moderate', 'active', 'very_active'][Math.floor(Math.random() * 5)],
     profileCompleteness: 80 + Math.floor(Math.random() * 20),
   };
@@ -196,7 +194,7 @@ async function createHealthRecords(userId: string, healthTypeMap: Map<string, nu
   // Create 30 days of sample data with patterns
   for (let i = 0; i < 30; i++) {
     const recordDate = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    
+
     // Weight - slight downward trend with noise
     healthRecords.push({
       userId,
@@ -256,7 +254,7 @@ async function createExerciseLogs(userId: string, exerciseMap: Map<string, numbe
   // Create workout sessions over past 30 days
   for (let i = 0; i < 10; i++) {
     const workoutDate = new Date(now.getTime() - i * 3 * 24 * 60 * 60 * 1000);
-    
+
     // Progressive improvement in push-ups
     exerciseLogs.push({
       userId,
@@ -302,7 +300,7 @@ async function createBehavioralEvents(userId: string, _exerciseMap: Map<string, 
   // Create diverse behavioral events over past 30 days
   for (let i = 0; i < 50; i++) {
     const eventDate = new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000);
-    
+
     const eventTypes = [
       {
         eventName: 'workout_completed',
@@ -344,7 +342,7 @@ async function createBehavioralEvents(userId: string, _exerciseMap: Map<string, 
     ];
 
     const selectedEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-    
+
     events.push({
       userId,
       eventName: selectedEvent.eventName,
@@ -374,20 +372,20 @@ async function createMicroBehaviorPatterns(userId: string) {
       triggers: {
         temporal: ['06:00-08:00'],
         environmental: ['bedroom', 'living_room'],
-        emotional: ['energized', 'motivated']
+        emotional: ['energized', 'motivated'],
       },
       outcomes: {
         positive: ['improved_mood', 'higher_energy'],
-        negative: []
+        negative: [],
       },
       context: {
         success_factors: ['good_sleep', 'prepared_clothes', 'clear_schedule'],
-        failure_factors: ['late_night', 'stressful_day_ahead']
+        failure_factors: ['late_night', 'stressful_day_ahead'],
       },
       correlations: {
         sleep_quality: 0.72,
         stress_level: -0.45,
-        energy_level: 0.68
+        energy_level: 0.68,
       },
       confidence: 85.2,
       sampleSize: 28,
@@ -406,20 +404,20 @@ async function createMicroBehaviorPatterns(userId: string) {
       triggers: {
         temporal: ['17:00-19:00'],
         emotional: ['tired', 'stressed', 'overwhelmed'],
-        environmental: ['work_office', 'commute']
+        environmental: ['work_office', 'commute'],
       },
       outcomes: {
         positive: [],
-        negative: ['guilt', 'lower_motivation', 'disrupted_routine']
+        negative: ['guilt', 'lower_motivation', 'disrupted_routine'],
       },
       context: {
         success_factors: ['short_workday', 'positive_meeting', 'energy_snack'],
-        failure_factors: ['long_meetings', 'deadline_pressure', 'traffic']
+        failure_factors: ['long_meetings', 'deadline_pressure', 'traffic'],
       },
       correlations: {
         work_stress: 0.78,
         commute_time: 0.55,
-        energy_level: -0.62
+        energy_level: -0.62,
       },
       confidence: 78.9,
       sampleSize: 22,
@@ -438,20 +436,20 @@ async function createMicroBehaviorPatterns(userId: string) {
       triggers: {
         temporal: ['saturday', 'sunday'],
         environmental: ['outdoor', 'park', 'home'],
-        social: ['family', 'friends', 'alone']
+        social: ['family', 'friends', 'alone'],
       },
       outcomes: {
         positive: ['enjoyment', 'social_connection', 'stress_relief'],
-        negative: []
+        negative: [],
       },
       context: {
         success_factors: ['good_weather', 'social_plans', 'free_schedule'],
-        failure_factors: ['bad_weather', 'family_obligations', 'fatigue']
+        failure_factors: ['bad_weather', 'family_obligations', 'fatigue'],
       },
       correlations: {
         weather_quality: 0.65,
         social_engagement: 0.58,
-        weekly_stress: -0.43
+        weekly_stress: -0.43,
       },
       confidence: 92.1,
       sampleSize: 16,
@@ -475,7 +473,7 @@ async function createContextPatterns(userId: string) {
       contextData: {
         timeRange: '06:00-08:00',
         dayTypes: ['weekday'],
-        seasonality: 'consistent'
+        seasonality: 'consistent',
       },
       frequency: 25,
       timeOfDay: 'morning' as any,
@@ -486,11 +484,11 @@ async function createContextPatterns(userId: string) {
       behaviorCorrelations: {
         workout_completion: 0.85,
         mood_improvement: 0.72,
-        day_productivity: 0.68
+        day_productivity: 0.68,
       },
       outcomeImpact: {
         immediate: ['energy_boost', 'sense_of_accomplishment'],
-        delayed: ['better_mood_all_day', 'improved_sleep']
+        delayed: ['better_mood_all_day', 'improved_sleep'],
       },
       predictivePower: 85.3,
       firstObserved: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
@@ -505,7 +503,7 @@ async function createContextPatterns(userId: string) {
         location: 'home',
         space: 'living_room',
         equipment: ['yoga_mat', 'dumbbells'],
-        privacy: 'high'
+        privacy: 'high',
       },
       frequency: 18,
       location: 'home',
@@ -515,11 +513,11 @@ async function createContextPatterns(userId: string) {
       behaviorCorrelations: {
         exercise_consistency: 0.78,
         session_completion: 0.82,
-        enjoyment_rating: 0.71
+        enjoyment_rating: 0.71,
       },
       outcomeImpact: {
         immediate: ['convenience', 'comfort', 'no_commute'],
-        delayed: ['habit_reinforcement', 'cost_savings']
+        delayed: ['habit_reinforcement', 'cost_savings'],
       },
       predictivePower: 78.9,
       firstObserved: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
@@ -533,7 +531,7 @@ async function createContextPatterns(userId: string) {
       contextData: {
         social_setting: 'alone',
         motivation_source: 'internal',
-        distraction_level: 'low'
+        distraction_level: 'low',
       },
       frequency: 22,
       socialContext: 'alone',
@@ -542,11 +540,11 @@ async function createContextPatterns(userId: string) {
       behaviorCorrelations: {
         focus_quality: 0.79,
         self_motivation: 0.73,
-        session_length: 0.65
+        session_length: 0.65,
       },
       outcomeImpact: {
         immediate: ['mental_clarity', 'personal_time'],
-        delayed: ['self_reliance', 'intrinsic_motivation']
+        delayed: ['self_reliance', 'intrinsic_motivation'],
       },
       predictivePower: 76.4,
       firstObserved: new Date(Date.now() - 50 * 24 * 60 * 60 * 1000),

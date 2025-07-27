@@ -90,7 +90,7 @@ const encryptSensitiveData = (data: string): string => {
 **Arcjet Configuration**:
 ```typescript
 // src/libs/Arcjet.ts - Security controls
-import arcjet, { tokenBucket, detectBot, shield } from '@arcjet/next';
+import arcjet, { detectBot, shield, tokenBucket } from '@arcjet/next';
 
 const aj = arcjet({
   key: process.env.ARCJET_KEY!,
@@ -141,7 +141,7 @@ export class PrivacyService {
     // FR-SEC-004: Data portability
     const healthRecords = await getHealthRecordsByUser(userId);
     const exerciseData = await getExerciseDataByUser(userId);
-    
+
     return {
       healthRecords: healthRecords.map(anonymizeRecord),
       exerciseData: exerciseData.map(anonymizeExercise),
@@ -175,15 +175,15 @@ export class PrivacyService {
 **Database Optimization**:
 ```sql
 -- Performance indexes for health records
-CREATE INDEX idx_health_records_user_type_date 
+CREATE INDEX idx_health_records_user_type_date
 ON health_record (user_id, health_type_id, recorded_at DESC);
 
 -- Exercise search optimization
-CREATE INDEX idx_exercise_search 
+CREATE INDEX idx_exercise_search
 ON exercise USING GIN (to_tsvector('english', name || ' ' || description));
 
 -- Training plan performance
-CREATE INDEX idx_training_plans_user_active 
+CREATE INDEX idx_training_plans_user_active
 ON training_plan (user_id, is_active) WHERE is_active = true;
 ```
 
@@ -267,7 +267,7 @@ export const CacheService = {
 #### Observability Implementation
 ```typescript
 // src/libs/Monitoring.ts - Performance monitoring
-import { trace, metrics } from '@opentelemetry/api';
+import { metrics, trace } from '@opentelemetry/api';
 
 const tracer = trace.getTracer('health-app');
 
@@ -277,7 +277,7 @@ export const performanceMiddleware = (req: Request, res: Response, next: NextFun
 
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    
+
     span.setAttributes({
       'http.method': req.method,
       'http.url': req.url,
@@ -322,7 +322,7 @@ export const useFocusManagement = (isOpen: boolean) => {
   useEffect(() => {
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
-      
+
       // Move focus to modal content
       const modalContent = document.querySelector('[role="dialog"]') as HTMLElement;
       modalContent?.focus();
@@ -367,7 +367,7 @@ const HealthChart: React.FC<HealthChartProps> = ({ data, title }) => {
   return (
     <div className="health-chart">
       <h3 id="chart-title">{title}</h3>
-      <div 
+      <div
         role="img"
         aria-labelledby="chart-title"
         aria-describedby="chart-description"
@@ -378,15 +378,15 @@ const HealthChart: React.FC<HealthChartProps> = ({ data, title }) => {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div 
-        id="chart-description" 
+      <div
+        id="chart-description"
         className="sr-only"
       >
         Chart showing {data.length} health records from {formatDate(data[0]?.date)} to {formatDate(data[data.length - 1]?.date)}
       </div>
-      <div 
-        aria-live="polite" 
-        aria-atomic="true" 
+      <div
+        aria-live="polite"
+        aria-atomic="true"
         className="sr-only"
       >
         {announcement}
@@ -460,10 +460,10 @@ describe('Accessibility Tests', () => {
 
   test('HealthRecordForm supports keyboard navigation', async () => {
     const { getByRole } = render(<HealthRecordForm onSubmit={jest.fn()} />);
-    
+
     const form = getByRole('form');
     const inputs = form.querySelectorAll('input, select, button');
-    
+
     inputs.forEach((input, index) => {
       expect(input).toHaveAttribute('tabindex');
       if (index > 0) {
@@ -494,7 +494,9 @@ import { notFound } from 'next/navigation';
 const locales = ['en', 'fr'] as const;
 
 export default getRequestConfig(async ({ locale }) => {
-  if (!locales.includes(locale as any)) notFound();
+  if (!locales.includes(locale as any)) {
+    notFound();
+  }
 
   return {
     messages: (await import(`../locales/${locale}.json`)).default,
@@ -532,7 +534,7 @@ import { useTranslations } from 'next-intl';
 
 const HealthTypeSelector: React.FC<HealthTypeSelectorProps> = ({ onSelect }) => {
   const t = useTranslations('health.types');
-  
+
   return (
     <Select onValueChange={onSelect}>
       <SelectTrigger>
@@ -589,24 +591,24 @@ export const useLocalizedFormatters = () => {
 #### RTL Language Support
 ```css
 /* src/styles/rtl.css - Right-to-left language support */
-[dir="rtl"] .health-overview {
+[dir='rtl'] .health-overview {
   direction: rtl;
 }
 
-[dir="rtl"] .chart-container {
+[dir='rtl'] .chart-container {
   transform: scaleX(-1);
 }
 
-[dir="rtl"] .chart-container > * {
+[dir='rtl'] .chart-container > * {
   transform: scaleX(-1);
 }
 
-[dir="rtl"] .navigation-menu {
+[dir='rtl'] .navigation-menu {
   margin-left: 0;
   margin-right: 1rem;
 }
 
-[dir="rtl"] .form-field {
+[dir='rtl'] .form-field {
   text-align: right;
 }
 ```
@@ -629,19 +631,19 @@ export const config = {
   database: {
     url: process.env.DATABASE_URL!,
     ssl: process.env.NODE_ENV === 'production',
-    maxConnections: parseInt(process.env.DB_MAX_CONNECTIONS || '10'),
+    maxConnections: Number.parseInt(process.env.DB_MAX_CONNECTIONS || '10'),
   },
-  
+
   auth: {
     clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!,
     clerkSecretKey: process.env.CLERK_SECRET_KEY!,
   },
-  
+
   security: {
     arcjetKey: process.env.ARCJET_KEY!,
     encryptionKey: process.env.ENCRYPTION_KEY!,
   },
-  
+
   monitoring: {
     sentryDsn: process.env.SENTRY_DSN,
     posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY,
@@ -675,7 +677,7 @@ services:
       context: .
       target: development
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://user:password@db:5432/healthapp
@@ -692,12 +694,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   redis:
     image: redis:7
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
 volumes:
   postgres_data:
@@ -715,9 +717,9 @@ volumes:
 
 #### Application Performance Monitoring
 ```typescript
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 // src/libs/Telemetry.ts - Observability implementation
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 const sdk = new NodeSDK({
   instrumentations: [getNodeAutoInstrumentations()],
@@ -732,11 +734,11 @@ export const HealthMetrics = {
   recordCount: metrics.createCounter('health_records_total', {
     description: 'Total number of health records created',
   }),
-  
+
   apiLatency: metrics.createHistogram('api_request_duration_seconds', {
     description: 'API request duration in seconds',
   }),
-  
+
   activeUsers: metrics.createUpDownCounter('active_users_total', {
     description: 'Number of currently active users',
   }),
@@ -943,11 +945,11 @@ module.exports = {
     'no-eval': 'error',
     'no-implied-eval': 'error',
     'no-script-url': 'error',
-    
+
     // Performance rules
     'react-hooks/exhaustive-deps': 'error',
     'react/jsx-key': 'error',
-    
+
     // Accessibility rules
     'jsx-a11y/anchor-is-valid': 'error',
     'jsx-a11y/aria-props': 'error',

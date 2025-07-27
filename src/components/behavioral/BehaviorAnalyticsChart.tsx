@@ -10,7 +10,6 @@ import {
   Legend,
   Line,
   LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -183,7 +182,7 @@ export const BehaviorAnalyticsChart = ({
             />
             <YAxis
               domain={[0, 100]}
-              tickFormatter={(value) => `${value}%`}
+              tickFormatter={value => `${value}%`}
               stroke="#6b7280"
               fontSize={12}
             />
@@ -243,7 +242,7 @@ export const BehaviorAnalyticsChart = ({
             />
             <YAxis
               domain={[0, 100]}
-              tickFormatter={(value) => `${value}%`}
+              tickFormatter={value => `${value}%`}
               stroke="#6b7280"
               fontSize={12}
             />
@@ -287,7 +286,7 @@ export const BehaviorAnalyticsChart = ({
             />
             <YAxis
               domain={[0, 100]}
-              tickFormatter={(value) => `${value}%`}
+              tickFormatter={value => `${value}%`}
               stroke="#6b7280"
               fontSize={12}
             />
@@ -342,7 +341,7 @@ export const BehaviorAnalyticsChart = ({
               fontSize={12}
             />
             <YAxis
-              tickFormatter={(value) => value.toString()}
+              tickFormatter={value => value.toString()}
               stroke="#6b7280"
               fontSize={12}
             />
@@ -398,7 +397,12 @@ export const BehaviorAnalyticsChart = ({
       {data.length > 0 && (
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
           <span>
-            {data.length} data points • {timeRange} range
+            {data.length}
+            {' '}
+            data points •
+            {timeRange}
+            {' '}
+            range
           </span>
           {showPrediction && (
             <span className="flex items-center gap-1">

@@ -1,22 +1,20 @@
-import { and, desc, eq, gte, lte, asc } from 'drizzle-orm';
+import type { BehaviorEventInput, BehaviorEventQueryInput, ContextData, EntityType } from '@/validations/BehaviorEventValidation';
+import { and, asc, desc, eq, gte, lte } from 'drizzle-orm';
 import { db } from '@/libs/DB';
-import { 
-  behavioralEventSchema, 
-  healthRecordSchema, 
-  trainingSessionSchema, 
-  exerciseLogSchema, 
-  healthGoalSchema 
-} from '@/models/Schema';
-import { 
-  BehaviorEventValidation, 
-  BehaviorEventBulkValidation, 
-  BehaviorEventQueryValidation,
-  type BehaviorEventInput,
-  type BehaviorEventQueryInput,
-  type ContextData,
-  type EntityType
-} from '@/validations/BehaviorEventValidation';
 import { logger } from '@/libs/Logger';
+import {
+  behavioralEventSchema,
+  exerciseLogSchema,
+  healthGoalSchema,
+  healthRecordSchema,
+  trainingSessionSchema,
+} from '@/models/Schema';
+import {
+  BehaviorEventBulkValidation,
+
+  BehaviorEventQueryValidation,
+
+} from '@/validations/BehaviorEventValidation';
 
 export class BehaviorEventService {
   /**
@@ -34,10 +32,10 @@ export class BehaviorEventService {
     // Validate bulk events
     const validationResult = BehaviorEventBulkValidation.safeParse({ events });
     if (!validationResult.success) {
-      logger.warn('Bulk event validation failed', { 
-        userId, 
+      logger.warn('Bulk event validation failed', {
+        userId,
         errors: validationResult.error.issues,
-        eventCount: events.length 
+        eventCount: events.length,
       });
       throw new Error(`Validation failed: ${validationResult.error.issues[0]?.message}`);
     }
@@ -71,18 +69,18 @@ export class BehaviorEventService {
         .values(eventsToInsert)
         .returning();
 
-      logger.info('Bulk behavioral events created', { 
-        userId, 
+      logger.info('Bulk behavioral events created', {
+        userId,
         eventCount: insertedEvents.length,
-        eventNames: validatedEvents.map(e => e.eventName)
+        eventNames: validatedEvents.map(e => e.eventName),
       });
 
       return insertedEvents;
     } catch (error) {
-      logger.error('Failed to create behavioral events', { 
-        userId, 
+      logger.error('Failed to create behavioral events', {
+        userId,
         eventCount: events.length,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -97,7 +95,7 @@ export class BehaviorEventService {
     entityType: EntityType,
     entityId?: number,
     context?: ContextData,
-    sessionId?: string
+    sessionId?: string,
   ): Promise<any> {
     const event: BehaviorEventInput = {
       eventName,
@@ -156,7 +154,7 @@ export class BehaviorEventService {
       }
 
       // Build order by
-      const orderBy = validatedFilters.sortOrder === 'asc' 
+      const orderBy = validatedFilters.sortOrder === 'asc'
         ? asc(behavioralEventSchema[validatedFilters.sortBy])
         : desc(behavioralEventSchema[validatedFilters.sortBy]);
 
@@ -169,18 +167,18 @@ export class BehaviorEventService {
         .limit(validatedFilters.limit)
         .offset(validatedFilters.offset);
 
-      logger.debug('Behavioral events retrieved', { 
-        userId, 
+      logger.debug('Behavioral events retrieved', {
+        userId,
         eventCount: events.length,
-        filters: validatedFilters
+        filters: validatedFilters,
       });
 
       return events;
     } catch (error) {
-      logger.error('Failed to retrieve behavioral events', { 
-        userId, 
+      logger.error('Failed to retrieve behavioral events', {
+        userId,
         filters: validatedFilters,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -232,17 +230,17 @@ export class BehaviorEventService {
       }
 
       const isValid = entity !== null;
-      
+
       if (!isValid) {
         logger.warn('Entity reference validation failed', { entityType, entityId });
       }
 
       return isValid;
     } catch (error) {
-      logger.error('Error validating entity reference', { 
-        entityType, 
+      logger.error('Error validating entity reference', {
+        entityType,
         entityId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       return false;
     }
@@ -282,9 +280,9 @@ export class BehaviorEventService {
    * Get event statistics for a user
    */
   static async getEventStats(
-    userId: string, 
-    startDate?: Date, 
-    endDate?: Date
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
   ): Promise<{
     totalEvents: number;
     uniqueEventNames: number;
@@ -316,7 +314,7 @@ export class BehaviorEventService {
 
       const totalEvents = events.length;
       const uniqueEventNames = new Set(events.map(e => e.eventName)).size;
-      
+
       const eventsByType = events.reduce((acc, event) => {
         acc[event.eventName] = (acc[event.eventName] || 0) + 1;
         return acc;
@@ -334,9 +332,9 @@ export class BehaviorEventService {
         eventsByEntity,
       };
     } catch (error) {
-      logger.error('Failed to get event statistics', { 
+      logger.error('Failed to get event statistics', {
         userId,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -360,17 +358,17 @@ export class BehaviorEventService {
 
       const deletedCount = result.rowCount || 0;
 
-      logger.info('Old behavioral events deleted', { 
+      logger.info('Old behavioral events deleted', {
         deletedCount,
         cutoffDate: cutoffDate.toISOString(),
-        olderThanDays
+        olderThanDays,
       });
 
       return deletedCount;
     } catch (error) {
-      logger.error('Failed to delete old events', { 
+      logger.error('Failed to delete old events', {
         olderThanDays,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }

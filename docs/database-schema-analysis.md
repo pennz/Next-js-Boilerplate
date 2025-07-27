@@ -14,7 +14,7 @@ The system implements a comprehensive health and exercise management platform us
 
 #### health_type
 - **Purpose**: Defines types of health metrics that can be tracked
-- **Key Fields**: 
+- **Key Fields**:
   - `slug` (unique identifier, max 50 chars)
   - `display_name` (human-readable name, max 100 chars)
   - `unit` (measurement unit, max 20 chars)
@@ -228,7 +228,7 @@ All user-specific tables include `user_id` for data isolation:
 ### Schema-Level Constraints
 - **NOT NULL constraints**: All primary keys, foreign keys, and essential business fields
 - **UNIQUE constraints**: health_type.slug, muscle_group.name
-- **DEFAULT values**: 
+- **DEFAULT values**:
   - Timestamps: created_at, updated_at (auto-managed)
   - Enums: goal status (active), difficulty (beginner), training status (scheduled)
   - Booleans: health_reminder.active (true), training_plan.is_active (false)

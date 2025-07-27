@@ -23,7 +23,7 @@ This document provides a comprehensive catalog of all input validation constrain
 // From HealthRecordValidation.ts:67-69
 type_id: z.coerce.number().int().positive({
   message: 'Health type ID must be a positive integer',
-})
+});
 ```
 
 **Constraints**:
@@ -41,14 +41,14 @@ value: z.coerce.number().positive({
   message: 'Value must be a positive number',
 }).refine(value => value <= 10000, {
   message: 'Value exceeds maximum allowed range',
-})
+});
 ```
 
 **Constraints**:
 - **Data Type**: Must be coercible to number
 - **Positivity**: Must be greater than 0
 - **Upper Limit**: Must not exceed 10,000
-- **Error Messages**: 
+- **Error Messages**:
   - `"Value must be a positive number"`
   - `"Value exceeds maximum allowed range"`
 
@@ -58,8 +58,7 @@ value: z.coerce.number().positive({
 ```typescript
 // From HealthRecordValidation.ts:20-41
 const unitValidation = z.string().min(1).max(20).refine((unit) => {
-  const validUnits = ['kg', 'lbs', 'mmHg', 'bpm', 'steps', 'hours', 
-    'ml', 'oz', 'kcal', 'minutes', 'mg/dL', 'mmol/L', '°C', '°F', '%'];
+  const validUnits = ['kg', 'lbs', 'mmHg', 'bpm', 'steps', 'hours', 'ml', 'oz', 'kcal', 'minutes', 'mg/dL', 'mmol/L', '°C', '°F', '%'];
   return validUnits.includes(unit);
 }, {
   message: 'Invalid unit. Must be one of: kg, lbs, mmHg, bpm, steps, hours, ml, oz, kcal, minutes, mg/dL, mmol/L, °C, °F, %',
@@ -91,7 +90,7 @@ recorded_at: z.coerce.date().refine((date) => {
   return date >= oneYearAgo;
 }, {
   message: 'Recorded date cannot be more than one year ago',
-})
+});
 ```
 
 **Constraints**:
@@ -109,7 +108,7 @@ recorded_at: z.coerce.date().refine((date) => {
 #### Type ID Field (`type_id`)
 ```typescript
 // From HealthGoalValidation.ts:8
-type_id: z.coerce.number().int().positive('Health type ID must be a positive integer')
+type_id: z.coerce.number().int().positive('Health type ID must be a positive integer');
 ```
 
 **Constraints**:
@@ -121,7 +120,7 @@ type_id: z.coerce.number().int().positive('Health type ID must be a positive int
 #### Target Value Field (`target_value`)
 ```typescript
 // From HealthGoalValidation.ts:9
-target_value: z.coerce.number().positive('Target value must be a positive number')
+target_value: z.coerce.number().positive('Target value must be a positive number');
 ```
 
 **Constraints**:
@@ -135,7 +134,7 @@ target_value: z.coerce.number().positive('Target value must be a positive number
 target_date: z.coerce.date().refine(
   date => date > new Date(),
   'Target date must be in the future',
-)
+);
 ```
 
 **Constraints**:
@@ -147,7 +146,7 @@ target_date: z.coerce.date().refine(
 ```typescript
 // From HealthGoalValidation.ts:4,14
 export const GoalStatus = z.enum(['active', 'completed', 'paused']);
-status: GoalStatus.default('active')
+status: GoalStatus.default('active');
 ```
 
 **Constraints**:
@@ -162,7 +161,7 @@ status: GoalStatus.default('active')
 // From HealthReminderValidation.ts:11-13
 type_id: z.coerce.number().int().positive({
   message: 'Health type ID must be a positive integer',
-})
+});
 ```
 
 **Constraints**:
@@ -178,7 +177,7 @@ cron_expr: z.string().min(1, {
   message: 'Cron expression is required',
 }).refine(value => cronRegex.test(value), {
   message: 'Invalid cron expression format. Use standard cron syntax (e.g., "0 9 * * *") or named schedules (e.g., "@daily")',
-})
+});
 ```
 
 **Constraints**:
@@ -196,7 +195,7 @@ message: z.string().min(1, {
   message: 'Reminder message is required',
 }).max(500, {
   message: 'Reminder message must be 500 characters or less',
-}).trim()
+}).trim();
 ```
 
 **Constraints**:
@@ -214,7 +213,7 @@ message: z.string().min(1, {
 active: z.boolean({
   required_error: 'Active status is required',
   invalid_type_error: 'Active status must be a boolean',
-})
+});
 ```
 
 **Constraints**:
@@ -231,7 +230,7 @@ active: z.boolean({
 // From HealthAnalyticsValidation.ts:10-12
 start_date: z.string()
   .datetime({ message: 'start_date must be a valid ISO datetime string' })
-  .transform(val => new Date(val))
+  .transform(val => new Date(val));
 ```
 
 **Constraints**:
@@ -245,12 +244,12 @@ start_date: z.string()
 // From HealthAnalyticsValidation.ts:14-16
 end_date: z.string()
   .datetime({ message: 'end_date must be a valid ISO datetime string' })
-  .transform(val => new Date(val))
+  .transform(val => new Date(val));
 ```
 
 **Constraints**:
 - **Data Type**: Must be string initially
-- **Format**: Must be valid ISO datetime string  
+- **Format**: Must be valid ISO datetime string
 - **Transformation**: Converted to Date object
 - **Error Message**: `"end_date must be a valid ISO datetime string"`
 
@@ -260,7 +259,7 @@ end_date: z.string()
 type_ids: z.array(z.number().int().positive({ message: 'type_id must be a positive integer' }))
   .min(1, { message: 'At least one type_id must be provided' })
   .max(10, { message: 'Maximum 10 type_ids allowed' })
-  .optional()
+  .optional();
 ```
 
 **Constraints**:
@@ -302,41 +301,41 @@ type_ids: z.array(z.number().int().positive({ message: 'type_id must be a positi
 #### Business Logic Errors
 ```typescript
 // Health Record Cross-Validation
-"Value is not reasonable for the specified unit"
+'Value is not reasonable for the specified unit';
 
-// Date Range Validation  
-"Start date must be before or equal to end date"
-"end_date must be after start_date"
+// Date Range Validation
+'Start date must be before or equal to end date';
+'end_date must be after start_date';
 
 // Performance Constraints
-"Cannot process more than 50 records at once"
-"Date range cannot exceed 365 days"
-"Maximum 10 type_ids allowed"
+'Cannot process more than 50 records at once';
+'Date range cannot exceed 365 days';
+'Maximum 10 type_ids allowed';
 
 // Temporal Constraints
-"Recorded date cannot be in the future"
-"Recorded date cannot be more than one year ago"  
-"Target date must be in the future"
-"start_date cannot be in the future"
-"Progress date cannot be in the future"
+'Recorded date cannot be in the future';
+'Recorded date cannot be more than one year ago';
+'Target date must be in the future';
+'start_date cannot be in the future';
+'Progress date cannot be in the future';
 ```
 
 #### Domain-Specific Errors
 ```typescript
 // Health-Specific Validation
-"Health type ID must be a positive integer"
-"Target value is outside reasonable range for this health metric type"
-"Invalid unit. Must be one of: kg, lbs, mmHg, bpm, steps, hours, ml, oz, kcal, minutes, mg/dL, mmol/L, °C, °F, %"
+'Health type ID must be a positive integer';
+'Target value is outside reasonable range for this health metric type';
+'Invalid unit. Must be one of: kg, lbs, mmHg, bpm, steps, hours, ml, oz, kcal, minutes, mg/dL, mmol/L, °C, °F, %';
 
 // Goal Management
-"At least one field must be provided for update"
+'At least one field must be provided for update';
 
-// Reminder Management  
-"Cron expression is required"
-"Invalid cron expression format. Use standard cron syntax (e.g., \"0 9 * * *\") or named schedules (e.g., \"@daily\")"
-"Reminder message must be 500 characters or less"
-"Active status is required"
-"Active status must be a boolean"
+// Reminder Management
+'Cron expression is required';
+'Invalid cron expression format. Use standard cron syntax (e.g., "0 9 * * *") or named schedules (e.g., "@daily")';
+'Reminder message must be 500 characters or less';
+'Active status is required';
+'Active status must be a boolean';
 ```
 
 ## Custom Validation Logic
@@ -372,7 +371,7 @@ type_ids: z.array(z.number().int().positive({ message: 'type_id must be a positi
     4: { min: 10, max: 50 },     // BMI
     5: { min: 30, max: 300 },    // Heart rate (bpm)
   };
-  
+
   const range = reasonableRanges[data.type_id];
   if (range) {
     return data.target_value >= range.min && data.target_value <= range.max;
@@ -392,8 +391,8 @@ type_ids: z.array(z.number().int().positive({ message: 'type_id must be a positi
 ```typescript
 // From HealthGoalValidation.ts:49-57
 .refine((data) => {
-  return data.target_value !== undefined || 
-         data.target_date !== undefined || 
+  return data.target_value !== undefined ||
+         data.target_date !== undefined ||
          data.status !== undefined;
 }, {
   message: 'At least one field must be provided for update',
@@ -483,15 +482,21 @@ type_ids: z.array(z.number().int().positive({ message: 'type_id must be a positi
 
 #### 1. Percentage Limits
 ```typescript
-if (data.unit === '%' && data.value > 100) return false;
+if (data.unit === '%' && data.value > 100) {
+  return false;
+}
 ```
 **Logical Rule**: Percentages cannot exceed 100%
 **Health Context**: Prevents impossible oxygen saturation readings
 
 #### 2. Time-Based Limits
 ```typescript
-if (data.unit === 'hours' && data.value > 24) return false;
-if (data.unit === 'minutes' && data.value > 1440) return false;
+if (data.unit === 'hours' && data.value > 24) {
+  return false;
+}
+if (data.unit === 'minutes' && data.value > 1440) {
+  return false;
+}
 ```
 **Daily Limits**: Hours ≤ 24, minutes ≤ 1440 (24 hours × 60 minutes)
 **Context Awareness**: Validation understands unit meanings
@@ -504,7 +509,7 @@ if (data.unit === 'minutes' && data.value > 1440) return false;
 ```typescript
 type_id: z.coerce.number().int().positive({
   message: 'Health type ID must be a positive integer',
-})
+});
 ```
 **Database Rule**: Ensures valid foreign key references
 
@@ -520,7 +525,7 @@ export const HealthAnalyticsQueryValidation = z.object({
   end_date: z.string().datetime().optional(),
   type_ids: z.array(z.number().int().positive()).optional(),
   aggregation: AggregationOption.optional().default('daily'),
-})
+});
 ```
 **Flexibility Rule**: All query parameters are optional
 **Default Handling**: Sensible defaults provided where needed
@@ -543,8 +548,8 @@ export const HealthGoalUpdateValidation = z.object({
 ```typescript
 // Goal validation varies by health type
 const reasonableRanges: Record<number, { min: number; max: number }> = {
-  1: { min: 30, max: 300 },    // Weight
-  2: { min: 50, max: 200 },    // Blood pressure
+  1: { min: 30, max: 300 }, // Weight
+  2: { min: 50, max: 200 }, // Blood pressure
   // ... type-specific ranges
 };
 
@@ -560,9 +565,15 @@ return data.target_value > 0; // Fallback for unknown types
 #### 2. Unit-Aware Validation
 ```typescript
 // Different logic for different units
-if (data.unit === '%' && data.value > 100) return false;
-if (data.unit === 'hours' && data.value > 24) return false;
-if (data.unit === 'minutes' && data.value > 1440) return false;
+if (data.unit === '%' && data.value > 100) {
+  return false;
+}
+if (data.unit === 'hours' && data.value > 24) {
+  return false;
+}
+if (data.unit === 'minutes' && data.value > 1440) {
+  return false;
+}
 ```
 **Unit Intelligence**: Validation understands unit semantics
 **Multi-Unit Support**: Handles various measurement systems
@@ -586,7 +597,7 @@ offset: z.coerce.number().int().min(0).default(0),
 // From HealthRecordBulkValidation.ts:135-137
 records: z.array(HealthRecordValidation).min(1).max(50, {
   message: 'Cannot process more than 50 records at once',
-})
+});
 ```
 **Batch Size Control**: Maximum 50 records per bulk operation
 **Custom Message**: Clear explanation of limit
@@ -615,7 +626,7 @@ const MAX_DATE_RANGE_DAYS = 365;
 // From HealthAnalyticsValidation.ts:18-21
 type_ids: z.array(z.number().int().positive())
   .min(1, { message: 'At least one type_id must be provided' })
-  .max(10, { message: 'Maximum 10 type_ids allowed' })
+  .max(10, { message: 'Maximum 10 type_ids allowed' });
 ```
 **Query Complexity Control**: Limits multi-type analytics queries
 **Minimum Requirement**: At least one type required when array provided
@@ -628,7 +639,7 @@ type_ids: z.array(z.number().int().positive())
 #### 1. String Trimming
 ```typescript
 // From HealthReminderValidation.ts:19-23
-message: z.string().min(1).max(500).trim()
+message: z.string().min(1).max(500).trim();
 ```
 **Sanitization Rule**: Automatic whitespace trimming
 **Security Benefit**: Prevents padding-based attacks
@@ -637,8 +648,8 @@ message: z.string().min(1).max(500).trim()
 #### 2. Length Restrictions
 ```typescript
 // Various string fields have length limits
-unit: z.string().min(1).max(20)           // Unit names
-message: z.string().min(1).max(500)       // Reminder messages
+unit: z.string().min(1).max(20); // Unit names
+message: z.string().min(1).max(500); // Reminder messages
 ```
 **Buffer Overflow Prevention**: Limits prevent excessive input
 **Storage Efficiency**: Reasonable limits for database columns
@@ -649,7 +660,7 @@ message: z.string().min(1).max(500)       // Reminder messages
 #### 1. Strict Type Coercion
 ```typescript
 // All numeric IDs use consistent pattern
-type_id: z.coerce.number().int().positive()
+type_id: z.coerce.number().int().positive();
 ```
 **Type Safety**: Coercion with validation prevents type confusion
 **Integer Enforcement**: Prevents decimal ID values
@@ -672,7 +683,7 @@ export const GoalStatus = z.enum(['active', 'completed', 'paused']);
 active: z.boolean({
   required_error: 'Active status is required',
   invalid_type_error: 'Active status must be a boolean',
-})
+});
 ```
 **Explicit Requirements**: Clear required field messaging
 **Type Enforcement**: Strict boolean requirement
@@ -683,7 +694,7 @@ active: z.boolean({
 // All type_id fields enforce positive integers
 type_id: z.coerce.number().int().positive({
   message: 'Health type ID must be a positive integer',
-})
+});
 ```
 **Foreign Key Hints**: Validation suggests valid key structure
 **Database Protection**: Prevents invalid reference attempts
@@ -700,7 +711,7 @@ const cronRegex = /^((((\d+,)+\d+|(\d+([/\-#])\d+)|\d+L?|\*(\/\d+)?|L(-\d+)?|\?|
 
 cron_expr: z.string().min(1).refine(value => cronRegex.test(value), {
   message: 'Invalid cron expression format. Use standard cron syntax (e.g., "0 9 * * *") or named schedules (e.g., "@daily")',
-})
+});
 ```
 
 **Pattern Support**:
@@ -718,7 +729,7 @@ cron_expr: z.string().min(1).refine(value => cronRegex.test(value), {
 // From HealthAnalyticsValidation.ts:10-12
 start_date: z.string()
   .datetime({ message: 'start_date must be a valid ISO datetime string' })
-  .transform(val => new Date(val))
+  .transform(val => new Date(val));
 ```
 
 **Format Requirements**:
@@ -739,7 +750,7 @@ type_ids: z.union([
 ]).pipe(
   z.array(z.number().int().positive())
     .max(10, { message: 'Maximum 10 type_ids allowed' }),
-)
+);
 ```
 
 **Format Flexibility**:
@@ -773,7 +784,7 @@ if (data.unit === 'minutes' && data.value > 1440) {
   return false;
 }
 ```
-**Daily Limits**: 
+**Daily Limits**:
 - Hours: Maximum 24 (one day)
 - Minutes: Maximum 1440 (24 hours × 60 minutes)
 **Context Understanding**: Validation understands time unit meanings
@@ -784,10 +795,14 @@ if (data.unit === 'minutes' && data.value > 1440) {
 ```typescript
 // From HealthRecordValidation.ts:21-36
 const validUnits = [
-  'kg', 'lbs',           // Weight: metric/imperial
-  'ml', 'oz',            // Volume: metric/imperial  
-  '°C', '°F',            // Temperature: metric/imperial
-  'mg/dL', 'mmol/L',     // Blood sugar: different medical standards
+  'kg',
+  'lbs', // Weight: metric/imperial
+  'ml',
+  'oz', // Volume: metric/imperial
+  '°C',
+  '°F', // Temperature: metric/imperial
+  'mg/dL',
+  'mmol/L', // Blood sugar: different medical standards
   // ... other units
 ];
 ```
@@ -814,9 +829,9 @@ const validUnits = [
 ```typescript
 // From HealthRecordValidation.ts:44-58
 const ranges: Record<string, { min: number; max: number }> = {
-  weight: { min: 20, max: 500 },              // Accommodates both kg and lbs
-  blood_pressure_systolic: { min: 70, max: 250 },    // mmHg only
-  heart_rate: { min: 30, max: 220 },          // bpm only
+  weight: { min: 20, max: 500 }, // Accommodates both kg and lbs
+  blood_pressure_systolic: { min: 70, max: 250 }, // mmHg only
+  heart_rate: { min: 30, max: 220 }, // bpm only
   // ... other ranges
 };
 ```

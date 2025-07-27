@@ -39,8 +39,8 @@ export const GET = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url);
     const queryParams = {
       timeRange: searchParams.get('timeRange') || '90d',
-      minPredictivePower: searchParams.get('minPredictivePower') 
-        ? parseInt(searchParams.get('minPredictivePower')!) 
+      minPredictivePower: searchParams.get('minPredictivePower')
+        ? Number.parseInt(searchParams.get('minPredictivePower')!)
         : 50,
     };
 
@@ -56,12 +56,12 @@ export const GET = async (request: NextRequest) => {
 
     const contextPatterns = await HabitStrengthAnalyticsService.analyzeWorkoutContexts(
       user.id,
-      timeRange
+      timeRange,
     );
 
     // Filter by minimum predictive power
     const filteredPatterns = contextPatterns.filter(
-      pattern => pattern.predictivePower >= minPredictivePower
+      pattern => pattern.predictivePower >= minPredictivePower,
     );
 
     logger.info('Context patterns analytics retrieved', {

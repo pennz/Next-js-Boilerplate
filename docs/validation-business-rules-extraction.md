@@ -25,9 +25,18 @@ This document provides a comprehensive analysis of all business rules extracted 
 ```typescript
 // From HealthRecordValidation.ts:4-17
 export const HealthTypeEnum = z.enum([
-  'weight', 'blood_pressure_systolic', 'blood_pressure_diastolic',
-  'heart_rate', 'steps', 'sleep_hours', 'water_intake', 'calories',
-  'exercise_minutes', 'blood_sugar', 'temperature', 'oxygen_saturation'
+  'weight',
+  'blood_pressure_systolic',
+  'blood_pressure_diastolic',
+  'heart_rate',
+  'steps',
+  'sleep_hours',
+  'water_intake',
+  'calories',
+  'exercise_minutes',
+  'blood_sugar',
+  'temperature',
+  'oxygen_saturation'
 ]);
 ```
 
@@ -36,8 +45,7 @@ export const HealthTypeEnum = z.enum([
 #### 2. Unit Validation Business Logic (`unitValidation`)
 ```typescript
 // From HealthRecordValidation.ts:20-41
-const validUnits = ['kg', 'lbs', 'mmHg', 'bpm', 'steps', 'hours', 
-  'ml', 'oz', 'kcal', 'minutes', 'mg/dL', 'mmol/L', '°C', '°F', '%'];
+const validUnits = ['kg', 'lbs', 'mmHg', 'bpm', 'steps', 'hours', 'ml', 'oz', 'kcal', 'minutes', 'mg/dL', 'mmol/L', '°C', '°F', '%'];
 ```
 
 **Business Rules**:
@@ -50,18 +58,18 @@ const validUnits = ['kg', 'lbs', 'mmHg', 'bpm', 'steps', 'hours',
 ```typescript
 // From HealthRecordValidation.ts:44-63
 const ranges: Record<string, { min: number; max: number }> = {
-  weight: { min: 20, max: 500 },              // kg or lbs
-  blood_pressure_systolic: { min: 70, max: 250 },   // mmHg
-  blood_pressure_diastolic: { min: 40, max: 150 },  // mmHg
-  heart_rate: { min: 30, max: 220 },          // bpm
-  steps: { min: 0, max: 100000 },             // steps per day
-  sleep_hours: { min: 0, max: 24 },           // hours
-  water_intake: { min: 0, max: 10000 },       // ml or oz
-  calories: { min: 0, max: 10000 },           // kcal
-  exercise_minutes: { min: 0, max: 1440 },    // minutes per day
-  blood_sugar: { min: 20, max: 600 },         // mg/dL or mmol/L
-  temperature: { min: 90, max: 110 },         // °F or 32-43°C
-  oxygen_saturation: { min: 70, max: 100 }    // %
+  weight: { min: 20, max: 500 }, // kg or lbs
+  blood_pressure_systolic: { min: 70, max: 250 }, // mmHg
+  blood_pressure_diastolic: { min: 40, max: 150 }, // mmHg
+  heart_rate: { min: 30, max: 220 }, // bpm
+  steps: { min: 0, max: 100000 }, // steps per day
+  sleep_hours: { min: 0, max: 24 }, // hours
+  water_intake: { min: 0, max: 10000 }, // ml or oz
+  calories: { min: 0, max: 10000 }, // kcal
+  exercise_minutes: { min: 0, max: 1440 }, // minutes per day
+  blood_sugar: { min: 20, max: 600 }, // mg/dL or mmol/L
+  temperature: { min: 90, max: 110 }, // °F or 32-43°C
+  oxygen_saturation: { min: 70, max: 100 } // %
 };
 ```
 
@@ -79,7 +87,7 @@ export const HealthRecordValidation = z.object({
   value: z.coerce.number().positive().refine(value => value <= 10000),
   unit: unitValidation,
   recorded_at: z.coerce.date().refine(/* temporal constraints */)
-})
+});
 ```
 
 **Business Rules**:
@@ -185,11 +193,11 @@ export const HealthGoalValidation = z.object({
 ```typescript
 // From HealthGoalValidation.ts:16-38
 const reasonableRanges: Record<number, { min: number; max: number }> = {
-  1: { min: 30, max: 300 },    // Weight (kg)
-  2: { min: 50, max: 200 },    // Systolic BP (mmHg)
+  1: { min: 30, max: 300 }, // Weight (kg)
+  2: { min: 50, max: 200 }, // Systolic BP (mmHg)
   3: { min: 1000, max: 50000 }, // Daily steps
-  4: { min: 10, max: 50 },     // BMI
-  5: { min: 30, max: 300 }     // Heart rate (bpm)
+  4: { min: 10, max: 50 }, // BMI
+  5: { min: 30, max: 300 } // Heart rate (bpm)
 };
 ```
 
@@ -207,9 +215,9 @@ export const HealthGoalUpdateValidation = z.object({
   target_date: z.coerce.date().refine(date => date > new Date()).optional(),
   status: GoalStatus.optional()
 }).refine((data) => {
-  return data.target_value !== undefined || 
-         data.target_date !== undefined || 
-         data.status !== undefined;
+  return data.target_value !== undefined
+    || data.target_date !== undefined
+    || data.status !== undefined;
 });
 ```
 
@@ -414,7 +422,7 @@ export const HealthAnalyticsQueryValidation = z.object({
 
 #### Cardiovascular Metrics
 - `blood_pressure_systolic`: Upper blood pressure reading (mmHg)
-- `blood_pressure_diastolic`: Lower blood pressure reading (mmHg)  
+- `blood_pressure_diastolic`: Lower blood pressure reading (mmHg)
 - `heart_rate`: Heart beats per minute (bpm)
 - `oxygen_saturation`: Blood oxygen percentage (%)
 
@@ -492,7 +500,7 @@ Goal ranges are more restrictive than record ranges to encourage achievable targ
 
 #### 1. No Future Health Records
 ```typescript
-recorded_at: z.coerce.date().refine(date => date <= new Date())
+recorded_at: z.coerce.date().refine(date => date <= new Date());
 ```
 - **Business Rule**: Health data can only be recorded for past or present
 - **Rationale**: Prevents speculative or incorrect future data entry
@@ -514,7 +522,7 @@ recorded_at: z.coerce.date().refine(date => date <= new Date())
 
 #### 1. Future Goal Requirements
 ```typescript
-target_date: z.coerce.date().refine(date => date > new Date())
+target_date: z.coerce.date().refine(date => date > new Date());
 ```
 - **Business Rule**: Goal dates must be in the future
 - **Rationale**: Goals are aspirational and forward-looking
@@ -522,7 +530,7 @@ target_date: z.coerce.date().refine(date => date > new Date())
 
 #### 2. Progress Tracking Temporal Logic
 ```typescript
-progress_date: z.coerce.date().refine(date => date <= new Date())
+progress_date: z.coerce.date().refine(date => date <= new Date());
 ```
 - **Business Rule**: Progress can only be recorded for past/present
 - **Rationale**: Progress tracking must be based on actual achievements

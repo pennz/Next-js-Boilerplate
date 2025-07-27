@@ -1,24 +1,23 @@
-import { and, desc, eq, gte, lte, asc, sql, count, avg, sum } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte } from 'drizzle-orm';
 import { db } from '@/libs/DB';
-import { 
-  microBehaviorPatternSchema, 
-  contextPatternSchema,
-  behavioralEventSchema,
-  userProfileSchema
-} from '@/models/Schema';
 import { logger } from '@/libs/Logger';
+import {
+  behavioralEventSchema,
+  contextPatternSchema,
+  microBehaviorPatternSchema,
+} from '@/models/Schema';
 
 // Types for micro-behavior data structures
-export interface MicroBehaviorData {
+export type MicroBehaviorData = {
   behaviorType: string;
   frequency: number;
   frequencyPeriod: 'day' | 'week' | 'month';
   triggers?: Record<string, any>;
   outcomes?: Record<string, any>;
   context?: Record<string, any>;
-}
+};
 
-export interface ContextData {
+export type ContextData = {
   contextType: 'environmental' | 'temporal' | 'social' | 'emotional';
   contextName: string;
   contextData: Record<string, any>;
@@ -30,9 +29,9 @@ export interface ContextData {
   energyLevel?: number;
   stressLevel?: number;
   socialContext?: string;
-}
+};
 
-export interface PatternFilters {
+export type PatternFilters = {
   behaviorType?: string;
   patternName?: string;
   isActive?: boolean;
@@ -44,9 +43,9 @@ export interface PatternFilters {
   offset?: number;
   sortBy?: 'strength' | 'confidence' | 'frequency' | 'lastObserved' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
-}
+};
 
-export interface ContextFilters {
+export type ContextFilters = {
   contextType?: string;
   contextName?: string;
   timeOfDay?: string;
@@ -59,9 +58,9 @@ export interface ContextFilters {
   offset?: number;
   sortBy?: 'predictivePower' | 'frequency' | 'lastObserved' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
-}
+};
 
-export interface BehaviorInsight {
+export type BehaviorInsight = {
   type: 'pattern' | 'correlation' | 'anomaly' | 'prediction';
   title: string;
   description: string;
@@ -69,7 +68,7 @@ export interface BehaviorInsight {
   actionable: boolean;
   recommendations?: string[];
   data?: Record<string, any>;
-}
+};
 
 export class MicroBehaviorService {
   /**
@@ -123,20 +122,20 @@ export class MicroBehaviorService {
         }
       }
 
-      logger.info('Patterns detected and analyzed', { 
-        userId, 
+      logger.info('Patterns detected and analyzed', {
+        userId,
         totalEvents: events.length,
         patternsDetected: patterns.length,
         patternsStored: detectedPatterns.length,
-        timeframe
+        timeframe,
       });
 
       return detectedPatterns;
     } catch (error) {
-      logger.error('Failed to detect patterns', { 
-        userId, 
+      logger.error('Failed to detect patterns', {
+        userId,
         timeframe,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -183,20 +182,20 @@ export class MicroBehaviorService {
         .values(patternToInsert)
         .returning();
 
-      logger.info('Micro-behavior pattern created', { 
-        userId, 
+      logger.info('Micro-behavior pattern created', {
+        userId,
         patternId: insertedPattern.id,
         behaviorType: patternData.behaviorType,
         strength,
-        confidence
+        confidence,
       });
 
       return insertedPattern;
     } catch (error) {
-      logger.error('Failed to create pattern', { 
-        userId, 
+      logger.error('Failed to create pattern', {
+        userId,
         patternData,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -219,7 +218,7 @@ export class MicroBehaviorService {
       const existingPattern = await db.query.microBehaviorPatternSchema.findFirst({
         where: and(
           eq(microBehaviorPatternSchema.id, patternId),
-          eq(microBehaviorPatternSchema.userId, userId)
+          eq(microBehaviorPatternSchema.userId, userId),
         ),
       });
 
@@ -261,19 +260,19 @@ export class MicroBehaviorService {
         .where(eq(microBehaviorPatternSchema.id, patternId))
         .returning();
 
-      logger.info('Micro-behavior pattern updated', { 
-        userId, 
+      logger.info('Micro-behavior pattern updated', {
+        userId,
         patternId,
-        updates: Object.keys(updates)
+        updates: Object.keys(updates),
       });
 
       return updatedPattern;
     } catch (error) {
-      logger.error('Failed to update pattern', { 
-        userId, 
+      logger.error('Failed to update pattern', {
+        userId,
         patternId,
         updates,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -321,7 +320,7 @@ export class MicroBehaviorService {
       // Build order by
       const sortBy = filters?.sortBy || 'lastObserved';
       const sortOrder = filters?.sortOrder || 'desc';
-      const orderBy = sortOrder === 'asc' 
+      const orderBy = sortOrder === 'asc'
         ? asc(microBehaviorPatternSchema[sortBy])
         : desc(microBehaviorPatternSchema[sortBy]);
 
@@ -333,18 +332,18 @@ export class MicroBehaviorService {
         .limit(filters?.limit || 100)
         .offset(filters?.offset || 0);
 
-      logger.debug('Micro-behavior patterns retrieved', { 
-        userId, 
+      logger.debug('Micro-behavior patterns retrieved', {
+        userId,
         patternCount: patterns.length,
-        filters
+        filters,
       });
 
       return patterns;
     } catch (error) {
-      logger.error('Failed to retrieve patterns', { 
-        userId, 
+      logger.error('Failed to retrieve patterns', {
+        userId,
         filters,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -368,7 +367,7 @@ export class MicroBehaviorService {
         where: and(
           eq(contextPatternSchema.userId, userId),
           eq(contextPatternSchema.contextType, contextData.contextType),
-          eq(contextPatternSchema.contextName, contextData.contextName)
+          eq(contextPatternSchema.contextName, contextData.contextName),
         ),
       });
 
@@ -390,10 +389,10 @@ export class MicroBehaviorService {
         return await this.createContextPattern(userId, contextData);
       }
     } catch (error) {
-      logger.error('Failed to analyze context', { 
-        userId, 
+      logger.error('Failed to analyze context', {
+        userId,
         contextData,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -435,19 +434,19 @@ export class MicroBehaviorService {
         .values(contextToInsert)
         .returning();
 
-      logger.info('Context pattern created', { 
-        userId, 
+      logger.info('Context pattern created', {
+        userId,
         contextId: insertedPattern.id,
         contextType: contextData.contextType,
-        contextName: contextData.contextName
+        contextName: contextData.contextName,
       });
 
       return insertedPattern;
     } catch (error) {
-      logger.error('Failed to create context pattern', { 
-        userId, 
+      logger.error('Failed to create context pattern', {
+        userId,
         contextData,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -498,7 +497,7 @@ export class MicroBehaviorService {
 
       const sortBy = filters?.sortBy || 'lastObserved';
       const sortOrder = filters?.sortOrder || 'desc';
-      const orderBy = sortOrder === 'asc' 
+      const orderBy = sortOrder === 'asc'
         ? asc(contextPatternSchema[sortBy])
         : desc(contextPatternSchema[sortBy]);
 
@@ -510,18 +509,18 @@ export class MicroBehaviorService {
         .limit(filters?.limit || 100)
         .offset(filters?.offset || 0);
 
-      logger.debug('Context patterns retrieved', { 
-        userId, 
+      logger.debug('Context patterns retrieved', {
+        userId,
         patternCount: patterns.length,
-        filters
+        filters,
       });
 
       return patterns;
     } catch (error) {
-      logger.error('Failed to retrieve context patterns', { 
-        userId, 
+      logger.error('Failed to retrieve context patterns', {
+        userId,
         filters,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -559,20 +558,20 @@ export class MicroBehaviorService {
         }
       }
 
-      logger.info('Context-behavior correlations calculated', { 
-        userId, 
+      logger.info('Context-behavior correlations calculated', {
+        userId,
         behaviorPatterns: behaviorPatterns.length,
         contextPatterns: contextPatterns.length,
         correlations: correlations.length,
-        timeframe
+        timeframe,
       });
 
       return correlations;
     } catch (error) {
-      logger.error('Failed to correlate context and behavior', { 
-        userId, 
+      logger.error('Failed to correlate context and behavior', {
+        userId,
         timeframe,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -592,7 +591,7 @@ export class MicroBehaviorService {
         where: and(
           eq(microBehaviorPatternSchema.userId, userId),
           eq(microBehaviorPatternSchema.behaviorType, behaviorData.behaviorType),
-          eq(microBehaviorPatternSchema.isActive, true)
+          eq(microBehaviorPatternSchema.isActive, true),
         ),
       });
 
@@ -604,10 +603,10 @@ export class MicroBehaviorService {
         return await this.createPattern(userId, behaviorData);
       }
     } catch (error) {
-      logger.error('Failed to track micro-behavior', { 
-        userId, 
+      logger.error('Failed to track micro-behavior', {
+        userId,
         behaviorData,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -617,9 +616,9 @@ export class MicroBehaviorService {
    * Analyze behavior frequency
    */
   static async analyzeBehaviorFrequency(
-    userId: string, 
-    behaviorType: string, 
-    timeframe?: { startDate: Date; endDate: Date }
+    userId: string,
+    behaviorType: string,
+    timeframe?: { startDate: Date; endDate: Date },
   ): Promise<any> {
     if (!userId || typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Invalid user ID');
@@ -633,7 +632,7 @@ export class MicroBehaviorService {
       const whereConditions = [
         eq(microBehaviorPatternSchema.userId, userId),
         eq(microBehaviorPatternSchema.behaviorType, behaviorType),
-        eq(microBehaviorPatternSchema.isActive, true)
+        eq(microBehaviorPatternSchema.isActive, true),
       ];
 
       if (timeframe?.startDate) {
@@ -652,20 +651,20 @@ export class MicroBehaviorService {
       // Calculate frequency statistics
       const frequencyAnalysis = this.calculateFrequencyStats(patterns, timeframe);
 
-      logger.info('Behavior frequency analyzed', { 
-        userId, 
+      logger.info('Behavior frequency analyzed', {
+        userId,
         behaviorType,
         patternCount: patterns.length,
-        timeframe
+        timeframe,
       });
 
       return frequencyAnalysis;
     } catch (error) {
-      logger.error('Failed to analyze behavior frequency', { 
-        userId, 
+      logger.error('Failed to analyze behavior frequency', {
+        userId,
         behaviorType,
         timeframe,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -690,25 +689,25 @@ export class MicroBehaviorService {
         .where(and(
           eq(microBehaviorPatternSchema.userId, userId),
           eq(microBehaviorPatternSchema.behaviorType, behaviorType),
-          eq(microBehaviorPatternSchema.isActive, true)
+          eq(microBehaviorPatternSchema.isActive, true),
         ));
 
       // Analyze triggers from pattern data
       const triggers = this.analyzeTriggers(patterns);
 
-      logger.info('Behavior triggers identified', { 
-        userId, 
+      logger.info('Behavior triggers identified', {
+        userId,
         behaviorType,
         patternCount: patterns.length,
-        triggerCount: triggers.length
+        triggerCount: triggers.length,
       });
 
       return triggers;
     } catch (error) {
-      logger.error('Failed to identify triggers', { 
-        userId, 
+      logger.error('Failed to identify triggers', {
+        userId,
         behaviorType,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -718,9 +717,9 @@ export class MicroBehaviorService {
    * Measure behavior outcomes and success
    */
   static async measureOutcomes(
-    userId: string, 
-    behaviorType: string, 
-    timeframe?: { startDate: Date; endDate: Date }
+    userId: string,
+    behaviorType: string,
+    timeframe?: { startDate: Date; endDate: Date },
   ): Promise<any> {
     if (!userId || typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Invalid user ID');
@@ -734,7 +733,7 @@ export class MicroBehaviorService {
       const whereConditions = [
         eq(microBehaviorPatternSchema.userId, userId),
         eq(microBehaviorPatternSchema.behaviorType, behaviorType),
-        eq(microBehaviorPatternSchema.isActive, true)
+        eq(microBehaviorPatternSchema.isActive, true),
       ];
 
       if (timeframe?.startDate) {
@@ -753,20 +752,20 @@ export class MicroBehaviorService {
       // Analyze outcomes from pattern data
       const outcomes = this.analyzeOutcomes(patterns, timeframe);
 
-      logger.info('Behavior outcomes measured', { 
-        userId, 
+      logger.info('Behavior outcomes measured', {
+        userId,
         behaviorType,
         patternCount: patterns.length,
-        timeframe
+        timeframe,
       });
 
       return outcomes;
     } catch (error) {
-      logger.error('Failed to measure outcomes', { 
-        userId, 
+      logger.error('Failed to measure outcomes', {
+        userId,
         behaviorType,
         timeframe,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -790,13 +789,13 @@ export class MicroBehaviorService {
       const contextPatterns = await this.getContextPatterns(userId, { isActive: true });
 
       // Enrich each event with relevant pattern data
-      const enrichedEvents = events.map(event => {
-        const relevantPatterns = patterns.filter(pattern => 
-          this.isPatternRelevantToEvent(pattern, event)
+      const enrichedEvents = events.map((event) => {
+        const relevantPatterns = patterns.filter(pattern =>
+          this.isPatternRelevantToEvent(pattern, event),
         );
 
-        const relevantContext = contextPatterns.filter(context => 
-          this.isContextRelevantToEvent(context, event)
+        const relevantContext = contextPatterns.filter(context =>
+          this.isContextRelevantToEvent(context, event),
         );
 
         return {
@@ -809,19 +808,19 @@ export class MicroBehaviorService {
         };
       });
 
-      logger.debug('Behavioral events enriched', { 
-        userId, 
+      logger.debug('Behavioral events enriched', {
+        userId,
         eventCount: events.length,
         patternCount: patterns.length,
-        contextPatternCount: contextPatterns.length
+        contextPatternCount: contextPatterns.length,
       });
 
       return enrichedEvents;
     } catch (error) {
-      logger.error('Failed to enrich behavior events', { 
-        userId, 
+      logger.error('Failed to enrich behavior events', {
+        userId,
         eventCount: events.length,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -891,20 +890,20 @@ export class MicroBehaviorService {
         });
       }
 
-      logger.info('Behavioral insights generated', { 
-        userId, 
+      logger.info('Behavioral insights generated', {
+        userId,
         insightCount: insights.length,
         patternCount: patterns.length,
         correlationCount: correlations.length,
-        timeframe
+        timeframe,
       });
 
       return insights;
     } catch (error) {
-      logger.error('Failed to generate insights', { 
-        userId, 
+      logger.error('Failed to generate insights', {
+        userId,
         timeframe,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -942,19 +941,19 @@ export class MicroBehaviorService {
         exportString = JSON.stringify(exportData, null, 2);
       }
 
-      logger.info('Pattern data exported', { 
-        userId, 
+      logger.info('Pattern data exported', {
+        userId,
         format,
         patternCount: patterns.length,
-        contextPatternCount: contextPatterns.length
+        contextPatternCount: contextPatterns.length,
       });
 
       return exportString;
     } catch (error) {
-      logger.error('Failed to export pattern data', { 
-        userId, 
+      logger.error('Failed to export pattern data', {
+        userId,
         format,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -1009,27 +1008,31 @@ export class MicroBehaviorService {
   }
 
   private static calculateTimeSpan(events: any[]): number {
-    if (events.length < 2) return 0;
+    if (events.length < 2) {
+      return 0;
+    }
     const dates = events.map(e => new Date(e.createdAt)).sort();
     return dates[dates.length - 1].getTime() - dates[0].getTime();
   }
 
   private static calculateConsistency(events: any[]): number {
     // Calculate temporal consistency of events
-    if (events.length < 2) return 0;
-    
+    if (events.length < 2) {
+      return 0;
+    }
+
     const intervals = [];
     const sortedEvents = events.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-    
+
     for (let i = 1; i < sortedEvents.length; i++) {
-      const interval = new Date(sortedEvents[i].createdAt).getTime() - new Date(sortedEvents[i-1].createdAt).getTime();
+      const interval = new Date(sortedEvents[i].createdAt).getTime() - new Date(sortedEvents[i - 1].createdAt).getTime();
       intervals.push(interval);
     }
-    
+
     const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
-    const variance = intervals.reduce((sum, interval) => sum + Math.pow(interval - avgInterval, 2), 0) / intervals.length;
+    const variance = intervals.reduce((sum, interval) => sum + (interval - avgInterval) ** 2, 0) / intervals.length;
     const standardDeviation = Math.sqrt(variance);
-    
+
     // Lower standard deviation = higher consistency
     const consistencyScore = Math.max(0, 100 - (standardDeviation / avgInterval) * 100);
     return Math.min(100, consistencyScore);
@@ -1038,29 +1041,33 @@ export class MicroBehaviorService {
   private static extractTriggers(events: any[]): Record<string, any> {
     // Extract common triggers from event context
     const triggers: Record<string, any> = {};
-    
-    events.forEach(event => {
+
+    events.forEach((event) => {
       if (event.context) {
         const context = typeof event.context === 'string' ? JSON.parse(event.context) : event.context;
-        
+
         // Extract environmental triggers
         if (context.environment) {
-          Object.keys(context.environment).forEach(key => {
-            if (!triggers.environmental) triggers.environmental = {};
+          Object.keys(context.environment).forEach((key) => {
+            if (!triggers.environmental) {
+              triggers.environmental = {};
+            }
             triggers.environmental[key] = context.environment[key];
           });
         }
-        
+
         // Extract UI triggers
         if (context.ui) {
-          Object.keys(context.ui).forEach(key => {
-            if (!triggers.ui) triggers.ui = {};
+          Object.keys(context.ui).forEach((key) => {
+            if (!triggers.ui) {
+              triggers.ui = {};
+            }
             triggers.ui[key] = context.ui[key];
           });
         }
       }
     });
-    
+
     return triggers;
   }
 
@@ -1085,10 +1092,10 @@ export class MicroBehaviorService {
 
   private static calculateSuccessRate(events: any[]): number {
     // Define success based on completion events
-    const completionEvents = events.filter(e => 
-      e.eventName.includes('completed') || 
-      e.eventName.includes('achieved') || 
-      e.eventName.includes('finished')
+    const completionEvents = events.filter(e =>
+      e.eventName.includes('completed')
+      || e.eventName.includes('achieved')
+      || e.eventName.includes('finished'),
     );
     return events.length > 0 ? (completionEvents.length / events.length) * 100 : 0;
   }
@@ -1096,8 +1103,8 @@ export class MicroBehaviorService {
   private static findCommonContextPatterns(contexts: any[]): Record<string, any> {
     // Find patterns in context data
     const patterns: Record<string, any> = {};
-    
-    contexts.forEach(context => {
+
+    contexts.forEach((context) => {
       if (typeof context === 'string') {
         try {
           context = JSON.parse(context);
@@ -1105,19 +1112,23 @@ export class MicroBehaviorService {
           return;
         }
       }
-      
+
       // Analyze context structure
-      Object.keys(context).forEach(key => {
-        if (!patterns[key]) patterns[key] = {};
+      Object.keys(context).forEach((key) => {
+        if (!patterns[key]) {
+          patterns[key] = {};
+        }
         if (context[key] && typeof context[key] === 'object') {
-          Object.keys(context[key]).forEach(subKey => {
-            if (!patterns[key][subKey]) patterns[key][subKey] = 0;
+          Object.keys(context[key]).forEach((subKey) => {
+            if (!patterns[key][subKey]) {
+              patterns[key][subKey] = 0;
+            }
             patterns[key][subKey]++;
           });
         }
       });
     });
-    
+
     return patterns;
   }
 
@@ -1137,7 +1148,7 @@ export class MicroBehaviorService {
 
   private static calculateCorrelations(behaviorPatterns: any[], contextPatterns: any[]): any[] {
     const correlations = [];
-    
+
     for (const behavior of behaviorPatterns) {
       for (const context of contextPatterns) {
         const correlation = this.calculateCorrelationStrength(behavior, context);
@@ -1153,7 +1164,7 @@ export class MicroBehaviorService {
         }
       }
     }
-    
+
     return correlations;
   }
 
@@ -1163,19 +1174,19 @@ export class MicroBehaviorService {
     const behaviorEnd = new Date(behavior.lastObserved);
     const contextStart = new Date(context.firstObserved);
     const contextEnd = new Date(context.lastObserved);
-    
+
     // Calculate temporal overlap
     const overlapStart = new Date(Math.max(behaviorStart.getTime(), contextStart.getTime()));
     const overlapEnd = new Date(Math.min(behaviorEnd.getTime(), contextEnd.getTime()));
     const overlap = Math.max(0, overlapEnd.getTime() - overlapStart.getTime());
-    
+
     const behaviorDuration = behaviorEnd.getTime() - behaviorStart.getTime();
     const contextDuration = contextEnd.getTime() - contextStart.getTime();
     const avgDuration = (behaviorDuration + contextDuration) / 2;
-    
+
     const strength = avgDuration > 0 ? overlap / avgDuration : 0;
     const significance = Math.min(behavior.confidence, context.predictivePower || 50) / 100;
-    
+
     return { strength, significance };
   }
 
@@ -1184,18 +1195,18 @@ export class MicroBehaviorService {
     const existingPattern = await db.query.microBehaviorPatternSchema.findFirst({
       where: eq(microBehaviorPatternSchema.id, correlation.behaviorPatternId),
     });
-    
+
     if (existingPattern) {
-      const correlations = existingPattern.correlations 
-        ? JSON.parse(existingPattern.correlations as string) 
+      const correlations = existingPattern.correlations
+        ? JSON.parse(existingPattern.correlations as string)
         : [];
-      
+
       correlations.push({
         contextPatternId: correlation.contextPatternId,
         strength: correlation.strength,
         type: correlation.contextType,
       });
-      
+
       await db
         .update(microBehaviorPatternSchema)
         .set({ correlations: JSON.stringify(correlations) })
@@ -1212,26 +1223,29 @@ export class MicroBehaviorService {
         consistency: 0,
       };
     }
-    
+
     const totalFrequency = patterns.reduce((sum, p) => sum + p.frequency, 0);
     const averageFrequency = totalFrequency / patterns.length;
     const consistency = patterns.reduce((sum, p) => sum + (p.consistency || 0), 0) / patterns.length;
-    
+
     // Calculate trend (simplified)
-    const recentPatterns = patterns.filter(p => {
+    const recentPatterns = patterns.filter((p) => {
       const lastObserved = new Date(p.lastObserved);
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       return lastObserved >= thirtyDaysAgo;
     });
-    
-    const recentFrequency = recentPatterns.length > 0 
+
+    const recentFrequency = recentPatterns.length > 0
       ? recentPatterns.reduce((sum, p) => sum + p.frequency, 0) / recentPatterns.length
       : 0;
-    
+
     let trend = 'stable';
-    if (recentFrequency > averageFrequency * 1.1) trend = 'increasing';
-    else if (recentFrequency < averageFrequency * 0.9) trend = 'decreasing';
-    
+    if (recentFrequency > averageFrequency * 1.1) {
+      trend = 'increasing';
+    } else if (recentFrequency < averageFrequency * 0.9) {
+      trend = 'decreasing';
+    }
+
     return {
       totalOccurrences: totalFrequency,
       averageFrequency,
@@ -1244,14 +1258,14 @@ export class MicroBehaviorService {
 
   private static analyzeTriggers(patterns: any[]): any[] {
     const triggers = [];
-    
+
     for (const pattern of patterns) {
       if (pattern.triggers) {
-        const triggerData = typeof pattern.triggers === 'string' 
-          ? JSON.parse(pattern.triggers) 
+        const triggerData = typeof pattern.triggers === 'string'
+          ? JSON.parse(pattern.triggers)
           : pattern.triggers;
-        
-        Object.keys(triggerData).forEach(triggerType => {
+
+        Object.keys(triggerData).forEach((triggerType) => {
           triggers.push({
             patternId: pattern.id,
             behaviorType: pattern.behaviorType,
@@ -1263,7 +1277,7 @@ export class MicroBehaviorService {
         });
       }
     }
-    
+
     return triggers;
   }
 
@@ -1276,15 +1290,17 @@ export class MicroBehaviorService {
       improvingPatterns: 0,
       decliningPatterns: 0,
     };
-    
-    if (patterns.length === 0) return outcomes;
-    
+
+    if (patterns.length === 0) {
+      return outcomes;
+    }
+
     outcomes.averageStrength = patterns.reduce((sum, p) => sum + (p.strength || 0), 0) / patterns.length;
     outcomes.averageConfidence = patterns.reduce((sum, p) => sum + (p.confidence || 0), 0) / patterns.length;
     outcomes.successfulPatterns = patterns.filter(p => (p.strength || 0) >= 70).length;
-    
+
     // Analyze trends (simplified)
-    patterns.forEach(pattern => {
+    patterns.forEach((pattern) => {
       const recentActivity = new Date(pattern.lastObserved).getTime() > Date.now() - 30 * 24 * 60 * 60 * 1000;
       if (recentActivity && (pattern.strength || 0) >= 70) {
         outcomes.improvingPatterns++;
@@ -1292,29 +1308,31 @@ export class MicroBehaviorService {
         outcomes.decliningPatterns++;
       }
     });
-    
+
     return outcomes;
   }
 
   private static isPatternRelevantToEvent(pattern: any, event: any): boolean {
     // Check if pattern is relevant to the event
-    return pattern.behaviorType === event.eventName || 
-           event.eventName.includes(pattern.behaviorType) ||
-           pattern.behaviorType.includes(event.eventName);
+    return pattern.behaviorType === event.eventName
+      || event.eventName.includes(pattern.behaviorType)
+      || pattern.behaviorType.includes(event.eventName);
   }
 
   private static isContextRelevantToEvent(context: any, event: any): boolean {
     // Check if context is relevant to the event
-    if (!event.context) return false;
-    
-    const eventContext = typeof event.context === 'string' 
-      ? JSON.parse(event.context) 
+    if (!event.context) {
+      return false;
+    }
+
+    const eventContext = typeof event.context === 'string'
+      ? JSON.parse(event.context)
       : event.context;
-    
+
     // Check for temporal relevance
     const eventTime = new Date(event.createdAt);
     const eventHour = eventTime.getHours();
-    
+
     if (context.timeOfDay) {
       const timeRanges = {
         morning: [6, 12],
@@ -1322,19 +1340,19 @@ export class MicroBehaviorService {
         evening: [18, 22],
         night: [22, 6],
       };
-      
+
       const range = timeRanges[context.timeOfDay as keyof typeof timeRanges];
       if (range && (eventHour < range[0] || eventHour >= range[1])) {
         return false;
       }
     }
-    
+
     return true;
   }
 
   private static generatePatternRecommendations(pattern: any): string[] {
     const recommendations = [];
-    
+
     if (pattern.strength >= 80) {
       recommendations.push(`Maintain your consistent ${pattern.behaviorType} pattern`);
     } else if (pattern.strength >= 60) {
@@ -1342,11 +1360,11 @@ export class MicroBehaviorService {
     } else {
       recommendations.push(`Focus on building consistency in your ${pattern.behaviorType} behavior`);
     }
-    
+
     if (pattern.triggers) {
       recommendations.push('Leverage your identified triggers to maintain this pattern');
     }
-    
+
     return recommendations;
   }
 
@@ -1360,7 +1378,7 @@ export class MicroBehaviorService {
 
   private static detectAnomalies(patterns: any[]): any[] {
     const anomalies = [];
-    
+
     for (const pattern of patterns) {
       // Detect sudden drops in pattern strength
       if ((pattern.strength || 0) < 30 && (pattern.confidence || 0) > 70) {
@@ -1375,7 +1393,7 @@ export class MicroBehaviorService {
           data: { patternId: pattern.id, behaviorType: pattern.behaviorType },
         });
       }
-      
+
       // Detect inconsistent patterns
       if ((pattern.consistency || 0) < 40 && pattern.frequency > 10) {
         anomalies.push({
@@ -1390,7 +1408,7 @@ export class MicroBehaviorService {
         });
       }
     }
-    
+
     return anomalies;
   }
 
@@ -1398,7 +1416,7 @@ export class MicroBehaviorService {
     // Simple CSV conversion for pattern data
     const headers = ['Pattern ID', 'Behavior Type', 'Frequency', 'Strength', 'Confidence', 'Created At'];
     const rows = [headers.join(',')];
-    
+
     data.patterns.forEach((pattern: any) => {
       const row = [
         pattern.id,
@@ -1410,7 +1428,7 @@ export class MicroBehaviorService {
       ];
       rows.push(row.join(','));
     });
-    
+
     return rows.join('\n');
   }
 }

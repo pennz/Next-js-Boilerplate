@@ -62,9 +62,9 @@ const aj = arcjet({
     tokenBucket({
       mode: 'LIVE',
       characteristics: ['userId'],
-      refillRate: 10,        // 10 tokens per interval
-      interval: 60,          // 60 seconds
-      capacity: 20,          // Maximum 20 tokens
+      refillRate: 10, // 10 tokens per interval
+      interval: 60, // 60 seconds
+      capacity: 20, // Maximum 20 tokens
     }),
   ],
 });
@@ -106,7 +106,7 @@ if (!Env.ENABLE_HEALTH_MGMT) {
 **Query Parameters**:
 - `type_id` (integer, optional): Filter by health type ID
 - `start_date` (ISO date, optional): Filter from date
-- `end_date` (ISO date, optional): Filter to date  
+- `end_date` (ISO date, optional): Filter to date
 - `limit` (integer, optional): Records per page (1-100, default: 20)
 - `offset` (integer, optional): Records to skip (default: 0)
 
@@ -209,7 +209,7 @@ if (!Env.ENABLE_HEALTH_MGMT) {
 **Response Schema**:
 ```typescript
 {
-  message: string
+  message: string;
 }
 ```
 
@@ -546,7 +546,7 @@ if (authHeader !== expectedAuth) {
 **Request Schema**:
 ```typescript
 {
-  increment: number       // 1-3 range
+  increment: number; // 1-3 range
 }
 ```
 
@@ -560,7 +560,7 @@ if (authHeader !== expectedAuth) {
 **Response Schema**:
 ```typescript
 {
-  count: number
+  count: number;
 }
 ```
 
@@ -570,35 +570,35 @@ if (authHeader !== expectedAuth) {
 
 #### HealthRecord
 ```typescript
-interface HealthRecord {
+type HealthRecord = {
   id: number;
-  userId: string;           // Clerk user ID
+  userId: string; // Clerk user ID
   typeId: number;
-  value: string;            // Stored as string, validated as number
+  value: string; // Stored as string, validated as number
   unit: string;
   recordedAt: Date;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 ```
 
 #### HealthGoal
 ```typescript
-interface HealthGoal {
+type HealthGoal = {
   id: number;
   userId: string;
   typeId: number;
-  targetValue: string;      // Stored as string
+  targetValue: string; // Stored as string
   targetDate: Date;
   status: 'active' | 'completed' | 'paused';
   createdAt: Date;
   updatedAt: Date;
-}
+};
 ```
 
 #### HealthReminder
 ```typescript
-interface HealthReminder {
+type HealthReminder = {
   id: number;
   userId: string;
   typeId: number;
@@ -608,7 +608,7 @@ interface HealthReminder {
   nextRunAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-}
+};
 ```
 
 ### Validation Constraints
@@ -629,17 +629,21 @@ interface HealthReminder {
 #### Valid Units
 ```typescript
 const validUnits = [
-  'kg', 'lbs',              // Weight
-  'mmHg',                   // Blood pressure
-  'bpm',                    // Heart rate
-  'steps',                  // Step count
-  'hours',                  // Sleep duration
-  'ml', 'oz',              // Liquid volume
-  'kcal',                   // Calories
-  'minutes',                // Exercise duration
-  'mg/dL', 'mmol/L',       // Blood sugar
-  '°C', '°F',              // Temperature
-  '%'                       // Percentage (oxygen saturation)
+  'kg',
+  'lbs', // Weight
+  'mmHg', // Blood pressure
+  'bpm', // Heart rate
+  'steps', // Step count
+  'hours', // Sleep duration
+  'ml',
+  'oz', // Liquid volume
+  'kcal', // Calories
+  'minutes', // Exercise duration
+  'mg/dL',
+  'mmol/L', // Blood sugar
+  '°C',
+  '°F', // Temperature
+  '%' // Percentage (oxygen saturation)
 ];
 ```
 
@@ -791,7 +795,7 @@ const params = new URLSearchParams({
 
 const response = await fetch(`/en/(auth)/api/health/analytics/weight?${params}`, {
   headers: {
-    'Authorization': `Bearer ${clerkToken}`
+    Authorization: `Bearer ${clerkToken}`
   }
 });
 ```

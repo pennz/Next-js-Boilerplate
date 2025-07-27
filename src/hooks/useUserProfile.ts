@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Env } from '@/libs/Env';
 
 // Types for user profile data structures
-export interface UserProfile {
+export type UserProfile = {
   id?: number;
   userId: string;
   firstName?: string;
@@ -22,9 +22,9 @@ export interface UserProfile {
   isPublic?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-}
+};
 
-export interface UserFitnessGoal {
+export type UserFitnessGoal = {
   id?: number;
   userId: string;
   goalType: 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength' | 'flexibility' | 'general_fitness';
@@ -36,9 +36,9 @@ export interface UserFitnessGoal {
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-}
+};
 
-export interface UserPreference {
+export type UserPreference = {
   id?: number;
   userId: string;
   category: 'workout' | 'nutrition' | 'notification' | 'privacy' | 'general';
@@ -46,9 +46,9 @@ export interface UserPreference {
   value: string;
   createdAt?: Date;
   updatedAt?: Date;
-}
+};
 
-export interface UserConstraint {
+export type UserConstraint = {
   id?: number;
   userId: string;
   constraintType: 'injury' | 'schedule' | 'equipment' | 'location' | 'medical';
@@ -61,7 +61,7 @@ export interface UserConstraint {
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-}
+};
 
 // Preference categories for organization
 export type PreferenceCategory = 'workout' | 'nutrition' | 'notification' | 'privacy' | 'general';
@@ -73,7 +73,7 @@ export type UserConstraintInput = Omit<UserConstraint, 'id' | 'userId' | 'create
 export type UserConstraintUpdate = Partial<Omit<UserConstraint, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>;
 
 // State management types
-interface UserProfileState {
+type UserProfileState = {
   profile: UserProfile | null;
   fitnessGoals: UserFitnessGoal[];
   preferences: UserPreference[];
@@ -82,37 +82,37 @@ interface UserProfileState {
   error: string | null;
   lastSaved: Date | null;
   isDirty: boolean;
-}
+};
 
-interface UseUserProfileReturn {
+type UseUserProfileReturn = {
   // Profile data
   profile: UserProfile | null;
   fitnessGoals: UserFitnessGoal[];
   preferences: UserPreference[];
   constraints: UserConstraint[];
-  
+
   // State indicators
   isLoading: boolean;
   error: string | null;
   isDirty: boolean;
   lastSaved: Date | null;
-  
+
   // Core functionality
   updateProfile: (updates: UserProfileUpdate) => Promise<void>;
   refreshProfile: () => Promise<void>;
   getProfileCompletion: () => number;
-  
+
   // Preference management
   updatePreferences: (preferences: UserPreferenceUpdate[]) => Promise<void>;
   resetPreferences: () => Promise<void>;
   getPreferencesByCategory: (category: PreferenceCategory) => UserPreference[];
-  
+
   // Constraint management
   addConstraint: (constraint: UserConstraintInput) => Promise<void>;
   updateConstraint: (id: number, updates: UserConstraintUpdate) => Promise<void>;
   removeConstraint: (id: number) => Promise<void>;
   getActiveConstraints: () => UserConstraint[];
-}
+};
 
 // Local storage keys
 const STORAGE_KEYS = {
@@ -149,7 +149,7 @@ const COMPLETION_WEIGHTS = {
 
 export const useUserProfile = (): UseUserProfileReturn => {
   const { user, isLoaded: isUserLoaded } = useUser();
-  
+
   // State management
   const [state, setState] = useState<UserProfileState>({
     profile: null,
@@ -161,15 +161,15 @@ export const useUserProfile = (): UseUserProfileReturn => {
     lastSaved: null,
     isDirty: false,
   });
-  
+
   // Auto-save functionality
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdatesRef = useRef<UserProfileUpdate | null>(null);
   const isOnlineRef = useRef<boolean>(true);
-  
+
   // Configuration from environment
   const autoSaveInterval = Env.NEXT_PUBLIC_PROFILE_AUTO_SAVE_INTERVAL;
-  
+
   // Local storage helpers
   const saveToLocalStorage = useCallback((key: string, data: any) => {
     if (typeof window !== 'undefined') {
@@ -180,7 +180,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }
   }, []);
-  
+
   const loadFromLocalStorage = useCallback((key: string) => {
     if (typeof window !== 'undefined') {
       try {
@@ -193,11 +193,11 @@ export const useUserProfile = (): UseUserProfileReturn => {
     }
     return null;
   }, []);
-  
+
   // API call helpers
   const makeApiCall = useCallback(async (
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<Response> => {
     const response = await fetch(endpoint, {
       headers: {
@@ -206,15 +206,15 @@ export const useUserProfile = (): UseUserProfileReturn => {
       },
       ...options,
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `API error: ${response.status}`);
     }
-    
+
     return response;
   }, []);
-  
+
   // Clear error after some time
   useEffect(() => {
     if (state.error) {
@@ -224,7 +224,7 @@ export const useUserProfile = (): UseUserProfileReturn => {
       return () => clearTimeout(timer);
     }
   }, [state.error]);
-  
+
   // Online/offline detection
   useEffect(() => {
     const handleOnline = () => {
@@ -234,32 +234,32 @@ export const useUserProfile = (): UseUserProfileReturn => {
         updateProfile(pendingUpdatesRef.current);
       }
     };
-    
+
     const handleOffline = () => {
       isOnlineRef.current = false;
     };
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, [user]);
-  
+
   // Load profile data from server
   const loadProfileData = useCallback(async (): Promise<void> => {
     if (!isUserLoaded || !user) {
       return;
     }
-    
+
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+
     try {
       const response = await makeApiCall('/api/profile');
       const data = await response.json();
-      
+
       setState(prev => ({
         ...prev,
         profile: data.profile || null,
@@ -270,20 +270,27 @@ export const useUserProfile = (): UseUserProfileReturn => {
         lastSaved: new Date(),
         isDirty: false,
       }));
-      
+
       // Save to local storage for offline access
-      if (data.profile) saveToLocalStorage(STORAGE_KEYS.PROFILE, data.profile);
-      if (data.fitnessGoals) saveToLocalStorage(STORAGE_KEYS.FITNESS_GOALS, data.fitnessGoals);
-      if (data.preferences) saveToLocalStorage(STORAGE_KEYS.PREFERENCES, data.preferences);
-      if (data.constraints) saveToLocalStorage(STORAGE_KEYS.CONSTRAINTS, data.constraints);
-      
+      if (data.profile) {
+        saveToLocalStorage(STORAGE_KEYS.PROFILE, data.profile);
+      }
+      if (data.fitnessGoals) {
+        saveToLocalStorage(STORAGE_KEYS.FITNESS_GOALS, data.fitnessGoals);
+      }
+      if (data.preferences) {
+        saveToLocalStorage(STORAGE_KEYS.PREFERENCES, data.preferences);
+      }
+      if (data.constraints) {
+        saveToLocalStorage(STORAGE_KEYS.CONSTRAINTS, data.constraints);
+      }
     } catch (error) {
       // Load from local storage if API fails
       const localProfile = loadFromLocalStorage(STORAGE_KEYS.PROFILE);
       const localGoals = loadFromLocalStorage(STORAGE_KEYS.FITNESS_GOALS);
       const localPreferences = loadFromLocalStorage(STORAGE_KEYS.PREFERENCES);
       const localConstraints = loadFromLocalStorage(STORAGE_KEYS.CONSTRAINTS);
-      
+
       setState(prev => ({
         ...prev,
         profile: localProfile,
@@ -295,15 +302,15 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }));
     }
   }, [isUserLoaded, user, makeApiCall, saveToLocalStorage, loadFromLocalStorage]);
-  
+
   // Auto-save functionality
   const scheduleAutoSave = useCallback((updates: UserProfileUpdate) => {
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
     }
-    
+
     pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...updates };
-    
+
     autoSaveTimeoutRef.current = setTimeout(async () => {
       if (pendingUpdatesRef.current && isOnlineRef.current && user) {
         try {
@@ -311,13 +318,13 @@ export const useUserProfile = (): UseUserProfileReturn => {
             method: 'PUT',
             body: JSON.stringify(pendingUpdatesRef.current),
           });
-          
+
           setState(prev => ({
             ...prev,
             lastSaved: new Date(),
             isDirty: false,
           }));
-          
+
           pendingUpdatesRef.current = null;
         } catch (error) {
           // Keep updates pending for retry
@@ -329,31 +336,31 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }, autoSaveInterval);
   }, [autoSaveInterval, makeApiCall, user]);
-  
+
   // Update profile with optimistic updates
   const updateProfile = useCallback(async (updates: UserProfileUpdate): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
+
     // Optimistic update
     setState(prev => ({
       ...prev,
       profile: prev.profile ? { ...prev.profile, ...updates } : { userId: user.id, ...updates },
       isDirty: true,
     }));
-    
+
     // Save to local storage immediately
     const updatedProfile = state.profile ? { ...state.profile, ...updates } : { userId: user.id, ...updates };
     saveToLocalStorage(STORAGE_KEYS.PROFILE, updatedProfile);
-    
+
     if (isOnlineRef.current) {
       try {
         await makeApiCall('/api/profile', {
           method: state.profile ? 'PUT' : 'POST',
           body: JSON.stringify(updates),
         });
-        
+
         setState(prev => ({
           ...prev,
           lastSaved: new Date(),
@@ -370,19 +377,21 @@ export const useUserProfile = (): UseUserProfileReturn => {
       scheduleAutoSave(updates);
     }
   }, [user, state.profile, makeApiCall, saveToLocalStorage, scheduleAutoSave]);
-  
+
   // Refresh profile data
   const refreshProfile = useCallback(async (): Promise<void> => {
     await loadProfileData();
   }, [loadProfileData]);
-  
+
   // Calculate profile completion percentage
   const getProfileCompletion = useCallback((): number => {
-    if (!state.profile) return 0;
-    
+    if (!state.profile) {
+      return 0;
+    }
+
     let totalWeight = 0;
     let completedWeight = 0;
-    
+
     // Check profile fields
     Object.entries(COMPLETION_WEIGHTS).forEach(([field, weight]) => {
       if (field === 'fitnessGoals') {
@@ -403,33 +412,33 @@ export const useUserProfile = (): UseUserProfileReturn => {
         }
       }
     });
-    
+
     return Math.round((completedWeight / totalWeight) * 100);
   }, [state.profile, state.fitnessGoals, state.preferences]);
-  
+
   // Update preferences
   const updatePreferences = useCallback(async (preferences: UserPreferenceUpdate[]): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
+
     // Optimistic update
     setState(prev => ({
       ...prev,
       preferences: preferences.map(pref => ({ ...pref, userId: user.id } as UserPreference)),
       isDirty: true,
     }));
-    
+
     // Save to local storage
     saveToLocalStorage(STORAGE_KEYS.PREFERENCES, preferences);
-    
+
     if (isOnlineRef.current) {
       try {
         await makeApiCall('/api/profile/preferences', {
           method: 'PUT',
           body: JSON.stringify({ preferences }),
         });
-        
+
         setState(prev => ({
           ...prev,
           lastSaved: new Date(),
@@ -445,29 +454,29 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }
   }, [user, makeApiCall, saveToLocalStorage]);
-  
+
   // Reset preferences to defaults
   const resetPreferences = useCallback(async (): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
+
     const defaultPrefs = DEFAULT_PREFERENCES.map(p => ({ ...p, userId: user.id }));
-    
+
     setState(prev => ({
       ...prev,
       preferences: defaultPrefs,
       isDirty: true,
     }));
-    
+
     saveToLocalStorage(STORAGE_KEYS.PREFERENCES, defaultPrefs);
-    
+
     if (isOnlineRef.current) {
       try {
         await makeApiCall('/api/profile/preferences', {
           method: 'POST',
         });
-        
+
         setState(prev => ({
           ...prev,
           lastSaved: new Date(),
@@ -483,48 +492,48 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }
   }, [user, makeApiCall, saveToLocalStorage]);
-  
+
   // Get preferences by category
   const getPreferencesByCategory = useCallback((category: PreferenceCategory): UserPreference[] => {
     return state.preferences.filter(pref => pref.category === category);
   }, [state.preferences]);
-  
+
   // Add constraint
   const addConstraint = useCallback(async (constraint: UserConstraintInput): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
+
     const newConstraint: UserConstraint = {
       ...constraint,
       userId: user.id,
       id: Date.now(), // Temporary ID for optimistic update
     };
-    
+
     // Optimistic update
     setState(prev => ({
       ...prev,
       constraints: [...prev.constraints, newConstraint],
       isDirty: true,
     }));
-    
+
     // Save to local storage
     const updatedConstraints = [...state.constraints, newConstraint];
     saveToLocalStorage(STORAGE_KEYS.CONSTRAINTS, updatedConstraints);
-    
+
     if (isOnlineRef.current) {
       try {
         const response = await makeApiCall('/api/profile/constraints', {
           method: 'POST',
           body: JSON.stringify(constraint),
         });
-        
+
         const savedConstraint = await response.json();
-        
+
         setState(prev => ({
           ...prev,
-          constraints: prev.constraints.map(c => 
-            c.id === newConstraint.id ? savedConstraint : c
+          constraints: prev.constraints.map(c =>
+            c.id === newConstraint.id ? savedConstraint : c,
           ),
           lastSaved: new Date(),
           isDirty: false,
@@ -539,35 +548,35 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }
   }, [user, state.constraints, makeApiCall, saveToLocalStorage]);
-  
+
   // Update constraint
   const updateConstraint = useCallback(async (id: number, updates: UserConstraintUpdate): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
+
     // Optimistic update
     setState(prev => ({
       ...prev,
-      constraints: prev.constraints.map(c => 
-        c.id === id ? { ...c, ...updates } : c
+      constraints: prev.constraints.map(c =>
+        c.id === id ? { ...c, ...updates } : c,
       ),
       isDirty: true,
     }));
-    
+
     // Save to local storage
-    const updatedConstraints = state.constraints.map(c => 
-      c.id === id ? { ...c, ...updates } : c
+    const updatedConstraints = state.constraints.map(c =>
+      c.id === id ? { ...c, ...updates } : c,
     );
     saveToLocalStorage(STORAGE_KEYS.CONSTRAINTS, updatedConstraints);
-    
+
     if (isOnlineRef.current) {
       try {
         await makeApiCall(`/api/profile/constraints/${id}`, {
           method: 'PUT',
           body: JSON.stringify(updates),
         });
-        
+
         setState(prev => ({
           ...prev,
           lastSaved: new Date(),
@@ -583,30 +592,30 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }
   }, [user, state.constraints, makeApiCall, saveToLocalStorage]);
-  
+
   // Remove constraint
   const removeConstraint = useCallback(async (id: number): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    
+
     // Optimistic update
     setState(prev => ({
       ...prev,
       constraints: prev.constraints.filter(c => c.id !== id),
       isDirty: true,
     }));
-    
+
     // Save to local storage
     const updatedConstraints = state.constraints.filter(c => c.id !== id);
     saveToLocalStorage(STORAGE_KEYS.CONSTRAINTS, updatedConstraints);
-    
+
     if (isOnlineRef.current) {
       try {
         await makeApiCall(`/api/profile/constraints/${id}`, {
           method: 'DELETE',
         });
-        
+
         setState(prev => ({
           ...prev,
           lastSaved: new Date(),
@@ -622,19 +631,19 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     }
   }, [user, state.constraints, makeApiCall, saveToLocalStorage]);
-  
+
   // Get active constraints
   const getActiveConstraints = useCallback((): UserConstraint[] => {
     return state.constraints.filter(constraint => constraint.isActive);
   }, [state.constraints]);
-  
+
   // Load profile data when user is loaded
   useEffect(() => {
     if (isUserLoaded && user) {
       loadProfileData();
     }
   }, [isUserLoaded, user, loadProfileData]);
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -643,30 +652,30 @@ export const useUserProfile = (): UseUserProfileReturn => {
       }
     };
   }, []);
-  
+
   return {
     // Profile data
     profile: state.profile,
     fitnessGoals: state.fitnessGoals,
     preferences: state.preferences,
     constraints: state.constraints,
-    
+
     // State indicators
     isLoading: state.isLoading,
     error: state.error,
     isDirty: state.isDirty,
     lastSaved: state.lastSaved,
-    
+
     // Core functionality
     updateProfile,
     refreshProfile,
     getProfileCompletion,
-    
+
     // Preference management
     updatePreferences,
     resetPreferences,
     getPreferencesByCategory,
-    
+
     // Constraint management
     addConstraint,
     updateConstraint,
@@ -676,4 +685,4 @@ export const useUserProfile = (): UseUserProfileReturn => {
 };
 
 // Export types for external use
-export type { UseUserProfileReturn, PreferenceCategory };
+export type { PreferenceCategory, UseUserProfileReturn };

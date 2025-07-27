@@ -34,7 +34,7 @@ This section establishes traceability between functional requirements and their 
 | FR-HLT-003: Real-time feedback | `HealthRecordForm` | Form validation display | Inline error messages | Validation state |
 | FR-HLT-004: Store health records | `HealthRecordForm` | Form submission | Submit button + loading | API integration |
 
-#### Health Data Visualization  
+#### Health Data Visualization
 | Functional Requirement | UI Component | Component Location | User Interaction | Data Source |
 |----------------------|--------------|-------------------|------------------|-------------|
 | FR-HLT-006: Data visualizations | `HealthChart` | `src/components/health/HealthChart.tsx` | Chart interactions | Analytics API |
@@ -102,11 +102,11 @@ This section establishes traceability between functional requirements and their 
 **Component Path**: `src/components/health/HealthOverview.tsx`
 **Supporting Requirements**: FR-HLT-006, FR-HLT-007, FR-HLT-008, FR-HLT-011
 ```typescript
-interface HealthOverviewProps {
+type HealthOverviewProps = {
   userId: string;
   dateRange: DateRange;
   selectedMetrics: HealthType[];
-}
+};
 ```
 **Functionality Mapping**:
 - **Data Visualization** (FR-HLT-006): Renders multiple chart types for health metrics
@@ -114,7 +114,7 @@ interface HealthOverviewProps {
 - **Statistics Display** (FR-HLT-008): Shows calculated health statistics
 - **Goal Progress** (FR-HLT-011): Displays goal progress indicators
 
-**State Management**: 
+**State Management**:
 - Fetches data from multiple API endpoints
 - Manages loading and error states
 - Implements responsive chart rendering
@@ -124,11 +124,11 @@ interface HealthOverviewProps {
 **Component Path**: `src/components/health/HealthRecordForm.tsx`
 **Supporting Requirements**: FR-HLT-001, FR-HLT-002, FR-HLT-003, FR-HLT-004, FR-HLT-005
 ```typescript
-interface HealthRecordFormProps {
+type HealthRecordFormProps = {
   onSubmit: (data: HealthRecordData) => Promise<void>;
   healthTypes: HealthType[];
   initialData?: HealthRecord;
-}
+};
 ```
 **Functionality Mapping**:
 - **Type Selection** (FR-HLT-001): Dynamic form fields based on health type
@@ -149,11 +149,11 @@ interface HealthRecordFormProps {
 **Component Path**: `src/components/exercise/ExerciseLibrary.tsx`
 **Supporting Requirements**: FR-EXE-001, FR-EXE-002, FR-EXE-003, FR-EXE-004
 ```typescript
-interface ExerciseLibraryProps {
+type ExerciseLibraryProps = {
   onExerciseSelect?: (exercise: Exercise) => void;
   allowMultiSelect?: boolean;
   categoryFilter?: string[];
-}
+};
 ```
 **Functionality Mapping**:
 - **Exercise Database** (FR-EXE-001): Displays paginated exercise collection
@@ -171,11 +171,11 @@ interface ExerciseLibraryProps {
 **Component Path**: `src/components/exercise/TrainingPlanBuilder.tsx`
 **Supporting Requirements**: FR-EXE-005, FR-EXE-006, FR-EXE-007, FR-EXE-008
 ```typescript
-interface TrainingPlanBuilderProps {
+type TrainingPlanBuilderProps = {
   initialPlan?: TrainingPlan;
   templates: PlanTemplate[];
   onSave: (plan: TrainingPlan) => Promise<void>;
-}
+};
 ```
 **Functionality Mapping**:
 - **Plan Creation** (FR-EXE-005): Wizard-style plan building interface
@@ -195,10 +195,10 @@ interface TrainingPlanBuilderProps {
 **Component Path**: `src/templates/BaseTemplate.tsx`
 **Supporting Requirements**: FR-I18N-001, FR-ACC-001, FR-ACC-002
 ```typescript
-interface BaseTemplateProps {
+type BaseTemplateProps = {
   children: React.ReactNode;
   meta: TemplateMetaProps;
-}
+};
 ```
 **Functionality Mapping**:
 - **Language Switching** (FR-I18N-001): Integrated locale switcher
@@ -215,10 +215,10 @@ interface BaseTemplateProps {
 **Component Path**: `src/app/[locale]/(auth)/dashboard/layout.tsx`
 **Supporting Requirements**: Navigation, User Experience, Security
 ```typescript
-interface DashboardLayoutProps {
+type DashboardLayoutProps = {
   children: React.ReactNode;
   params: { locale: string };
-}
+};
 ```
 **Layout Responsibilities**:
 - Authenticated route protection
@@ -348,7 +348,7 @@ const useHealthRecordSubmission = () => {
   const submitRecord = async (data: HealthRecordData) => {
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       await createHealthRecord(data);
       toast.success('Health record added successfully');
@@ -458,7 +458,7 @@ graph TD
     B --> E[ChartTooltip]
     C --> F[StatisticCard]
     D --> G[ProgressBar]
-    
+
     H[HealthRecordForm] --> I[API Layer]
     I --> J[Database]
     J --> K[Real-time Updates]
@@ -524,18 +524,20 @@ const HealthDataProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 // Supporting FR-HLT-011, FR-HLT-012
 const useGoalProgress = (goalId: string) => {
   const { healthRecords, healthGoals } = useHealthData();
-  
+
   const progress = useMemo(() => {
     const goal = healthGoals.find(g => g.id === goalId);
-    if (!goal) return null;
-    
+    if (!goal) {
+      return null;
+    }
+
     const relevantRecords = healthRecords.filter(
       r => r.healthTypeId === goal.healthTypeId
     );
-    
+
     return calculateGoalProgress(goal, relevantRecords);
   }, [goalId, healthRecords, healthGoals]);
-  
+
   return progress;
 };
 ```
@@ -611,10 +613,10 @@ const LocaleSwitcher: React.FC = () => {
 #### Cultural Adaptation in Components
 ```typescript
 // Supporting FR-I18N-003
-const HealthValueDisplay: React.FC<{ value: number; unit: string; locale: string }> = ({ 
-  value, 
-  unit, 
-  locale 
+const HealthValueDisplay: React.FC<{ value: number; unit: string; locale: string }> = ({
+  value,
+  unit,
+  locale
 }) => {
   const formattedValue = new Intl.NumberFormat(locale, {
     minimumFractionDigits: unit === 'kg' ? 1 : 0,
@@ -636,15 +638,15 @@ const HealthValueDisplay: React.FC<{ value: number; unit: string; locale: string
 // Supporting FR-ACC-002, FR-I18N-002
 const HealthChart: React.FC<{ data: HealthData[]; locale: string }> = ({ data, locale }) => {
   const { t } = useTranslations('health');
-  
+
   return (
     <div role="img" aria-labelledby="chart-title" aria-describedby="chart-desc">
       <h3 id="chart-title">{t('chart.title')}</h3>
       <p id="chart-desc">{t('chart.description')}</p>
       <ResponsiveContainer>
         <LineChart data={data}>
-          <Line 
-            dataKey="value" 
+          <Line
+            dataKey="value"
             name={t('chart.value')}
             aria-label={t('chart.line.description')}
           />
@@ -667,7 +669,7 @@ const useHighContrast = () => {
 
     const handler = (e: MediaQueryListEvent) => setIsHighContrast(e.matches);
     mediaQuery.addEventListener('change', handler);
-    
+
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 

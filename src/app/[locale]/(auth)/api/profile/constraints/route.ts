@@ -198,9 +198,9 @@ export const GET = async (request: NextRequest) => {
       .from(userConstraintSchema)
       .where(and(...conditions))
       .orderBy(
-        validatedQuery.sort_order === 'desc' 
+        validatedQuery.sort_order === 'desc'
           ? desc(userConstraintSchema[validatedQuery.sort_by as keyof typeof userConstraintSchema])
-          : userConstraintSchema[validatedQuery.sort_by as keyof typeof userConstraintSchema]
+          : userConstraintSchema[validatedQuery.sort_by as keyof typeof userConstraintSchema],
       )
       .limit(validatedQuery.limit)
       .offset(validatedQuery.offset);
@@ -291,7 +291,7 @@ export const POST = async (request: NextRequest) => {
 
     // Check for overlapping constraints of the same type
     if (existingConstraints.length > 0 && constraintData.type === 'injury') {
-      const hasOverlap = existingConstraints.some(existing => {
+      const hasOverlap = existingConstraints.some((existing) => {
         if (!existing.affectedAreas || !constraintData.affected_areas) {
           return false;
         }
@@ -337,7 +337,7 @@ export const POST = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('Constraint conflict')) {
         return NextResponse.json(
           { error: error.message },
@@ -444,7 +444,7 @@ export const PUT = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('Constraint not found')) {
         return NextResponse.json(
           { error: 'Constraint not found' },

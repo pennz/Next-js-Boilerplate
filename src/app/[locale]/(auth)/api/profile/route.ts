@@ -8,12 +8,9 @@ import { Env } from '@/libs/Env';
 import { logger } from '@/libs/Logger';
 import { UserProfileService } from '@/services/profile/UserProfileService';
 import {
-  UserProfileValidation,
-  UserProfileUpdateValidation,
   UserProfileQueryValidation,
-  type UserProfileInput,
-  type UserProfileUpdateInput,
-  type UserProfileQueryInput,
+  UserProfileUpdateValidation,
+  UserProfileValidation,
 } from '@/validations/UserProfileValidation';
 
 // Arcjet rate limiting configuration
@@ -108,9 +105,9 @@ export const GET = async (request: NextRequest) => {
     const validatedQuery = parse.data;
 
     // Determine if we should include related data
-    const includeRelated = validatedQuery.include_goals || 
-                          validatedQuery.include_preferences || 
-                          validatedQuery.include_constraints;
+    const includeRelated = validatedQuery.include_goals
+      || validatedQuery.include_preferences
+      || validatedQuery.include_constraints;
 
     // Retrieve profile using service
     const profile = await UserProfileService.getProfile(userId, includeRelated);
@@ -226,7 +223,7 @@ export const POST = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('User profile already exists')) {
         return NextResponse.json(
           { error: 'User profile already exists' },
@@ -297,7 +294,7 @@ export const PUT = async (request: NextRequest) => {
       const currentProfile = await UserProfileService.getProfile(userId, false);
       if (currentProfile && currentProfile.updated_at > updated_at) {
         return NextResponse.json(
-          { 
+          {
             error: 'Profile has been modified by another request. Please refresh and try again.',
             current_updated_at: currentProfile.updated_at,
           },
@@ -341,7 +338,7 @@ export const PUT = async (request: NextRequest) => {
           { status: 422 },
         );
       }
-      
+
       if (error.message.includes('User profile not found')) {
         return NextResponse.json(
           { error: 'User profile not found' },
@@ -397,7 +394,7 @@ export const DELETE = async (request: NextRequest) => {
     // Require explicit confirmation for profile deletion
     if (confirmDelete !== 'true') {
       return NextResponse.json(
-        { 
+        {
           error: 'Profile deletion requires explicit confirmation',
           message: 'Add ?confirm=true to the request URL to confirm deletion',
         },
