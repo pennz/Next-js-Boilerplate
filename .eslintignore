@@ -1,0 +1,25 @@
+# Documentation files
+docs/
+*.md
+app_route_layout.md
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Generated files
+.storybook/
+coverage/
+
+# Environment files
+.env*
+
+# Other non-code files
+*.json
+*.yaml
+*.yml
