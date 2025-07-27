@@ -21,23 +21,35 @@ const HealthRecordValidation = z.object({
 
 type HealthRecordFormData = z.infer<typeof HealthRecordValidation>;
 
-// Mock health types data (in real implementation, this would come from API)
-const HEALTH_TYPES = [
+// Default health types data (can be overridden via props)
+const DEFAULT_HEALTH_TYPES = [
   { id: 1, slug: 'weight', display_name: 'Weight', unit: 'kg' },
-  { id: 2, slug: 'blood_pressure', display_name: 'Blood Pressure', unit: 'mmHg' },
-  { id: 3, slug: 'steps', display_name: 'Steps', unit: 'steps' },
+  { id: 2, slug: 'blood_pressure_systolic', display_name: 'Blood Pressure (Systolic)', unit: 'mmHg' },
+  { id: 3, slug: 'blood_pressure_diastolic', display_name: 'Blood Pressure (Diastolic)', unit: 'mmHg' },
   { id: 4, slug: 'heart_rate', display_name: 'Heart Rate', unit: 'bpm' },
-  { id: 5, slug: 'sleep_hours', display_name: 'Sleep Hours', unit: 'hours' },
-  { id: 6, slug: 'water_intake', display_name: 'Water Intake', unit: 'ml' },
-  { id: 7, slug: 'calories', display_name: 'Calories', unit: 'kcal' },
-  { id: 8, slug: 'exercise_minutes', display_name: 'Exercise Minutes', unit: 'minutes' },
+  { id: 5, slug: 'steps', display_name: 'Steps', unit: 'steps' },
+  { id: 6, slug: 'sleep_hours', display_name: 'Sleep Hours', unit: 'hours' },
+  { id: 7, slug: 'water_intake', display_name: 'Water Intake', unit: 'ml' },
+  { id: 8, slug: 'calories', display_name: 'Calories', unit: 'kcal' },
+  { id: 9, slug: 'exercise_minutes', display_name: 'Exercise Minutes', unit: 'minutes' },
+  { id: 10, slug: 'blood_sugar', display_name: 'Blood Sugar', unit: 'mg/dL' },
+  { id: 11, slug: 'temperature', display_name: 'Temperature', unit: '°F' },
+  { id: 12, slug: 'oxygen_saturation', display_name: 'Oxygen Saturation', unit: '%' },
 ];
+
+type HealthType = {
+  id: number;
+  slug: string;
+  display_name: string;
+  unit: string;
+};
 
 type HealthRecordFormProps = {
   initialData?: Partial<HealthRecordFormData>;
   onSuccess?: () => void;
   mode?: 'create' | 'edit';
   recordId?: number;
+  healthTypes?: HealthType[];
 };
 
 export const HealthRecordForm = ({
@@ -45,6 +57,7 @@ export const HealthRecordForm = ({
   onSuccess,
   mode = 'create',
   recordId,
+  healthTypes = DEFAULT_HEALTH_TYPES,
 }: HealthRecordFormProps) => {
   const t = useTranslations('HealthManagement');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,19 +76,19 @@ export const HealthRecordForm = ({
   const form = useForm<HealthRecordFormData>({
     resolver: zodResolver(HealthRecordValidation),
     defaultValues: {
-      type_id: initialData?.type_id || 1,
+      type_id: initialData?.type_id || healthTypes[0]?.id || 1,
       value: initialData?.value || 0,
-      unit: initialData?.unit || HEALTH_TYPES[0].unit,
+      unit: initialData?.unit || healthTypes[0]?.unit || 'kg',
       recorded_at: initialData?.recorded_at || getCurrentDateTime(),
     },
   });
 
   const selectedTypeId = form.watch('type_id');
-  const selectedType = HEALTH_TYPES.find(type => type.id === Number(selectedTypeId));
+  const selectedType = healthTypes.find(type => type.id === Number(selectedTypeId));
 
   // Update unit when health type changes
   const handleTypeChange = (typeId: number) => {
-    const type = HEALTH_TYPES.find(t => t.id === typeId);
+    const type = healthTypes.find(t => t.id === typeId);
     if (type) {
       form.setValue('unit', type.unit);
     }
@@ -87,23 +100,55 @@ export const HealthRecordForm = ({
     setSubmitSuccess(null);
 
     try {
-      const url = mode === 'edit' && recordId
-        ? `/api/health/records/${recordId}`
-        : '/api/health/records';
-
+      const url = '/api/health/records';
       const method = mode === 'edit' ? 'PUT' : 'POST';
+
+      // For PUT requests, include the ID in the request body as expected by the API
+      const requestBody = mode === 'edit' && recordId
+        ? { ...data, id: recordId }
+        : data;
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save health record');
+        
+        // Handle zod validation errors that come in tree format
+        if (response.status === 422 && errorData) {
+          // Extract validation errors from zod tree format
+          const extractErrors = (obj: any, path = ''): string[] => {
+            const errors: string[] = [];
+            
+            if (typeof obj === 'string') {
+              errors.push(obj);
+            } else if (Array.isArray(obj)) {
+              obj.forEach(item => errors.push(...extractErrors(item, path)));
+            } else if (obj && typeof obj === 'object') {
+              if (obj._errors && Array.isArray(obj._errors)) {
+                errors.push(...obj._errors);
+              }
+              Object.keys(obj).forEach(key => {
+                if (key !== '_errors') {
+                  const newPath = path ? `${path}.${key}` : key;
+                  errors.push(...extractErrors(obj[key], newPath));
+                }
+              });
+            }
+            
+            return errors;
+          };
+
+          const validationErrors = extractErrors(errorData);
+          throw new Error(validationErrors.length > 0 ? validationErrors.join(', ') : 'Validation failed');
+        }
+        
+        throw new Error(errorData.message || errorData.error || 'Failed to save health record');
       }
 
       const successMessage = mode === 'edit'
@@ -112,6 +157,11 @@ export const HealthRecordForm = ({
 
       setSubmitSuccess(successMessage);
 
+      // Call success callback before router refresh to allow modal to handle success state
+      if (onSuccess) {
+        onSuccess();
+      }
+
       if (mode === 'create') {
         form.reset({
           type_id: data.type_id,
@@ -119,10 +169,6 @@ export const HealthRecordForm = ({
           unit: data.unit,
           recorded_at: getCurrentDateTime(),
         });
-      }
-
-      if (onSuccess) {
-        onSuccess();
       }
 
       router.refresh();
@@ -146,7 +192,7 @@ export const HealthRecordForm = ({
               onChange: e => handleTypeChange(Number(e.target.value)),
             })}
           >
-            {HEALTH_TYPES.map(type => (
+            {healthTypes.map(type => (
               <option key={type.id} value={type.id}>
                 {t(`label_${type.slug}` as any) || type.display_name}
               </option>
@@ -228,10 +274,10 @@ export const HealthRecordForm = ({
         <button
           className="rounded-sm bg-blue-500 px-5 py-2 font-bold text-white hover:bg-blue-600 focus:outline-hidden focus:ring-3 focus:ring-blue-300/50 disabled:pointer-events-none disabled:opacity-50"
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || form.formState.isSubmitting}
         >
-          {isSubmitting
-            ? (mode === 'edit' ? 'Updating...' : 'Saving...')
+          {isSubmitting || form.formState.isSubmitting
+            ? (mode === 'edit' ? t('button_updating') || 'Updating...' : t('button_saving') || 'Saving...')
             : (mode === 'edit' ? t('button_update_record') : t('button_save_record'))}
         </button>
       </div>

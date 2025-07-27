@@ -170,6 +170,9 @@
     "records_empty_state": "No health records found. Add your first record to get started.",
     "goals_empty_state": "No health goals set. Create your first goal to start tracking progress.",
     "reminders_empty_state": "No reminders configured. Set up reminders to stay on track.",
+    "no_records_title": "No Records Yet",
+    "no_records_description": "Get started by adding your first health record",
+    "button_add_first_record": "Add Your First Record",
     "no_reminders_title": "No Reminders Yet",
     "no_reminders_description": "Set up reminders to track your health metrics consistently",
     "button_create_first_reminder": "Create Your First Reminder",
@@ -323,7 +326,13 @@
     "radar_chart_description": "Radar chart showing normalized health metric scores",
     "radar_accessibility_label": "Health metrics radar chart with {count} categories",
     "predictive_chart_title": "{type} Predictive Analytics",
-    "insight_radar_overview": "Your overall health score is {score}/100"
+    "insight_radar_overview": "Your overall health score is {score}/100",
+    "pagination_previous": "Previous",
+    "pagination_next": "Next",
+    "pagination_showing": "Showing",
+    "pagination_to": "to",
+    "pagination_of": "of",
+    "pagination_results": "results"
   },
   "ExerciseManagement": {
     "meta_title": "Exercise & Training",

@@ -1,6 +1,11 @@
+'use client';
+
 import { getTranslations } from 'next-intl/server';
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { HealthRecordsFilters } from '@/components/health/HealthRecordsFilters';
+import { AddHealthRecordModal } from '@/components/health/AddHealthRecordModal';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -63,9 +68,11 @@ async function getHealthTypes(): Promise<HealthType[]> {
 function HealthRecordsTable({
   records,
   t,
+  onAddRecord,
 }: {
   records: HealthRecord[];
   t: any;
+  onAddRecord: () => void;
 }) {
   if (records.length === 0) {
     return (
@@ -80,6 +87,7 @@ function HealthRecordsTable({
         <div className="mt-6">
           <button
             type="button"
+            onClick={onAddRecord}
             className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
             {t('button_add_first_record')}
@@ -241,7 +249,7 @@ function Pagination({
   );
 }
 
-export default async function HealthRecordsPage(props: {
+export default function HealthRecordsPage(props: {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
     page?: string;
@@ -251,20 +259,66 @@ export default async function HealthRecordsPage(props: {
     search?: string;
   }>;
 }) {
-  const { locale } = await props.params;
-  const searchParams = await props.searchParams;
+  const t = useTranslations('HealthManagement');
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [healthRecordsData, setHealthRecordsData] = useState<{
+    records: HealthRecord[];
+    totalCount: number;
+    totalPages: number;
+  }>({ records: [], totalCount: 0, totalPages: 0 });
+  const [healthTypes, setHealthTypes] = useState<HealthType[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useState<{
+    page?: string;
+    type?: string;
+    startDate?: string;
+    endDate?: string;
+    search?: string;
+  }>({});
 
-  const t = await getTranslations({
-    locale,
-    namespace: 'HealthManagement',
-  });
+  // Load initial data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const { locale } = await props.params;
+        const params = await props.searchParams;
+        setSearchParams(params);
+        setCurrentPage(Number.parseInt(params.page || '1', 10));
 
-  const currentPage = Number.parseInt(searchParams.page || '1', 10);
+        const [recordsData, typesData] = await Promise.all([
+          getHealthRecords(params),
+          getHealthTypes(),
+        ]);
 
-  const [healthRecordsData, healthTypes] = await Promise.all([
-    getHealthRecords(searchParams),
-    getHealthTypes(),
-  ]);
+        setHealthRecordsData(recordsData);
+        setHealthTypes(typesData);
+      } catch (error) {
+        console.error('Error loading health records data:', error);
+      }
+    };
+
+    loadData();
+  }, [props.params, props.searchParams]);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSuccess = async () => {
+    // Refresh the page data after successful record creation
+    try {
+      const recordsData = await getHealthRecords(searchParams);
+      setHealthRecordsData(recordsData);
+      router.refresh();
+    } catch (error) {
+      console.error('Error refreshing health records:', error);
+    }
+  };
 
   return (
     <div className="py-5">
@@ -285,6 +339,7 @@ export default async function HealthRecordsPage(props: {
           </button>
           <button
             type="button"
+            onClick={handleOpenModal}
             className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <svg className="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,6 +366,7 @@ export default async function HealthRecordsPage(props: {
         <HealthRecordsTable
           records={healthRecordsData.records}
           t={t}
+          onAddRecord={handleOpenModal}
         />
       </Suspense>
 
@@ -318,6 +374,12 @@ export default async function HealthRecordsPage(props: {
         currentPage={currentPage}
         totalPages={healthRecordsData.totalPages}
         t={t}
+      />
+
+      <AddHealthRecordModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleSuccess}
       />
     </div>
   );
