@@ -318,7 +318,7 @@ export const DELETE = async (request: NextRequest) => {
     if (eventId) {
       // Delete specific event
       const id = Number.parseInt(eventId, 10);
-      if (isNaN(id) || id <= 0) {
+      if (Number.isNaN(id) || id <= 0) {
         return NextResponse.json(
           { error: 'Invalid event ID' },
           { status: 400 },
@@ -385,7 +385,7 @@ export const DELETE = async (request: NextRequest) => {
     } else if (olderThanDays) {
       // Delete old events for data retention
       const days = Number.parseInt(olderThanDays, 10);
-      if (isNaN(days) || days <= 0) {
+      if (Number.isNaN(days) || days <= 0) {
         return NextResponse.json(
           { error: 'Invalid olderThanDays parameter' },
           { status: 400 },

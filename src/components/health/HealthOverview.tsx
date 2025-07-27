@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 
 // Mock data interfaces - these would come from the health services in the actual implementation
@@ -59,9 +59,17 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
   }, []);
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
       onClick={handleStatCardView}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleStatCardView();
+        }
+      }}
     >
       <div className="flex items-center justify-between">
         <div>
@@ -111,9 +119,17 @@ const GoalProgressCard = ({ goal }: { goal: HealthGoal }) => {
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-sm transition-shadow"
       onClick={handleGoalProgressView}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleGoalProgressView();
+        }
+      }}
     >
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-gray-900">
@@ -179,9 +195,17 @@ const RecentRecordItem = ({ record }: { record: HealthRecord }) => {
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors rounded px-2"
       onClick={handleRecordView}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleRecordView();
+        }
+      }}
     >
       <div>
         <p className="font-medium text-gray-900">{record.type}</p>
@@ -241,7 +265,7 @@ const QuickActionButton = ({ href, icon, label }: {
 };
 
 // Props interface for the client component
-interface HealthOverviewProps {
+type HealthOverviewProps = {
   recentRecords: HealthRecord[];
   activeGoals: HealthGoal[];
   stats: {
@@ -250,7 +274,7 @@ interface HealthOverviewProps {
     completedGoals: number;
     weeklyProgress: number;
   };
-}
+};
 
 export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOverviewProps) => {
   const { trackEvent } = useBehaviorTracking();
@@ -446,18 +470,34 @@ export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOver
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div 
+            <div
+              role="button"
+              tabIndex={0}
               className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
               onClick={() => handleMiniChartView('weight_trend')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleMiniChartView('weight_trend');
+                }
+              }}
             >
               <p className="text-sm font-medium text-gray-600 mb-2">Weight Trend</p>
               <div className="h-16 bg-gradient-to-r from-blue-200 to-blue-300 rounded flex items-end justify-center">
                 <span className="text-xs text-gray-600">📉</span>
               </div>
             </div>
-            <div 
+            <div
+              role="button"
+              tabIndex={0}
               className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
               onClick={() => handleMiniChartView('daily_steps')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleMiniChartView('daily_steps');
+                }
+              }}
             >
               <p className="text-sm font-medium text-gray-600 mb-2">Daily Steps</p>
               <div className="h-16 bg-gradient-to-r from-green-200 to-green-300 rounded flex items-end justify-center">
@@ -498,7 +538,9 @@ export const HealthOverview = ({ recentRecords, activeGoals, stats }: HealthOver
           </div>
           <div className="mt-4 p-3 bg-purple-50 rounded-lg">
             <p className="text-sm text-purple-800">
-              <span className="font-medium">💡 Insight:</span> Your morning workouts have a 94% success rate
+              <span className="font-medium">💡 Insight:</span>
+              {' '}
+              Your morning workouts have a 94% success rate
             </p>
           </div>
         </div>

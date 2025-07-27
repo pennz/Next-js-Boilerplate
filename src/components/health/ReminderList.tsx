@@ -142,12 +142,14 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         </div>
         <div className="flex justify-end space-x-3">
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-2 text-gray-600 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
           >
             {t('button_cancel')}
           </button>
           <button
+            type="button"
             onClick={onConfirm}
             className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700 transition-colors"
           >
@@ -172,6 +174,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ isOn, onToggle, disabled = 
     <div className="flex items-center">
       {label && <span className="mr-2 text-sm text-gray-700">{label}</span>}
       <button
+        type="button"
         onClick={() => !disabled && onToggle(!isOn)}
         disabled={disabled}
         className={`
@@ -234,7 +237,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
     return (
       <div className="space-y-4">
         {[...Array.from({ length: 3 })].map((_, index) => (
-          <div key={index} className="bg-white rounded-lg border p-4 animate-pulse">
+          <div key={`loading-${index}`} className="bg-white rounded-lg border p-4 animate-pulse">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -272,7 +275,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
       <div className="space-y-4">
         {reminders.map(reminder => (
           <div
-            key={reminder.id}
+            key={`reminder-${reminder.id}`}
             className={`
               bg-white rounded-lg border p-4 transition-all
               ${reminder.active ? 'border-blue-200 bg-blue-50' : 'border-gray-200'}
@@ -344,6 +347,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
                 />
 
                 <button
+                  type="button"
                   onClick={() => onEdit(reminder)}
                   className="px-3 py-1 text-sm text-blue-600 bg-blue-100 rounded hover:bg-blue-200 transition-colors"
                 >
@@ -351,6 +355,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => handleDeleteClick(reminder)}
                   className="px-3 py-1 text-sm text-red-600 bg-red-100 rounded hover:bg-red-200 transition-colors"
                 >

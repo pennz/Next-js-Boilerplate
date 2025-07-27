@@ -51,7 +51,7 @@ type HealthDataPoint = {
 };
 
 type AnalyticsData = {
-  // Removed unused trend variable: HealthDataPoint[];
+  trend: HealthDataPoint[];
   summary: {
     current: number;
     average: number;
@@ -113,7 +113,7 @@ function generateMockData(type: HealthType, aggregation: string = 'daily'): Anal
   const previous = values[values.length - 2] || current;
 
   return {
-    //   trend,
+    trend,
     summary: {
       current,
       average: Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 100) / 100,
@@ -134,7 +134,10 @@ function generateMockData(type: HealthType, aggregation: string = 'daily'): Anal
 }
 
 async function getHealthAnalytics(
+  _userId: string,
   type: HealthType,
+  _startDate?: string,
+  _endDate?: string,
   aggregation: string = 'daily',
 ): Promise<AnalyticsData> {
   // In a real implementation, this would fetch from the database
@@ -293,10 +296,11 @@ function DateRangeSelector({
     <div className="bg-white rounded-lg shadow p-4 mb-6">
       <div className="flex flex-wrap gap-4 items-center">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">
             Start Date
           </label>
           <input
+            id="start-date"
             type="date"
             value={startDate || ''}
             onChange={e => onUpdate({ start_date: e.target.value })}
@@ -304,10 +308,11 @@ function DateRangeSelector({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">
             End Date
           </label>
           <input
+            id="end-date"
             type="date"
             value={endDate || ''}
             onChange={e => onUpdate({ end_date: e.target.value })}
@@ -315,10 +320,11 @@ function DateRangeSelector({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="aggregation" className="block text-sm font-medium text-gray-700 mb-1">
             Aggregation
           </label>
           <select
+            id="aggregation"
             value={aggregation}
             onChange={e => onUpdate({ aggregation: e.target.value })}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm"
@@ -330,6 +336,7 @@ function DateRangeSelector({
         </div>
         <div className="flex-1"></div>
         <button
+          type="button"
           onClick={() => {
             // Export functionality
             const csvData = 'data:text/csv;charset=utf-8,'
@@ -397,7 +404,7 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
     aggregation,
   );
 
-  const handleFilterUpdate = (params: { start_date?: string; end_date?: string; aggregation?: string }) => {
+  const handleFilterUpdate = (_params: { start_date?: string; end_date?: string; aggregation?: string }) => {
     // This would be handled by client-side navigation in a real implementation
     // For now, it's a placeholder for the component interface
   };

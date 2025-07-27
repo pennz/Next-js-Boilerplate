@@ -176,10 +176,10 @@ function GoalCard({ goal, healthType, t }: {
 
       {/* Action Buttons */}
       <div className="flex space-x-2">
-        <button className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+        <button type="button" className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
           Edit Goal
         </button>
-        <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+        <button type="button" className="px-3 py-2 border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
           Delete
         </button>
       </div>
@@ -187,7 +187,7 @@ function GoalCard({ goal, healthType, t }: {
   );
 }
 
-function GoalTemplates({ templates, healthTypes, t }: {
+function GoalTemplates({ templates, healthTypes, _t }: {
   templates: any[];
   healthTypes: any[];
   t: any;
@@ -201,6 +201,7 @@ function GoalTemplates({ templates, healthTypes, t }: {
           return (
             <button
               key={index}
+              type="button"
               className="text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <p className="font-medium text-gray-900">{template.name}</p>
@@ -232,10 +233,10 @@ function CreateGoalForm({ healthTypes, t }: {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Goal</h3>
       <form className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="health-metric" className="block text-sm font-medium text-gray-700 mb-1">
             Health Metric
           </label>
-          <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select id="health-metric" className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">Select a health metric</option>
             {healthTypes.map(type => (
               <option key={type.id} value={type.id}>
@@ -250,10 +251,11 @@ function CreateGoalForm({ healthTypes, t }: {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="target-value" className="block text-sm font-medium text-gray-700 mb-1">
             Target Value
           </label>
           <input
+            id="target-value"
             type="number"
             step="0.1"
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -262,10 +264,11 @@ function CreateGoalForm({ healthTypes, t }: {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="target-date" className="block text-sm font-medium text-gray-700 mb-1">
             Target Date
           </label>
           <input
+            id="target-date"
             type="date"
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             min={new Date().toISOString().split('T')[0]}
@@ -291,7 +294,7 @@ function CreateGoalForm({ healthTypes, t }: {
   );
 }
 
-function GoalsStats({ goals, t }: { goals: any[]; t: any }) {
+function GoalsStats({ goals, _t }: { goals: any[]; t: any }) {
   const activeGoals = goals.filter(g => g.status === 'active').length;
   const completedGoals = goals.filter(g => g.status === 'completed').length;
   const overdueGoals = goals.filter(g =>
@@ -365,7 +368,7 @@ async function GoalsContent() {
             Track your health goals and monitor your progress over time.
           </p>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
+        <button type="button" className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
           {t('button_add_goal')}
         </button>
       </div>
@@ -380,7 +383,8 @@ async function GoalsContent() {
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-900">Your Goals</h2>
             <div className="flex space-x-2">
-              <select className="border border-gray-300 rounded-md px-3 py-1 text-sm">
+              <label htmlFor="goal-filter" className="sr-only">Filter goals</label>
+              <select id="goal-filter" className="border border-gray-300 rounded-md px-3 py-1 text-sm">
                 <option value="all">All Goals</option>
                 <option value="active">Active</option>
                 <option value="completed">Completed</option>
@@ -397,7 +401,7 @@ async function GoalsContent() {
                   <p className="text-gray-600 mb-4">
                     Start by creating your first health goal to track your progress.
                   </p>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
+                  <button type="button" className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
                     Create Your First Goal
                   </button>
                 </div>

@@ -41,8 +41,8 @@ const unitValidation = z.string().min(1).max(20).refine((unit) => {
 });
 
 // Value range validation based on health type
-const createValueValidation = (typeId: number, value: number) => {
-  const ranges: Record<string, { min: number; max: number }> = {
+const _createValueValidation = (_typeId: number, value: number) => {
+  const _ranges: Record<string, { min: number; max: number }> = {
     weight: { min: 20, max: 500 }, // kg or lbs
     blood_pressure_systolic: { min: 70, max: 250 }, // mmHg
     blood_pressure_diastolic: { min: 40, max: 150 }, // mmHg

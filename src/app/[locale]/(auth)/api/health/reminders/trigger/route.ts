@@ -50,7 +50,7 @@ export const POST = async () => {
       );
 
     if (dueReminders.length === 0) {
-      console.log('No reminders due for execution');
+      console.warn('No reminders due for execution');
       return NextResponse.json({
         message: 'No reminders due',
         processed: 0,
@@ -79,10 +79,10 @@ export const POST = async () => {
 
         // Send notification (log for now, can be extended to email/SMS)
         const notificationMessage = `Health Reminder: ${reminder.message} (${reminder.typeName})`;
-        console.log(`Sending reminder to user ${reminder.userId}: ${notificationMessage}`);
+        console.warn(`Sending reminder to user ${reminder.userId}: ${notificationMessage}`);
 
         // Log the reminder notification
-        console.log(JSON.stringify({
+        console.warn(JSON.stringify({
           type: 'health_reminder_sent',
           userId: reminder.userId,
           reminderId: reminder.id,
@@ -109,7 +109,7 @@ export const POST = async () => {
     }
 
     // Log summary
-    console.log(`Health reminders processed: ${processedReminders.length} successful, ${failedReminders.length} failed`);
+    console.warn(`Health reminders processed: ${processedReminders.length} successful, ${failedReminders.length} failed`);
 
     return NextResponse.json({
       message: 'Reminders processed',

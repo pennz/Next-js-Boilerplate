@@ -4,36 +4,36 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 
-interface ExerciseLog {
+type ExerciseLog = {
   id: number;
   exercise: string;
   sets: number;
   reps: number | null;
   weight: number | null;
   logged_at: string;
-}
+};
 
-interface TrainingPlan {
+type TrainingPlan = {
   id: number;
   name: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   sessions_per_week: number;
   is_active: boolean;
   start_date: string | null;
-}
+};
 
-interface Stats {
+type Stats = {
   totalExerciseLogs: number;
   activePlans: number;
   completedSessions: number;
   weeklyProgress: number;
-}
+};
 
-interface ExerciseOverviewProps {
+type ExerciseOverviewProps = {
   recentLogs: ExerciseLog[];
   activeTrainingPlans: TrainingPlan[];
   stats: Stats;
-}
+};
 
 const StatCard = ({ title, value, subtitle, icon, trend }: {
   title: string;
@@ -63,9 +63,17 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
       onClick={handleStatCardClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleStatCardClick();
+        }
+      }}
     >
       <div className="flex items-center justify-between">
         <div>
@@ -86,7 +94,7 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
 
 export const ExerciseOverview = ({ recentLogs, activeTrainingPlans, stats }: ExerciseOverviewProps) => {
   return (
-    <ExerciseOverviewContent 
+    <ExerciseOverviewContent
       recentLogs={recentLogs}
       activeTrainingPlans={activeTrainingPlans}
       stats={stats}
@@ -124,9 +132,17 @@ const TrainingPlanCard = ({ plan }: { plan: TrainingPlan }) => {
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-sm transition-shadow"
       onClick={handlePlanCardClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handlePlanCardClick();
+        }
+      }}
     >
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-gray-900">{plan.name}</h4>
@@ -175,7 +191,7 @@ const RecentLogItem = ({ log }: { log: ExerciseLog }) => {
           sets: log.sets,
           reps: log.reps,
           weight: log.weight,
-          timeAgo: timeAgo,
+          timeAgo,
           loggedAt: log.logged_at,
         },
       },
@@ -183,9 +199,17 @@ const RecentLogItem = ({ log }: { log: ExerciseLog }) => {
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
       onClick={handleLogItemClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleLogItemClick();
+        }
+      }}
     >
       <div>
         <p className="font-medium text-gray-900">{log.exercise}</p>
@@ -250,10 +274,10 @@ const QuickActionButton = ({ href, icon, label }: {
 };
 
 // Create a wrapper component to handle the async data fetching
-const ExerciseOverviewContent = ({ 
-  recentLogs, 
-  activeTrainingPlans, 
-  stats 
+const ExerciseOverviewContent = ({
+  recentLogs,
+  activeTrainingPlans,
+  stats,
 }: ExerciseOverviewProps) => {
   const { trackEvent } = useBehaviorTracking();
 
@@ -436,27 +460,51 @@ const ExerciseOverviewContent = ({
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div 
+          <div
+            role="button"
+            tabIndex={0}
             className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
             onClick={() => handleProgressChartView('strength_progress')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleProgressChartView('strength_progress');
+              }
+            }}
           >
             <p className="text-sm font-medium text-gray-600 mb-2">Strength Progress</p>
             <div className="h-20 bg-gradient-to-r from-red-200 to-red-300 rounded flex items-end justify-center">
               <span className="text-xs text-gray-600">📈 Chart placeholder</span>
             </div>
           </div>
-          <div 
+          <div
+            role="button"
+            tabIndex={0}
             className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
             onClick={() => handleProgressChartView('workout_frequency')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleProgressChartView('workout_frequency');
+              }
+            }}
           >
             <p className="text-sm font-medium text-gray-600 mb-2">Workout Frequency</p>
             <div className="h-20 bg-gradient-to-r from-blue-200 to-blue-300 rounded flex items-end justify-center">
               <span className="text-xs text-gray-600">📊 Chart placeholder</span>
             </div>
           </div>
-          <div 
+          <div
+            role="button"
+            tabIndex={0}
             className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
             onClick={() => handleProgressChartView('volume_trends')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleProgressChartView('volume_trends');
+              }
+            }}
           >
             <p className="text-sm font-medium text-gray-600 mb-2">Volume Trends</p>
             <div className="h-20 bg-gradient-to-r from-green-200 to-green-300 rounded flex items-end justify-center">

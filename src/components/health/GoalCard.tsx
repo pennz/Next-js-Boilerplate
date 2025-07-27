@@ -185,6 +185,7 @@ export const GoalCard = ({
         <div className="flex space-x-2">
           {goal.status === 'active' && (
             <button
+              type="button"
               onClick={() => onStatusChange?.(goal.id, 'paused')}
               className="rounded bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 hover:bg-yellow-200 transition-colors"
             >
@@ -193,6 +194,7 @@ export const GoalCard = ({
           )}
           {goal.status === 'paused' && (
             <button
+              type="button"
               onClick={() => onStatusChange?.(goal.id, 'active')}
               className="rounded bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 hover:bg-blue-200 transition-colors"
             >
@@ -201,6 +203,7 @@ export const GoalCard = ({
           )}
           {!isCompleted && progress >= 100 && (
             <button
+              type="button"
               onClick={() => onStatusChange?.(goal.id, 'completed')}
               className="rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-800 hover:bg-green-200 transition-colors"
             >
@@ -212,6 +215,7 @@ export const GoalCard = ({
         <div className="flex space-x-2">
           {onEdit && (
             <button
+              type="button"
               onClick={() => onEdit(goal)}
               className="text-blue-700 hover:text-blue-900 transition-colors"
               title={t('button_edit')}
@@ -233,6 +237,7 @@ export const GoalCard = ({
           )}
           {onDelete && (
             <button
+              type="button"
               onClick={handleDelete}
               disabled={isDeleting}
               className="text-red-700 hover:text-red-900 disabled:opacity-50 transition-colors"

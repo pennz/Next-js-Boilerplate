@@ -19,32 +19,6 @@ export async function generateMetadata(props: {
   };
 }
 
-// Define types for the data
-interface ExerciseLog {
-  id: number;
-  exercise: string;
-  sets: number;
-  reps: number | null;
-  weight: number | null;
-  logged_at: string;
-}
-
-interface TrainingPlan {
-  id: number;
-  name: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  sessions_per_week: number;
-  is_active: boolean;
-  start_date: string | null;
-}
-
-interface Stats {
-  totalExerciseLogs: number;
-  activePlans: number;
-  completedSessions: number;
-  weeklyProgress: number;
-}
-
 async function getExerciseOverviewData(userId: string) {
   // Fetch recent exercise logs (last 5)
   const recentLogsRaw = await db

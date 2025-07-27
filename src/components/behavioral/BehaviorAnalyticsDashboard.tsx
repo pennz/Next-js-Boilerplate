@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import type { BehaviorDataPoint, ContextPatternData, HabitStrengthData } from './BehaviorAnalyticsChart';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 import { useMicroBehavior } from '@/hooks/useMicroBehavior';
-import { BehaviorAnalyticsChart, type BehaviorDataPoint, type HabitStrengthData, type ContextPatternData } from './BehaviorAnalyticsChart';
+import { BehaviorAnalyticsChart } from './BehaviorAnalyticsChart';
 
 export type BehaviorAnalyticsSummary = {
   totalEvents: number;
@@ -17,21 +18,21 @@ export type BehaviorAnalyticsSummary = {
   predictionAccuracy: number;
 };
 
-interface BehaviorAnalyticsDashboardProps {
+type BehaviorAnalyticsDashboardProps = {
   timeRange?: '7d' | '30d' | '90d' | '1y';
   behaviorTypes?: string[];
   refreshInterval?: number;
   showRealTimeUpdates?: boolean;
-}
+};
 
-const MetricCard = ({ 
-  title, 
-  value, 
-  subtitle, 
-  icon, 
-  trend, 
+const MetricCard = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  trend,
   color = 'blue',
-  onClick 
+  onClick,
 }: {
   title: string;
   value: string | number;
@@ -42,7 +43,7 @@ const MetricCard = ({
   onClick?: () => void;
 }) => {
   const { trackEvent } = useBehaviorTracking();
-  
+
   const colorClasses = {
     blue: 'border-blue-200 bg-blue-50 text-blue-900',
     purple: 'border-purple-200 bg-purple-50 text-purple-900',
@@ -78,9 +79,17 @@ const MetricCard = ({
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className={`rounded-lg border p-4 cursor-pointer hover:shadow-lg transition-all ${colorClasses[color]}`}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       <div className="flex items-center justify-between">
         <div>
@@ -99,10 +108,10 @@ const MetricCard = ({
   );
 };
 
-const PatternInsightCard = ({ 
-  pattern, 
-  onViewDetails 
-}: { 
+const PatternInsightCard = ({
+  pattern,
+  onViewDetails,
+}: {
   pattern: any;
   onViewDetails: (pattern: any) => void;
 }) => {
@@ -129,48 +138,71 @@ const PatternInsightCard = ({
   };
 
   return (
-    <div 
+    <div
+      role="button"
+      tabIndex={0}
       className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-sm transition-shadow"
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-gray-900">{pattern.behaviorType}</h4>
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          pattern.strength >= 80 ? 'bg-green-100 text-green-800' :
-          pattern.strength >= 60 ? 'bg-yellow-100 text-yellow-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
-          {pattern.strength}% strong
+          pattern.strength >= 80
+            ? 'bg-green-100 text-green-800'
+            : pattern.strength >= 60
+              ? 'bg-yellow-100 text-yellow-800'
+              : 'bg-gray-100 text-gray-800'
+        }`}
+        >
+          {pattern.strength}
+          % strong
         </span>
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-sm text-gray-600">
           <span>Frequency</span>
-          <span>{pattern.frequency}x/week</span>
+          <span>
+            {pattern.frequency}
+            x/week
+          </span>
         </div>
         <div className="flex justify-between text-sm text-gray-600">
           <span>Consistency</span>
-          <span>{pattern.consistency}%</span>
+          <span>
+            {pattern.consistency}
+            %
+          </span>
         </div>
         <div className="flex justify-between text-sm text-gray-600">
           <span>Confidence</span>
-          <span>{pattern.confidence}%</span>
+          <span>
+            {pattern.confidence}
+            %
+          </span>
         </div>
       </div>
       {pattern.topTrigger && (
         <div className="mt-2 text-xs text-gray-500">
-          Top trigger: {pattern.topTrigger}
+          Top trigger:
+          {' '}
+          {pattern.topTrigger}
         </div>
       )}
     </div>
   );
 };
 
-const RealtimeIndicator = ({ 
-  isActive, 
-  lastUpdate 
-}: { 
-  isActive: boolean; 
+const RealtimeIndicator = ({
+  isActive,
+  lastUpdate,
+}: {
+  isActive: boolean;
   lastUpdate: Date | null;
 }) => (
   <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -203,7 +235,9 @@ export const BehaviorAnalyticsDashboard = ({
 
   // Fetch analytics data
   const fetchAnalyticsData = async () => {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     try {
       setLoading(true);
@@ -211,25 +245,33 @@ export const BehaviorAnalyticsDashboard = ({
 
       // Fetch behavior analytics summary
       const summaryResponse = await fetch(`/api/behavior/analytics/summary?timeRange=${selectedTimeRange}`);
-      if (!summaryResponse.ok) throw new Error('Failed to fetch summary');
+      if (!summaryResponse.ok) {
+        throw new Error('Failed to fetch summary');
+      }
       const summaryData = await summaryResponse.json();
       setSummary(summaryData);
 
       // Fetch habit strength data
       const habitResponse = await fetch(`/api/behavior/analytics/habit-strength?timeRange=${selectedTimeRange}`);
-      if (!habitResponse.ok) throw new Error('Failed to fetch habit strength');
+      if (!habitResponse.ok) {
+        throw new Error('Failed to fetch habit strength');
+      }
       const habitData = await habitResponse.json();
       setHabitStrengthData(habitData.data || []);
 
       // Fetch context patterns
       const contextResponse = await fetch(`/api/behavior/analytics/context-patterns?timeRange=${selectedTimeRange}`);
-      if (!contextResponse.ok) throw new Error('Failed to fetch context patterns');
+      if (!contextResponse.ok) {
+        throw new Error('Failed to fetch context patterns');
+      }
       const contextData = await contextResponse.json();
       setContextPatternsData(contextData.data || []);
 
       // Fetch behavior frequency
       const frequencyResponse = await fetch(`/api/behavior/analytics/frequency?timeRange=${selectedTimeRange}`);
-      if (!frequencyResponse.ok) throw new Error('Failed to fetch frequency');
+      if (!frequencyResponse.ok) {
+        throw new Error('Failed to fetch frequency');
+      }
       const frequencyData = await frequencyResponse.json();
       setBehaviorFrequencyData(frequencyData.data || []);
 
@@ -270,7 +312,9 @@ export const BehaviorAnalyticsDashboard = ({
 
   // Real-time updates
   useEffect(() => {
-    if (!showRealTimeUpdates || !user) return;
+    if (!showRealTimeUpdates || !user) {
+      return;
+    }
 
     const interval = setInterval(() => {
       fetchAnalyticsData();
@@ -329,9 +373,10 @@ export const BehaviorAnalyticsDashboard = ({
 
       {/* Time Range Selector */}
       <div className="flex gap-2">
-        {(['7d', '30d', '90d', '1y'] as const).map((range) => (
+        {(['7d', '30d', '90d', '1y'] as const).map(range => (
           <button
             key={range}
+            type="button"
             onClick={() => handleTimeRangeChange(range)}
             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
               selectedTimeRange === range
@@ -392,7 +437,7 @@ export const BehaviorAnalyticsDashboard = ({
           className="col-span-1 lg:col-span-2"
           height={350}
         />
-        
+
         <BehaviorAnalyticsChart
           data={contextPatternsData}
           chartType="context_patterns"
@@ -425,7 +470,7 @@ export const BehaviorAnalyticsDashboard = ({
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {patterns.slice(0, 6).map((pattern) => (
+          {patterns.slice(0, 6).map(pattern => (
             <PatternInsightCard
               key={pattern.id}
               pattern={pattern}

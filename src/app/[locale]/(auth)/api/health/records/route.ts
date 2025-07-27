@@ -495,7 +495,7 @@ export const DELETE = async (request: NextRequest) => {
     }
 
     const id = Number.parseInt(recordId, 10);
-    if (isNaN(id) || id <= 0) {
+    if (Number.isNaN(id) || id <= 0) {
       return NextResponse.json(
         { error: 'Invalid record ID' },
         { status: 400 },

@@ -295,7 +295,7 @@ async function createExerciseLogs(userId: string, exerciseMap: Map<string, numbe
   }
 }
 
-async function createBehavioralEvents(userId: string, exerciseMap: Map<string, number>, healthTypeMap: Map<string, number>) {
+async function createBehavioralEvents(userId: string, _exerciseMap: Map<string, number>, _healthTypeMap: Map<string, number>) {
   const events = [];
   const now = new Date();
 
