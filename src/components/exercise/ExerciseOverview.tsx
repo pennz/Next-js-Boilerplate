@@ -1,125 +1,38 @@
 'use client';
 
-import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { db } from '@/libs/DB';
-import { exerciseLogSchema, exerciseSchema, trainingPlanSchema, trainingSessionSchema } from '@/models/Schema';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 
-type ExerciseLog = {
+interface ExerciseLog {
   id: number;
   exercise: string;
   sets: number;
   reps: number | null;
   weight: number | null;
   logged_at: string;
-};
+}
 
-type TrainingPlan = {
+interface TrainingPlan {
   id: number;
   name: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   sessions_per_week: number;
   is_active: boolean;
   start_date: string | null;
-};
+}
 
-async function getExerciseOverviewData(userId: string) {
-  // Fetch recent exercise logs (last 5)
-  const recentLogsRaw = await db
-    .select({
-      id: exerciseLogSchema.id,
-      reps: exerciseLogSchema.reps,
-      weight: exerciseLogSchema.weight,
-      setNumber: exerciseLogSchema.setNumber,
-      logged_at: exerciseLogSchema.loggedAt,
-      exercise: exerciseSchema.name,
-    })
-    .from(exerciseLogSchema)
-    .leftJoin(exerciseSchema, eq(exerciseLogSchema.exerciseId, exerciseSchema.id))
-    .where(eq(exerciseLogSchema.userId, userId))
-    .orderBy(desc(exerciseLogSchema.loggedAt))
-    .limit(5);
+interface Stats {
+  totalExerciseLogs: number;
+  activePlans: number;
+  completedSessions: number;
+  weeklyProgress: number;
+}
 
-  // Group by exercise and latest session
-  const exerciseGroups = new Map();
-  recentLogsRaw.forEach((log) => {
-    const key = `${log.exercise}-${log.logged_at instanceof Date ? log.logged_at.toDateString() : log.logged_at}`;
-    if (!exerciseGroups.has(key)) {
-      exerciseGroups.set(key, {
-        id: log.id,
-        exercise: log.exercise ?? 'Unknown Exercise',
-        sets: 1,
-        reps: log.reps,
-        weight: log.weight ? Number(log.weight) : null,
-        logged_at: log.logged_at instanceof Date ? log.logged_at.toISOString() : log.logged_at,
-      });
-    } else {
-      exerciseGroups.get(key).sets += 1;
-    }
-  });
-
-  const recentLogs = Array.from(exerciseGroups.values()).slice(0, 3);
-
-  // Fetch active training plans
-  const activeTrainingPlansRaw = await db
-    .select({
-      id: trainingPlanSchema.id,
-      name: trainingPlanSchema.name,
-      difficulty: trainingPlanSchema.difficulty,
-      sessions_per_week: trainingPlanSchema.sessionsPerWeek,
-      is_active: trainingPlanSchema.isActive,
-      start_date: trainingPlanSchema.startDate,
-    })
-    .from(trainingPlanSchema)
-    .where(and(eq(trainingPlanSchema.userId, userId), eq(trainingPlanSchema.isActive, true)))
-    .orderBy(desc(trainingPlanSchema.createdAt))
-    .limit(3);
-
-  const activeTrainingPlans = activeTrainingPlansRaw.map(plan => ({
-    id: plan.id,
-    name: plan.name,
-    difficulty: plan.difficulty,
-    sessions_per_week: plan.sessions_per_week,
-    is_active: plan.is_active,
-    start_date: plan.start_date instanceof Date ? plan.start_date.toISOString().slice(0, 10) : plan.start_date,
-  }));
-
-  // Stats
-  const totalExerciseLogs = await db
-    .select({ count: sql`COUNT(*)` })
-    .from(exerciseLogSchema)
-    .where(eq(exerciseLogSchema.userId, userId));
-
-  const activePlansCount = activeTrainingPlans.length;
-
-  const completedSessions = await db
-    .select({ count: sql`COUNT(*)` })
-    .from(trainingSessionSchema)
-    .where(and(eq(trainingSessionSchema.userId, userId), eq(trainingSessionSchema.status, 'completed')));
-
-  // Weekly progress: count of exercise logs in the last 7 days
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
-  const weeklyLogs = await db
-    .select({ count: sql`COUNT(*)` })
-    .from(exerciseLogSchema)
-    .where(and(
-      eq(exerciseLogSchema.userId, userId),
-      sql`${exerciseLogSchema.loggedAt} >= ${weekAgo.toISOString()}`,
-    ));
-
-  const stats = {
-    totalExerciseLogs: Number(totalExerciseLogs[0]?.count || 0),
-    activePlans: activePlansCount,
-    completedSessions: Number(completedSessions[0]?.count || 0),
-    weeklyProgress: Number(weeklyLogs[0]?.count || 0),
-  };
-
-  return { recentLogs, activeTrainingPlans, stats };
+interface ExerciseOverviewProps {
+  recentLogs: ExerciseLog[];
+  activeTrainingPlans: TrainingPlan[];
+  stats: Stats;
 }
 
 const StatCard = ({ title, value, subtitle, icon, trend }: {
@@ -171,16 +84,7 @@ const StatCard = ({ title, value, subtitle, icon, trend }: {
   );
 };
 
-export const ExerciseOverview = async () => {
-  const t = await getTranslations('ExerciseManagement');
-  const user = await currentUser();
-
-  if (!user) {
-    return null;
-  }
-
-  const { recentLogs, activeTrainingPlans, stats } = await getExerciseOverviewData(user.id);
-
+export const ExerciseOverview = ({ recentLogs, activeTrainingPlans, stats }: ExerciseOverviewProps) => {
   return (
     <ExerciseOverviewContent 
       recentLogs={recentLogs}
@@ -350,16 +254,7 @@ const ExerciseOverviewContent = ({
   recentLogs, 
   activeTrainingPlans, 
   stats 
-}: {
-  recentLogs: ExerciseLog[];
-  activeTrainingPlans: TrainingPlan[];
-  stats: {
-    totalExerciseLogs: number;
-    activePlans: number;
-    completedSessions: number;
-    weeklyProgress: number;
-  };
-}) => {
+}: ExerciseOverviewProps) => {
   const { trackEvent } = useBehaviorTracking();
 
   // Track when the overview is viewed

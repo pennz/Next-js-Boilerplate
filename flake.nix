@@ -151,7 +151,6 @@
             # macOS-specific PostgreSQL configuration
             echo "port = 5432" >> "$PGDATA/postgresql.conf"
             echo "unix_socket_directories = '$PWD/.postgres'" >> "$PGDATA/postgresql.conf"
-            echo "shared_preload_libraries = ''" >> "$PGDATA/postgresql.conf"
             echo "max_connections = 100" >> "$PGDATA/postgresql.conf"
             echo "shared_buffers = 128MB" >> "$PGDATA/postgresql.conf"
             echo "dynamic_shared_memory_type = posix" >> "$PGDATA/postgresql.conf"
@@ -318,7 +317,6 @@
           cat >> "$PGDATA/postgresql.conf" << 'EOF'
 port = 5432
 unix_socket_directories = '$PWD/.postgres'
-shared_preload_libraries = ''
 max_connections = 100
 shared_buffers = 128MB
 dynamic_shared_memory_type = posix
@@ -364,24 +362,9 @@ EOF
           echo "✅ Simple setup complete!"
           echo "🔗 Database URL: postgresql://development:development@localhost:5432/development"
           echo "🛠️  To stop: pg_ctl stop -D .postgres"
-        resetScript = pkgs.writeShellScriptBin "dev-reset" ''
-          echo "🔄 Resetting development environment..."
-          echo "⚠️  This will delete all data in your development database!"
-          read -p "Are you sure? (y/N): " -n 1 -r
-          echo
-          if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "🛑 Stopping services..."
-            dev-stop
-            
-            echo "🗑️  Removing database..."
-            rm -rf .postgres
-            
-            echo "🚀 Reinitializing..."
-            dev-setup
-          else
-            echo "❌ Reset cancelled"
-          fi
         '';
+
+        resetScript = pkgs.writeShellScriptBin "dev-reset" ''
           echo "🔄 Resetting development environment..."
           echo "⚠️  This will delete all data in your development database!"
           read -p "Are you sure? (y/N): " -n 1 -r

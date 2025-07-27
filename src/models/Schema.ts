@@ -323,7 +323,7 @@ export const microBehaviorPatternSchema = pgTable('micro_behavior_pattern', {
   outcomes: jsonb('outcomes'), // positive/negative outcomes
   context: jsonb('context'), // situational context data
   correlations: jsonb('correlations'), // correlations with other patterns
-  confidence: numeric('confidence', { precision: 5, 2 }), // statistical confidence 0-100
+  confidence: numeric('confidence', { precision: 5, scale: 2 }), // statistical confidence 0-100
   sampleSize: integer('sample_size').default(0).notNull(),
   firstObserved: timestamp('first_observed', { mode: 'date' }).defaultNow().notNull(),
   lastObserved: timestamp('last_observed', { mode: 'date' }).defaultNow().notNull(),
