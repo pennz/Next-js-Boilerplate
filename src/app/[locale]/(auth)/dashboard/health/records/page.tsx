@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
+import { HealthRecordsFilters } from '@/components/health/HealthRecordsFilters';
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -12,7 +13,7 @@ export async function generateMetadata(props: {
 
   return {
     title: t('page_title_records'),
-    description: t('page_description_records'),
+    description: t('records_empty_state'),
   };
 }
 
@@ -59,103 +60,7 @@ async function getHealthTypes(): Promise<HealthType[]> {
   return [];
 }
 
-function HealthRecordsFilters({
-  healthTypes,
-  searchParams,
-}: {
-  healthTypes: HealthType[];
-  searchParams: any;
-}) {
-  return (
-    <div className="mb-6 space-y-4 rounded-lg border bg-card p-4">
-      <h3 className="text-lg font-semibold">Filters</h3>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Search Input */}
-        <div>
-          <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-            Search
-          </label>
-          <input
-            type="text"
-            id="search"
-            name="search"
-            defaultValue={searchParams.search || ''}
-            placeholder="Search records..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
 
-        {/* Health Type Filter */}
-        <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-            Health Type
-          </label>
-          <select
-            id="type"
-            name="type"
-            defaultValue={searchParams.type || ''}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="">All Types</option>
-            {healthTypes.map(type => (
-              <option key={type.id} value={type.id}>
-                {type.display_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Start Date */}
-        <div>
-          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date
-          </label>
-          <input
-            type="date"
-            id="startDate"
-            name="startDate"
-            defaultValue={searchParams.startDate || ''}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* End Date */}
-        <div>
-          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-            End Date
-          </label>
-          <input
-            type="date"
-            id="endDate"
-            name="endDate"
-            defaultValue={searchParams.endDate || ''}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Apply Filters
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const form = document.querySelector('form') as HTMLFormElement;
-            form?.reset();
-            window.location.href = window.location.pathname;
-          }}
-          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Clear
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function HealthRecordsTable({
   records,
@@ -368,7 +273,7 @@ export default async function HealthRecordsPage(props: {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('page_title_records')}</h1>
-          <p className="mt-1 text-sm text-gray-500">{t('page_description_records')}</p>
+          <p className="mt-1 text-sm text-gray-500">{t('records_empty_state')}</p>
         </div>
         <div className="flex space-x-3">
           <button
@@ -378,7 +283,7 @@ export default async function HealthRecordsPage(props: {
             <svg className="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            {t('button_export')}
+            {t('button_export_data')}
           </button>
           <button
             type="button"
