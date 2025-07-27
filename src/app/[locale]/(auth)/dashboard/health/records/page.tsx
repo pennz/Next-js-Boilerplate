@@ -7,20 +7,9 @@ import { useRouter } from 'next/navigation';
 import { HealthRecordsFilters } from '@/components/health/HealthRecordsFilters';
 import { AddHealthRecordModal } from '@/components/health/AddHealthRecordModal';
 
-export async function generateMetadata(props: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await props.params;
-  const t = await getTranslations({
-    locale,
-    namespace: 'HealthManagement',
-  });
+// Remove the 'use client' directive from line 1
 
-  return {
-    title: t('page_title_records'),
-    description: t('records_empty_state'),
-  };
-}
+// Remove the generateMetadata function (lines 10-20)
 
 type HealthRecord = {
   id: number;
