@@ -321,7 +321,9 @@
     "radar_insufficient_data": "Need at least 3 metrics for radar visualization",
     "change_scoring_system": "Change Scoring System",
     "radar_chart_description": "Radar chart showing normalized health metric scores",
-    "radar_accessibility_label": "Health metrics radar chart with {count} categories"
+    "radar_accessibility_label": "Health metrics radar chart with {count} categories",
+    "predictive_chart_title": "{type} Predictive Analytics",
+    "insight_radar_overview": "Your overall health score is {score}/100"
   },
   "ExerciseManagement": {
     "meta_title": "Exercise & Training",

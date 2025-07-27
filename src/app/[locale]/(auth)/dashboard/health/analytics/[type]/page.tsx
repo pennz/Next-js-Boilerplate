@@ -17,6 +17,41 @@ import {
   YAxis,
 } from 'recharts';
 
+import { HealthPredictiveChart, HealthRadarChart } from '@/components/health';
+import {
+  transformToPredictiveData,
+  transformToRadarData,
+} from '@/components/health';
+import type {
+  PredictionAlgorithm,
+  ScoringSystem,
+} from '@/components/health/types';
+
+// Health record and goal types for mock data
+type HealthRecord = {
+  id: number;
+  user_id: string;
+  type: string;
+  value: number;
+  unit: string;
+  recorded_at: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+type HealthGoal = {
+  id: number;
+  user_id: string;
+  type: string;
+  target_value: number;
+  current_value: number;
+  target_date: string;
+  status: 'active' | 'completed' | 'paused';
+  created_at: string;
+  updated_at: string;
+};
+
 // Valid health metric types
 const VALID_HEALTH_TYPES = [
   'weight',
@@ -133,6 +168,67 @@ function generateMockData(type: HealthType, aggregation: string = 'daily'): Anal
   };
 }
 
+// Generate mock health records for radar chart
+function generateMockHealthRecords(userId: string): HealthRecord[] {
+  const now = new Date();
+  const healthTypes: HealthType[] = ['weight', 'steps', 'heart_rate', 'sleep', 'water_intake'];
+  
+  return healthTypes.map((type, index) => {
+    const baseValues = {
+      weight: 70,
+      steps: 8500,
+      heart_rate: 72,
+      sleep: 7.5,
+      water_intake: 2.8,
+    };
+
+    return {
+      id: index + 1,
+      user_id: userId,
+      type,
+      value: baseValues[type] + (Math.random() - 0.5) * baseValues[type] * 0.1,
+      unit: type === 'weight' ? 'kg' : type === 'steps' ? 'steps' : type === 'heart_rate' ? 'bpm' : type === 'sleep' ? 'hours' : 'liters',
+      recorded_at: now.toISOString(),
+      notes: null,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    };
+  });
+}
+
+// Generate mock health goals for radar chart
+function generateMockHealthGoals(userId: string): HealthGoal[] {
+  const healthTypes: HealthType[] = ['weight', 'steps', 'sleep', 'water_intake'];
+  
+  return healthTypes.map((type, index) => {
+    const targetValues = {
+      weight: 65,
+      steps: 10000,
+      sleep: 8,
+      water_intake: 3,
+    };
+
+    const currentValues = {
+      weight: 70,
+      steps: 8500,
+      sleep: 7.5,
+      water_intake: 2.8,
+    };
+
+    return {
+      id: index + 1,
+      user_id: userId,
+      type,
+      target_value: targetValues[type],
+      current_value: currentValues[type],
+      target_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      status: 'active' as const,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  });
+}
+
 async function getHealthAnalytics(
   _userId: string,
   type: HealthType,
@@ -143,6 +239,18 @@ async function getHealthAnalytics(
   // In a real implementation, this would fetch from the database
   // For now, return mock data
   return generateMockData(type, aggregation);
+}
+
+async function getHealthRecordsAndGoals(userId: string): Promise<{
+  records: HealthRecord[];
+  goals: HealthGoal[];
+}> {
+  // In a real implementation, this would fetch from the database
+  // For now, return mock data
+  return {
+    records: generateMockHealthRecords(userId),
+    goals: generateMockHealthGoals(userId),
+  };
 }
 
 function AnalyticsChart({ data, type }: { data: AnalyticsData; type: HealthType }) {
@@ -357,6 +465,57 @@ function DateRangeSelector({
   );
 }
 
+function AlgorithmSelector({
+  algorithm,
+  onAlgorithmChange,
+}: {
+  algorithm: PredictionAlgorithm;
+  onAlgorithmChange: (algorithm: PredictionAlgorithm) => void;
+}) {
+  return (
+    <div className="flex items-center space-x-2">
+      <label htmlFor="algorithm" className="text-sm font-medium text-gray-700">
+        Prediction Algorithm:
+      </label>
+      <select
+        id="algorithm"
+        value={algorithm}
+        onChange={e => onAlgorithmChange(e.target.value as PredictionAlgorithm)}
+        className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+      >
+        <option value="linear-regression">Linear Regression</option>
+        <option value="moving-average">Moving Average</option>
+      </select>
+    </div>
+  );
+}
+
+function ScoringSystemSelector({
+  scoringSystem,
+  onScoringSystemChange,
+}: {
+  scoringSystem: ScoringSystem;
+  onScoringSystemChange: (system: ScoringSystem) => void;
+}) {
+  return (
+    <div className="flex items-center space-x-2">
+      <label htmlFor="scoring-system" className="text-sm font-medium text-gray-700">
+        Scoring System:
+      </label>
+      <select
+        id="scoring-system"
+        value={scoringSystem}
+        onChange={e => onScoringSystemChange(e.target.value as ScoringSystem)}
+        className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+      >
+        <option value="percentage">Percentage</option>
+        <option value="z-score">Z-Score</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+  );
+}
+
 export async function generateMetadata(props: HealthAnalyticsPageProps) {
   const { locale, type } = await props.params;
   const t = await getTranslations({
@@ -404,8 +563,35 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
     aggregation,
   );
 
+  // Get health records and goals for radar chart
+  const { records, goals } = await getHealthRecordsAndGoals(user.id);
+
+  // Transform data for predictive chart
+  const predictiveData = transformToPredictiveData(
+    analyticsData.trend.map(point => ({
+      date: point.date,
+      value: point.value,
+      unit: point.unit,
+    })),
+    'linear-regression',
+    7
+  );
+
+  // Transform data for radar chart
+  const radarData = transformToRadarData(records, goals, 'percentage');
+
   const handleFilterUpdate = (_params: { start_date?: string; end_date?: string; aggregation?: string }) => {
     // This would be handled by client-side navigation in a real implementation
+    // For now, it's a placeholder for the component interface
+  };
+
+  const handleAlgorithmChange = (_algorithm: PredictionAlgorithm) => {
+    // This would be handled by client-side state management in a real implementation
+    // For now, it's a placeholder for the component interface
+  };
+
+  const handleScoringSystemChange = (_system: ScoringSystem) => {
+    // This would be handled by client-side state management in a real implementation
     // For now, it's a placeholder for the component interface
   };
 
@@ -508,6 +694,76 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
         </Suspense>
       </div>
 
+      {/* Predictive Chart Section */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2 sm:mb-0">
+            {t('predictive_chart_title', { type: type.replace('_', ' ') })}
+          </h2>
+          <AlgorithmSelector
+            algorithm="linear-regression"
+            onAlgorithmChange={handleAlgorithmChange}
+          />
+        </div>
+        <Suspense fallback={(
+          <div className="h-80 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        )}
+        >
+          <HealthPredictiveChart
+            data={predictiveData}
+            algorithm="linear-regression"
+            predictionHorizon={7}
+            showConfidenceInterval={true}
+            title={`${type.replace('_', ' ')} Trend Forecast`}
+            height={400}
+            unit={analyticsData.summary.unit}
+            goalValue={analyticsData.goalProgress?.target}
+            onAlgorithmChange={handleAlgorithmChange}
+            className="mt-4"
+          />
+        </Suspense>
+      </div>
+
+      {/* Radar Chart Section - Comprehensive Health Overview */}
+      {radarData.length > 0 && radarData[0]?.metrics.length >= 3 && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                {t('radar_chart_title')}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {t('radar_chart_description')}
+              </p>
+            </div>
+            <ScoringSystemSelector
+              scoringSystem="percentage"
+              onScoringSystemChange={handleScoringSystemChange}
+            />
+          </div>
+          <Suspense fallback={(
+            <div className="h-80 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          )}
+          >
+            <HealthRadarChart
+              data={radarData}
+              scoringSystem="percentage"
+              title="Overall Health Status"
+              subtitle="Normalized scores across all health metrics"
+              height={400}
+              showScoreLegend={true}
+              showTooltip={true}
+              onScoringSystemChange={handleScoringSystemChange}
+              className="mt-4"
+            />
+          </Suspense>
+        </div>
+      )}
+
       {/* Insights Panel */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -539,6 +795,19 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
                 {analyticsData.goalProgress.percentage >= 100
                   ? t('insight_goal_achieved')
                   : t('insight_goal_progress', { percentage: analyticsData.goalProgress.percentage })}
+              </p>
+            </div>
+          )}
+          {radarData.length > 0 && radarData[0]?.metrics.length >= 3 && (
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
+              <p className="text-sm text-gray-600">
+                {t('insight_radar_overview', { 
+                  metricsCount: radarData[0].metrics.length,
+                  avgScore: Math.round(
+                    radarData[0].metrics.reduce((sum, metric) => sum + metric.score, 0) / radarData[0].metrics.length
+                  )
+                })}
               </p>
             </div>
           )}
