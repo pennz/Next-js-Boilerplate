@@ -792,81 +792,79 @@ export function transformToRadarData(
 }
 
 /**
- * Calculates overall health score from radar metrics
- * @param metrics - Array of radar metrics
+ * Calculates the overall health score from radar metrics
+ * @param metrics - Array of health radar metrics
  * @returns Overall health score (0-100)
  */
 export function calculateOverallHealthScore(metrics: HealthRadarMetric[]): number {
   // Input validation
-  if (!Array.isArray(metrics)) {
-    throw new Error('Invalid metrics: must be an array');
+  if (!Array.isArray(metrics) || metrics.length === 0) {
+    return 50; // Neutral score for no metrics
   }
-  
-  if (metrics.length === 0) return 50; // Neutral score if no metrics
-  
-  // Validate metrics
-  for (let i = 0; i < metrics.length; i++) {
-    const metric = metrics[i];
-    
-    if (!metric || typeof metric !== 'object') {
-      throw new Error(`Invalid metric at index ${i}: must be an object`);
-    }
-    
-    if (metric.score === undefined) {
-      throw new Error(`Invalid metric at index ${i}: missing required property (score)`);
-    }
-    
-    // Validate score
-    if (typeof metric.score !== 'number' || !isFinite(metric.score)) {
-      throw new Error(`Invalid metric score at index ${i}: ${metric.score} must be a finite number`);
-    }
+
+  // Filter metrics with valid scores
+  const validScores = metrics
+    .filter(metric => typeof metric.score === 'number' && isFinite(metric.score))
+    .map(metric => metric.score);
+
+  if (validScores.length === 0) {
+    return 50; // Neutral score for no valid scores
   }
-  
-  const totalScore = metrics.reduce((sum, metric) => sum + metric.score, 0);
-  return Math.round(totalScore / metrics.length);
+
+  // Calculate average score
+  const sum = validScores.reduce((acc, score) => acc + score, 0);
+  const average = sum / validScores.length;
+
+  // Return rounded score between 0-100
+  return Math.max(0, Math.min(100, Math.round(average)));
 }
 
 /**
- * Gets color based on health score
+ * Determines color based on health score
  * @param score - Health score (0-100)
- * @returns Color string
+ * @returns Color hex code
  */
 export function getScoreColor(score: number): string {
   // Input validation
   if (typeof score !== 'number' || !isFinite(score)) {
-    return 'text-gray-500'; // Default color for invalid scores
+    return '#6b7280'; // Gray for invalid scores
   }
-  
-  if (score >= 80) return 'text-green-500';
-  if (score >= 60) return 'text-yellow-500';
-  if (score >= 40) return 'text-orange-500';
-  return 'text-red-500';
+
+  // Clamp score between 0-100
+  const clampedScore = Math.max(0, Math.min(100, score));
+
+  // Determine color based on score ranges
+  if (clampedScore < 40) return '#ef4444'; // Red (poor)
+  if (clampedScore < 60) return '#f59e0b'; // Amber (fair)
+  if (clampedScore < 80) return '#3b82f6'; // Blue (good)
+  return '#10b981'; // Green (excellent)
 }
 
 /**
- * Formats health value with unit
- * @param value - Health value
+ * Formats health value based on unit
+ * @param value - Health value to format
  * @param unit - Unit of measurement
- * @returns Formatted string
+ * @returns Formatted value string
  */
 export function formatHealthValue(value: number, unit: string): string {
   // Input validation
   if (typeof value !== 'number' || !isFinite(value)) {
-    return `0 ${unit}`; // Default formatted value for invalid values
+    return '0'; // Default to 0 for invalid values
   }
-  
-  if (typeof unit !== 'string') {
-    unit = ''; // Default to empty string for invalid units
+
+  // Format based on unit type
+  switch (unit.toLowerCase()) {
+    case 'steps':
+    case 'bpm':
+    case 'min':
+    case 'mmHg':
+      return value.toLocaleString();
+    case 'kg':
+    case 'hours':
+    case 'liters':
+    case 'mg/dL':
+      return value % 1 === 0 ? value.toString() : value.toFixed(1);
+    default:
+      return value.toString();
   }
-  
-  if (unit === 'kg' || unit === 'lbs') {
-    return `${value.toFixed(1)} ${unit}`;
-  }
-  if (unit === 'mmHg') {
-    return `${value.toFixed(0)} ${unit}`;
-  }
-  if (unit === 'bpm') {
-    return `${value.toFixed(0)} ${unit}`;
-  }
-  return `${value} ${unit}`;
 }
