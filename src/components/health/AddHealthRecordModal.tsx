@@ -31,10 +31,10 @@ export const AddHealthRecordModal: React.FC<AddHealthRecordModalProps> = ({
     if (isOpen) {
       // Store the last focused element before opening modal
       lastFocusedElement.current = document.activeElement as HTMLElement;
-      
+
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
-      
+
       // Focus the close button when modal opens
       setTimeout(() => {
         closeButtonRef.current?.focus();
@@ -44,7 +44,7 @@ export const AddHealthRecordModal: React.FC<AddHealthRecordModalProps> = ({
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
-      
+
       // Restore focus to the last focused element when modal closes
       if (lastFocusedElement.current) {
         lastFocusedElement.current.focus();
@@ -67,14 +67,18 @@ export const AddHealthRecordModal: React.FC<AddHealthRecordModalProps> = ({
 
   // Trap focus inside the modal
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key !== 'Tab') return;
+    if (event.key !== 'Tab') {
+      return;
+    }
 
     const focusableElements = modalRef.current?.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     ) as NodeListOf<HTMLElement>;
-    
-    if (!focusableElements || focusableElements.length === 0) return;
-    
+
+    if (!focusableElements || focusableElements.length === 0) {
+      return;
+    }
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -92,14 +96,14 @@ export const AddHealthRecordModal: React.FC<AddHealthRecordModalProps> = ({
   }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       onClick={handleBackdropClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div 
+      <div
         ref={modalRef}
         className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
         onKeyDown={handleKeyDown}

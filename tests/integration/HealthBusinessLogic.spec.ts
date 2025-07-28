@@ -1,9 +1,9 @@
-import { test, expect, request } from '@playwright/test';
 import type { APIRequestContext } from '@playwright/test';
+import { expect, request, test } from '@playwright/test';
 
 // Test configuration
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
-const TEST_USER_ID = 'test_user_' + Date.now();
+const TEST_USER_ID = `test_user_${Date.now()}`;
 const CRON_SECRET = process.env.CRON_SECRET || 'test-secret';
 
 // Helper function to get authenticated request context
@@ -27,7 +27,7 @@ async function createTestHealthTypes(apiRequest: APIRequestContext) {
     { id: 4, slug: 'sleep_hours', displayName: 'Sleep', unit: 'hours', typicalRangeLow: 6, typicalRangeHigh: 9 },
     { id: 5, slug: 'heart_rate', displayName: 'Heart Rate', unit: 'bpm', typicalRangeLow: 60, typicalRangeHigh: 100 },
   ];
-  
+
   for (const type of healthTypes) {
     await apiRequest.post('/api/admin/health-types', { data: type });
   }
@@ -64,6 +64,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const minResponse = await apiRequest.post('/api/health/records', {
         data: minValueRecord,
       });
+
       expect(minResponse.status()).toBe(201);
 
       // Test maximum boundary values
@@ -77,6 +78,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const maxResponse = await apiRequest.post('/api/health/records', {
         data: maxValueRecord,
       });
+
       expect(maxResponse.status()).toBe(201);
 
       // Test exactly at limit (10000)
@@ -90,8 +92,11 @@ test.describe('Health Business Logic Edge Cases', () => {
       const limitResponse = await apiRequest.post('/api/health/records', {
         data: limitRecord,
       });
+
       expect(limitResponse.status()).toBe(422);
+
       const limitError = await limitResponse.json();
+
       expect(limitError.error).toContain('exceeds maximum');
     });
 
@@ -107,6 +112,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const percentResponse = await apiRequest.post('/api/health/records', {
         data: invalidPercentage,
       });
+
       expect(percentResponse.status()).toBe(422);
 
       // Test hours > 24
@@ -120,6 +126,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const hoursResponse = await apiRequest.post('/api/health/records', {
         data: invalidHours,
       });
+
       expect(hoursResponse.status()).toBe(422);
 
       // Test minutes > 1440 (24 hours)
@@ -133,6 +140,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const minutesResponse = await apiRequest.post('/api/health/records', {
         data: invalidMinutes,
       });
+
       expect(minutesResponse.status()).toBe(422);
     });
 
@@ -152,6 +160,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const validResponse = await apiRequest.post('/api/health/records', {
         data: validOldRecord,
       });
+
       expect(validResponse.status()).toBe(201);
 
       // Test more than one year ago (should be invalid)
@@ -169,6 +178,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const invalidResponse = await apiRequest.post('/api/health/records', {
         data: invalidOldRecord,
       });
+
       expect(invalidResponse.status()).toBe(422);
 
       // Test future date (should be invalid)
@@ -185,6 +195,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const futureResponse = await apiRequest.post('/api/health/records', {
         data: futureRecord,
       });
+
       expect(futureResponse.status()).toBe(422);
     });
 
@@ -200,7 +211,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       const createResponse = await apiRequest.post('/api/health/records', {
         data: initialRecord,
       });
+
       expect(createResponse.status()).toBe(201);
+
       const created = await createResponse.json();
 
       // Update only value
@@ -212,8 +225,11 @@ test.describe('Health Business Logic Edge Cases', () => {
       const valueResponse = await apiRequest.put('/api/health/records', {
         data: valueUpdate,
       });
+
       expect(valueResponse.status()).toBe(200);
+
       const valueUpdated = await valueResponse.json();
+
       expect(valueUpdated.record.value).toBe('75');
       expect(valueUpdated.record.unit).toBe('kg'); // Should remain unchanged
 
@@ -226,8 +242,11 @@ test.describe('Health Business Logic Edge Cases', () => {
       const unitResponse = await apiRequest.put('/api/health/records', {
         data: unitUpdate,
       });
+
       expect(unitResponse.status()).toBe(200);
+
       const unitUpdated = await unitResponse.json();
+
       expect(unitUpdated.record.unit).toBe('lbs');
       expect(unitUpdated.record.value).toBe('75'); // Should remain unchanged
     });
@@ -243,8 +262,11 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/records', {
         data: invalidUnitRecord,
       });
+
       expect(response.status()).toBe(422);
+
       const error = await response.json();
+
       expect(error.error).toContain('Invalid unit');
     });
   });
@@ -265,6 +287,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const tomorrowResponse = await apiRequest.post('/api/health/goals', {
         data: tomorrowGoal,
       });
+
       expect(tomorrowResponse.status()).toBe(201);
 
       // Test goal with target date today (should be invalid)
@@ -279,6 +302,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const todayResponse = await apiRequest.post('/api/health/goals', {
         data: todayGoal,
       });
+
       expect(todayResponse.status()).toBe(422);
 
       // Test goal with far future date (should be valid)
@@ -295,6 +319,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const farFutureResponse = await apiRequest.post('/api/health/goals', {
         data: farFutureGoal,
       });
+
       expect(farFutureResponse.status()).toBe(201);
     });
 
@@ -313,6 +338,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const lowWeightResponse = await apiRequest.post('/api/health/goals', {
         data: lowWeightGoal,
       });
+
       expect(lowWeightResponse.status()).toBe(422);
 
       // Test unreasonable weight target (too high)
@@ -326,6 +352,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const highWeightResponse = await apiRequest.post('/api/health/goals', {
         data: highWeightGoal,
       });
+
       expect(highWeightResponse.status()).toBe(422);
 
       // Test reasonable weight target
@@ -339,6 +366,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const reasonableResponse = await apiRequest.post('/api/health/goals', {
         data: reasonableGoal,
       });
+
       expect(reasonableResponse.status()).toBe(201);
     });
 
@@ -357,6 +385,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const firstResponse = await apiRequest.post('/api/health/goals', {
         data: firstGoal,
       });
+
       expect(firstResponse.status()).toBe(201);
 
       // Try to create second active goal for same type (should fail)
@@ -370,8 +399,11 @@ test.describe('Health Business Logic Edge Cases', () => {
       const secondResponse = await apiRequest.post('/api/health/goals', {
         data: secondGoal,
       });
+
       expect(secondResponse.status()).toBe(409);
+
       const error = await secondResponse.json();
+
       expect(error.error).toContain('active goal already exists');
     });
 
@@ -390,7 +422,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       const goalResponse = await apiRequest.post('/api/health/goals', {
         data: goal,
       });
+
       expect(goalResponse.status()).toBe(201);
+
       const createdGoal = await goalResponse.json();
 
       // Add record that doesn't reach target
@@ -412,10 +446,12 @@ test.describe('Health Business Logic Edge Cases', () => {
       const completionResponse = await apiRequest.patch('/api/health/goals', {
         data: completionUpdate,
       });
+
       expect(completionResponse.status()).toBe(200);
 
       // Verify warning is logged (check response or logs)
       const updatedGoal = await completionResponse.json();
+
       expect(updatedGoal.goal.status).toBe('completed');
     });
 
@@ -434,7 +470,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       const goalResponse = await apiRequest.post('/api/health/goals', {
         data: goal,
       });
+
       expect(goalResponse.status()).toBe(201);
+
       const createdGoal = await goalResponse.json();
 
       // Transition to paused
@@ -446,6 +484,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const pauseResponse = await apiRequest.patch('/api/health/goals', {
         data: pauseUpdate,
       });
+
       expect(pauseResponse.status()).toBe(200);
 
       // Transition back to active
@@ -457,6 +496,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const reactivateResponse = await apiRequest.patch('/api/health/goals', {
         data: reactivateUpdate,
       });
+
       expect(reactivateResponse.status()).toBe(200);
 
       // Transition to completed
@@ -468,6 +508,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const completeResponse = await apiRequest.patch('/api/health/goals', {
         data: completeUpdate,
       });
+
       expect(completeResponse.status()).toBe(200);
     });
   });
@@ -486,7 +527,9 @@ test.describe('Health Business Logic Edge Cases', () => {
 
       // Request analytics
       const analyticsResponse = await apiRequest.get('/api/health/analytics/heart_rate');
+
       expect(analyticsResponse.status()).toBe(200);
+
       const analytics = await analyticsResponse.json();
 
       // Should handle single point gracefully
@@ -497,7 +540,7 @@ test.describe('Health Business Logic Edge Cases', () => {
 
     test('should handle aggregation with sparse data', async () => {
       const baseDate = new Date();
-      
+
       // Create records with gaps (day 1, day 5, day 10)
       const sparseRecords = [
         {
@@ -526,7 +569,9 @@ test.describe('Health Business Logic Edge Cases', () => {
 
       // Request daily analytics
       const analyticsResponse = await apiRequest.get('/api/health/analytics/weight?aggregation=daily');
+
       expect(analyticsResponse.status()).toBe(200);
+
       const analytics = await analyticsResponse.json();
 
       // Should only return data for days with records
@@ -536,7 +581,7 @@ test.describe('Health Business Logic Edge Cases', () => {
 
     test('should handle zero variance data correctly', async () => {
       const baseDate = new Date();
-      
+
       // Create multiple records with identical values
       const identicalRecords = [];
       for (let i = 0; i < 5; i++) {
@@ -553,7 +598,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       }
 
       const analyticsResponse = await apiRequest.get('/api/health/analytics/blood_pressure_systolic');
+
       expect(analyticsResponse.status()).toBe(200);
+
       const analytics = await analyticsResponse.json();
 
       // Should handle zero variance gracefully
@@ -575,12 +622,16 @@ test.describe('Health Business Logic Edge Cases', () => {
 
       // First request (should cache)
       const firstResponse = await apiRequest.get('/api/health/analytics/steps');
+
       expect(firstResponse.status()).toBe(200);
+
       const firstData = await firstResponse.json();
 
       // Second request (should return cached data)
       const secondResponse = await apiRequest.get('/api/health/analytics/steps');
+
       expect(secondResponse.status()).toBe(200);
+
       const secondData = await secondResponse.json();
 
       // Data should be identical
@@ -601,12 +652,13 @@ test.describe('Health Business Logic Edge Cases', () => {
 
       // Third request (should still return cached data if TTL hasn't expired)
       const thirdResponse = await apiRequest.get('/api/health/analytics/steps');
+
       expect(thirdResponse.status()).toBe(200);
     });
 
     test('should handle extreme outlier values', async () => {
       const baseDate = new Date();
-      
+
       // Create records with extreme outliers
       const outlierRecords = [
         {
@@ -640,7 +692,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       }
 
       const analyticsResponse = await apiRequest.get('/api/health/analytics/weight');
+
       expect(analyticsResponse.status()).toBe(200);
+
       const analytics = await analyticsResponse.json();
 
       // Should handle outliers without crashing
@@ -651,23 +705,28 @@ test.describe('Health Business Logic Edge Cases', () => {
 
     test('should handle invalid health type in analytics', async () => {
       const invalidResponse = await apiRequest.get('/api/health/analytics/invalid_type');
+
       expect(invalidResponse.status()).toBe(404);
+
       const error = await invalidResponse.json();
+
       expect(error.error).toBe('Invalid health type');
     });
 
     test('should validate date range parameters', async () => {
       // Test invalid date format
       const invalidDateResponse = await apiRequest.get('/api/health/analytics/weight?start_date=invalid-date');
+
       expect(invalidDateResponse.status()).toBe(422);
 
       // Test end date before start date
       const startDate = new Date().toISOString();
       const endDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      
+
       const invalidRangeResponse = await apiRequest.get(
-        `/api/health/analytics/weight?start_date=${startDate}&end_date=${endDate}`
+        `/api/health/analytics/weight?start_date=${startDate}&end_date=${endDate}`,
       );
+
       expect(invalidRangeResponse.status()).toBe(422);
     });
   });
@@ -675,13 +734,13 @@ test.describe('Health Business Logic Edge Cases', () => {
   test.describe('Reminder Business Logic Edge Cases', () => {
     test('should validate complex cron expressions', async () => {
       const validCronExpressions = [
-        '0 9 * * *',           // Daily at 9 AM
-        '0 12 * * 1',          // Weekly Monday at noon
-        '*/15 * * * *',        // Every 15 minutes
-        '0 9,21 * * *',        // Twice daily at 9 AM and 9 PM
-        '0 10 1 * *',          // Monthly on 1st at 10 AM
-        '@daily',              // Named schedule
-        '@weekly',             // Named schedule
+        '0 9 * * *', // Daily at 9 AM
+        '0 12 * * 1', // Weekly Monday at noon
+        '*/15 * * * *', // Every 15 minutes
+        '0 9,21 * * *', // Twice daily at 9 AM and 9 PM
+        '0 10 1 * *', // Monthly on 1st at 10 AM
+        '@daily', // Named schedule
+        '@weekly', // Named schedule
       ];
 
       for (const cronExpr of validCronExpressions) {
@@ -695,17 +754,18 @@ test.describe('Health Business Logic Edge Cases', () => {
         const response = await apiRequest.post('/api/health/reminders', {
           data: reminder,
         });
+
         expect(response.status()).toBe(201);
       }
 
       // Test invalid cron expressions
       const invalidCronExpressions = [
-        '60 9 * * *',          // Invalid minute (60)
-        '0 25 * * *',          // Invalid hour (25)
-        '0 9 32 * *',          // Invalid day (32)
-        '0 9 * 13 *',          // Invalid month (13)
-        '0 9 * * 8',           // Invalid day of week (8)
-        'invalid',             // Completely invalid
+        '60 9 * * *', // Invalid minute (60)
+        '0 25 * * *', // Invalid hour (25)
+        '0 9 32 * *', // Invalid day (32)
+        '0 9 * 13 *', // Invalid month (13)
+        '0 9 * * 8', // Invalid day of week (8)
+        'invalid', // Completely invalid
       ];
 
       for (const cronExpr of invalidCronExpressions) {
@@ -719,6 +779,7 @@ test.describe('Health Business Logic Edge Cases', () => {
         const response = await apiRequest.post('/api/health/reminders', {
           data: reminder,
         });
+
         expect(response.status()).toBe(422);
       }
     });
@@ -735,11 +796,14 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/reminders', {
         data: dailyReminder,
       });
+
       expect(response.status()).toBe(201);
+
       const created = await response.json();
 
       // Verify nextRunAt is set to next 9 AM
       const nextRun = new Date(created.reminder.nextRunAt);
+
       expect(nextRun.getHours()).toBe(9);
       expect(nextRun.getMinutes()).toBe(0);
       expect(nextRun > new Date()).toBe(true);
@@ -748,6 +812,7 @@ test.describe('Health Business Logic Edge Cases', () => {
     test('should handle reminder trigger endpoint authentication', async () => {
       // Test without authentication
       const unauthResponse = await apiRequest.post('/api/health/reminders/trigger');
+
       expect(unauthResponse.status()).toBe(401);
 
       // Test with wrong secret
@@ -756,6 +821,7 @@ test.describe('Health Business Logic Edge Cases', () => {
           'X-Cron-Secret': 'wrong-secret',
         },
       });
+
       expect(wrongSecretResponse.status()).toBe(401);
 
       // Test with correct secret
@@ -764,13 +830,14 @@ test.describe('Health Business Logic Edge Cases', () => {
           'X-Cron-Secret': CRON_SECRET,
         },
       });
+
       expect(correctResponse.status()).toBe(200);
     });
 
     test('should process due reminders correctly', async () => {
       // Create reminder that should be due
       const pastDate = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
-      
+
       const dueReminder = {
         type_id: 1,
         cron_expr: '0 * * * *', // Every hour
@@ -781,6 +848,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const createResponse = await apiRequest.post('/api/health/reminders', {
         data: dueReminder,
       });
+
       expect(createResponse.status()).toBe(201);
 
       // Manually set nextRunAt to past time (would need database access)
@@ -792,8 +860,11 @@ test.describe('Health Business Logic Edge Cases', () => {
           'X-Cron-Secret': CRON_SECRET,
         },
       });
+
       expect(triggerResponse.status()).toBe(200);
+
       const result = await triggerResponse.json();
+
       expect(result.processed).toBeGreaterThanOrEqual(0);
     });
 
@@ -809,15 +880,20 @@ test.describe('Health Business Logic Edge Cases', () => {
       const createResponse = await apiRequest.post('/api/health/reminders', {
         data: reminder,
       });
+
       expect(createResponse.status()).toBe(201);
+
       const created = await createResponse.json();
 
       // Deactivate reminder
       const deactivateResponse = await apiRequest.delete(
-        `/api/health/reminders?id=${created.reminder.id}`
+        `/api/health/reminders?id=${created.reminder.id}`,
       );
+
       expect(deactivateResponse.status()).toBe(200);
+
       const deactivated = await deactivateResponse.json();
+
       expect(deactivated.reminder.active).toBe(false);
 
       // Reactivate reminder
@@ -829,8 +905,11 @@ test.describe('Health Business Logic Edge Cases', () => {
       const reactivateResponse = await apiRequest.patch('/api/health/reminders', {
         data: reactivateUpdate,
       });
+
       expect(reactivateResponse.status()).toBe(200);
+
       const reactivated = await reactivateResponse.json();
+
       expect(reactivated.reminder.active).toBe(true);
     });
 
@@ -846,6 +925,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const emptyResponse = await apiRequest.post('/api/health/reminders', {
         data: emptyMessageReminder,
       });
+
       expect(emptyResponse.status()).toBe(422);
 
       // Test message too long (> 500 characters)
@@ -860,6 +940,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const longResponse = await apiRequest.post('/api/health/reminders', {
         data: longMessageReminder,
       });
+
       expect(longResponse.status()).toBe(422);
 
       // Test valid message
@@ -873,6 +954,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const validResponse = await apiRequest.post('/api/health/reminders', {
         data: validReminder,
       });
+
       expect(validResponse.status()).toBe(201);
     });
   });
@@ -890,12 +972,16 @@ test.describe('Health Business Logic Edge Cases', () => {
       const recordResponse = await apiRequest.post('/api/health/records', {
         data: orphanRecord,
       });
+
       expect(recordResponse.status()).toBe(201);
 
       // Verify analytics still work
       const analyticsResponse = await apiRequest.get('/api/health/analytics/weight');
+
       expect(analyticsResponse.status()).toBe(200);
+
       const analytics = await analyticsResponse.json();
+
       expect(analytics.summary.currentValue).toBe('70');
     });
 
@@ -914,14 +1000,18 @@ test.describe('Health Business Logic Edge Cases', () => {
       const goalResponse = await apiRequest.post('/api/health/goals', {
         data: orphanGoal,
       });
+
       expect(goalResponse.status()).toBe(201);
 
       // Verify goal progress calculation handles missing records
       const goalsResponse = await apiRequest.get('/api/health/goals');
+
       expect(goalsResponse.status()).toBe(200);
+
       const goals = await goalsResponse.json();
-      
+
       const orphanGoalData = goals.goals.find(g => g.typeId === 5);
+
       expect(orphanGoalData.currentValue).toBe(0);
       expect(orphanGoalData.progressPercentage).toBe(0);
       expect(orphanGoalData.lastRecordedAt).toBeNull();
@@ -944,7 +1034,7 @@ test.describe('Health Business Logic Edge Cases', () => {
               unit: 'kg',
               recorded_at: new Date(Date.now() - i * 60 * 1000).toISOString(),
             },
-          })
+          }),
         );
       }
 
@@ -958,15 +1048,16 @@ test.describe('Health Business Logic Edge Cases', () => {
               target_date: futureDate.toISOString(),
               status: 'active',
             },
-          })
+          }),
         );
       }
 
       // Execute all concurrent requests
       const results = await Promise.allSettled(concurrentPromises);
-      
+
       // Verify all succeeded
       const successCount = results.filter(r => r.status === 'fulfilled').length;
+
       expect(successCount).toBe(concurrentPromises.length);
     });
   });
@@ -975,7 +1066,7 @@ test.describe('Health Business Logic Edge Cases', () => {
     test('should isolate data between different users', async () => {
       // This test would require multiple user contexts
       // For now, we'll test that unauthorized access is properly blocked
-      
+
       const unauthorizedRequest = await request.newContext({
         baseURL: API_BASE_URL,
         extraHTTPHeaders: {
@@ -985,8 +1076,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       });
 
       const response = await unauthorizedRequest.get('/api/health/records');
+
       expect(response.status()).toBe(401);
-      
+
       await unauthorizedRequest.dispose();
     });
 
@@ -1000,8 +1092,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       });
 
       const response = await malformedAuthRequest.get('/api/health/records');
+
       expect(response.status()).toBe(401);
-      
+
       await malformedAuthRequest.dispose();
     });
   });
@@ -1011,6 +1104,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const malformedResponse = await apiRequest.post('/api/health/records', {
         data: 'invalid-json',
       });
+
       expect(malformedResponse.status()).toBe(400);
     });
 
@@ -1025,6 +1119,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/records', {
         data: largeValueRecord,
       });
+
       expect(response.status()).toBe(422);
     });
 
@@ -1039,6 +1134,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/reminders', {
         data: specialCharReminder,
       });
+
       expect(response.status()).toBe(201);
     });
 
@@ -1053,6 +1149,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/reminders', {
         data: unicodeReminder,
       });
+
       expect(response.status()).toBe(201);
     });
   });
@@ -1062,7 +1159,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       // Create a large number of records
       const batchSize = 50; // Limited by validation
       const records = [];
-      
+
       for (let i = 0; i < batchSize; i++) {
         records.push({
           type_id: 1,
@@ -1093,11 +1190,11 @@ test.describe('Health Business Logic Edge Cases', () => {
 
     test('should handle concurrent requests efficiently', async () => {
       const concurrentRequests = [];
-      
+
       // Create 10 concurrent analytics requests
       for (let i = 0; i < 10; i++) {
         concurrentRequests.push(
-          apiRequest.get('/api/health/analytics/weight')
+          apiRequest.get('/api/health/analytics/weight'),
         );
       }
 
@@ -1106,7 +1203,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const endTime = Date.now();
 
       // All requests should succeed
-      results.forEach(response => {
+      results.forEach((response) => {
         expect(response.status()).toBe(200);
       });
 
@@ -1130,6 +1227,7 @@ test.describe('Health Business Logic Edge Cases', () => {
 
       for (const goal of goals) {
         const response = await apiRequest.post('/api/health/goals', { data: goal });
+
         expect(response.status()).toBe(201);
       }
 
@@ -1138,7 +1236,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       for (let month = 0; month < 6; month++) {
         for (let day = 0; day < 30; day += 3) { // Every 3 days
           const recordDate = new Date(baseDate.getTime() - (month * 30 + day) * 24 * 60 * 60 * 1000);
-          
+
           // Weight loss progression
           healthJourney.push({
             type_id: 1,
@@ -1168,26 +1266,35 @@ test.describe('Health Business Logic Edge Cases', () => {
       // Create all records
       for (const record of healthJourney) {
         const response = await apiRequest.post('/api/health/records', { data: record });
+
         expect(response.status()).toBe(201);
       }
 
       // Verify analytics show proper trends
       const weightAnalytics = await apiRequest.get('/api/health/analytics/weight');
+
       expect(weightAnalytics.status()).toBe(200);
+
       const weightData = await weightAnalytics.json();
+
       expect(weightData.summary.trend).toBe('decreasing');
 
       const stepsAnalytics = await apiRequest.get('/api/health/analytics/steps');
+
       expect(stepsAnalytics.status()).toBe(200);
+
       const stepsData = await stepsAnalytics.json();
+
       expect(stepsData.summary.trend).toBe('increasing');
 
       // Verify goal progress
       const goalsResponse = await apiRequest.get('/api/health/goals');
+
       expect(goalsResponse.status()).toBe(200);
+
       const goalsData = await goalsResponse.json();
-      
-      goalsData.goals.forEach(goal => {
+
+      goalsData.goals.forEach((goal) => {
         expect(goal.progressPercentage).toBeGreaterThan(0);
         expect(goal.currentValue).toBeGreaterThan(0);
       });
@@ -1208,7 +1315,9 @@ test.describe('Health Business Logic Edge Cases', () => {
       const goalResponse = await apiRequest.post('/api/health/goals', {
         data: initialGoal,
       });
+
       expect(goalResponse.status()).toBe(201);
+
       const createdGoal = await goalResponse.json();
 
       // Add records showing goal achievement
@@ -1231,6 +1340,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const completionResponse = await apiRequest.patch('/api/health/goals', {
         data: completionUpdate,
       });
+
       expect(completionResponse.status()).toBe(200);
 
       // Create new goal (further weight loss)
@@ -1247,17 +1357,22 @@ test.describe('Health Business Logic Edge Cases', () => {
       const newGoalResponse = await apiRequest.post('/api/health/goals', {
         data: newGoal,
       });
+
       expect(newGoalResponse.status()).toBe(201);
 
       // Verify both goals exist with correct statuses
       const allGoalsResponse = await apiRequest.get('/api/health/goals');
+
       expect(allGoalsResponse.status()).toBe(200);
+
       const allGoals = await allGoalsResponse.json();
-      
+
       const completedGoal = allGoals.goals.find(g => g.id === createdGoal.goal.id);
+
       expect(completedGoal.status).toBe('completed');
-      
+
       const activeGoals = allGoals.goals.filter(g => g.status === 'active' && g.typeId === 1);
+
       expect(activeGoals.length).toBe(1);
     });
   });
@@ -1275,6 +1390,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/records', {
         data: boundaryRecord,
       });
+
       expect(response.status()).toBe(201);
 
       // Test exactly over the limit
@@ -1288,13 +1404,14 @@ test.describe('Health Business Logic Edge Cases', () => {
       const overResponse = await apiRequest.post('/api/health/records', {
         data: overLimitRecord,
       });
+
       expect(overResponse.status()).toBe(422);
     });
 
     test('should handle leap year date boundaries', async () => {
       // Test February 29th on a leap year
       const leapYearDate = new Date('2024-02-29T12:00:00.000Z');
-      
+
       const leapYearRecord = {
         type_id: 1,
         value: 70,
@@ -1305,6 +1422,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/records', {
         data: leapYearRecord,
       });
+
       expect(response.status()).toBe(201);
     });
 
@@ -1319,11 +1437,13 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/records', {
         data: precisionRecord,
       });
+
       expect(response.status()).toBe(201);
-      
+
       const created = await response.json();
+
       // Verify precision is maintained appropriately
-      expect(parseFloat(created.record.value)).toBeCloseTo(70.123456789, 2);
+      expect(Number.parseFloat(created.record.value)).toBeCloseTo(70.123456789, 2);
     });
 
     test('should handle string length limits', async () => {
@@ -1339,6 +1459,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const response = await apiRequest.post('/api/health/reminders', {
         data: exactLimitReminder,
       });
+
       expect(response.status()).toBe(201);
 
       // Test message at 501 characters (should fail)
@@ -1353,6 +1474,7 @@ test.describe('Health Business Logic Edge Cases', () => {
       const overResponse = await apiRequest.post('/api/health/reminders', {
         data: overLimitReminder,
       });
+
       expect(overResponse.status()).toBe(422);
     });
   });

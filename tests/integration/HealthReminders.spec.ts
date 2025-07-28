@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { parseExpression } from 'cron-parser';
 
 const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
@@ -71,7 +71,7 @@ async function getHealthReminders(request: any, queryParams: any = {}) {
     `${BASE_URL}/api/health/reminders?${searchParams.toString()}`,
     {
       headers: await getAuthHeaders(),
-    }
+    },
   );
   return response;
 }
@@ -81,7 +81,7 @@ async function deleteHealthReminder(request: any, id: number) {
     `${BASE_URL}/api/health/reminders?id=${id}`,
     {
       headers: await getAuthHeaders(),
-    }
+    },
   );
   return response;
 }
@@ -126,9 +126,11 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
+
         expect(response.status()).toBe(201);
 
         const responseBody = await response.json();
+
         expect(responseBody.reminder).toBeDefined();
         expect(responseBody.reminder.cronExpr).toBe(cronExpr);
         expect(responseBody.reminder.nextRunAt).toBeDefined();
@@ -136,9 +138,10 @@ test.describe('Health Reminders Integration Tests', () => {
         // Verify nextRunAt is calculated correctly
         const expectedNextRun = getNextCronExecution(cronExpr);
         const actualNextRun = new Date(responseBody.reminder.nextRunAt);
-        
+
         // Allow for small time differences (within 1 minute)
         const timeDiff = Math.abs(expectedNextRun.getTime() - actualNextRun.getTime());
+
         expect(timeDiff).toBeLessThan(60000);
       }
     });
@@ -153,9 +156,11 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
+
         expect(response.status()).toBe(422);
 
         const responseBody = await response.json();
+
         expect(responseBody.error || responseBody.cron_expr).toBeDefined();
       }
     });
@@ -177,9 +182,11 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
+
         expect(response.status()).toBe(201);
 
         const responseBody = await response.json();
+
         expect(responseBody.reminder.nextRunAt).toBeDefined();
       }
     });
@@ -195,16 +202,17 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const response = await createHealthReminder(request, reminderData);
+
       expect(response.status()).toBe(201);
 
       const responseBody = await response.json();
       const nextRunAt = new Date(responseBody.reminder.nextRunAt);
-      
+
       // Should be set to next 9 AM
       expect(nextRunAt.getHours()).toBe(9);
       expect(nextRunAt.getMinutes()).toBe(0);
       expect(nextRunAt.getSeconds()).toBe(0);
-      
+
       // Should be in the future
       expect(nextRunAt.getTime()).toBeGreaterThan(Date.now());
     });
@@ -219,6 +227,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const createResponse = await createHealthReminder(request, reminderData);
+
       expect(createResponse.status()).toBe(201);
 
       const createdReminder = await createResponse.json();
@@ -228,8 +237,9 @@ test.describe('Health Reminders Integration Tests', () => {
       const updateResponse = await updateHealthReminder(
         request,
         createdReminder.reminder.id,
-        { cron_expr: VALID_CRON_EXPRESSIONS.DAILY_8AM }
+        { cron_expr: VALID_CRON_EXPRESSIONS.DAILY_8AM },
       );
+
       expect(updateResponse.status()).toBe(200);
 
       const updatedReminder = await updateResponse.json();
@@ -237,7 +247,7 @@ test.describe('Health Reminders Integration Tests', () => {
 
       // Next run time should be different
       expect(newNextRun.getTime()).not.toBe(originalNextRun.getTime());
-      
+
       // Should be set to next 8 AM
       expect(newNextRun.getHours()).toBe(8);
       expect(newNextRun.getMinutes()).toBe(0);
@@ -270,6 +280,7 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
+
         expect(response.status()).toBe(201);
 
         const responseBody = await response.json();
@@ -293,9 +304,11 @@ test.describe('Health Reminders Integration Tests', () => {
 
     test('should authenticate with valid cron secret', async ({ request }) => {
       const response = await triggerReminders(request, VALID_CRON_SECRET);
+
       expect(response.status()).toBe(200);
 
       const responseBody = await response.json();
+
       expect(responseBody.message).toBe('Reminders processed');
       expect(responseBody.processed).toBeDefined();
       expect(responseBody.timestamp).toBeDefined();
@@ -306,9 +319,11 @@ test.describe('Health Reminders Integration Tests', () => {
 
       for (const invalidSecret of invalidSecrets) {
         const response = await triggerReminders(request, invalidSecret);
+
         expect(response.status()).toBe(401);
 
         const responseBody = await response.json();
+
         expect(responseBody.error).toBe('Unauthorized');
       }
     });
@@ -323,6 +338,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const createResponse = await createHealthReminder(request, reminderData);
+
       expect(createResponse.status()).toBe(201);
 
       const createdReminder = await createResponse.json();
@@ -331,9 +347,11 @@ test.describe('Health Reminders Integration Tests', () => {
       // For this test, we'll assume the reminder is due
 
       const triggerResponse = await triggerReminders(request, VALID_CRON_SECRET);
+
       expect(triggerResponse.status()).toBe(200);
 
       const triggerBody = await triggerResponse.json();
+
       expect(triggerBody.processed).toBeGreaterThanOrEqual(0);
       expect(triggerBody.details).toBeDefined();
     });
@@ -350,9 +368,11 @@ test.describe('Health Reminders Integration Tests', () => {
       await createHealthReminder(request, reminderData);
 
       const triggerResponse = await triggerReminders(request, VALID_CRON_SECRET);
+
       expect(triggerResponse.status()).toBe(200);
 
       const triggerBody = await triggerResponse.json();
+
       expect(triggerBody.processed).toBe(0);
       expect(triggerBody.message).toContain('No reminders due');
     });
@@ -373,15 +393,17 @@ test.describe('Health Reminders Integration Tests', () => {
       }
 
       const createResponses = await Promise.all(reminderPromises);
-      createResponses.forEach(response => {
+      createResponses.forEach((response) => {
         expect(response.status()).toBe(201);
       });
 
       // Trigger reminders
       const triggerResponse = await triggerReminders(request, VALID_CRON_SECRET);
+
       expect(triggerResponse.status()).toBe(200);
 
       const triggerBody = await triggerResponse.json();
+
       expect(triggerBody.processed).toBeGreaterThanOrEqual(0);
       expect(triggerBody.details.successful).toBeDefined();
     });
@@ -407,10 +429,12 @@ test.describe('Health Reminders Integration Tests', () => {
       await createHealthReminder(request, inactiveReminderData);
 
       const triggerResponse = await triggerReminders(request, VALID_CRON_SECRET);
+
       expect(triggerResponse.status()).toBe(200);
 
       // Only active reminders should be processed
       const triggerBody = await triggerResponse.json();
+
       expect(triggerBody.details).toBeDefined();
     });
   });
@@ -425,9 +449,11 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const response = await createHealthReminder(request, reminderData);
+
       expect(response.status()).toBe(201);
 
       const responseBody = await response.json();
+
       expect(responseBody.reminder).toBeDefined();
       expect(responseBody.reminder.typeId).toBe(reminderData.type_id);
       expect(responseBody.reminder.cronExpr).toBe(reminderData.cron_expr);
@@ -446,6 +472,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const createResponse = await createHealthReminder(request, reminderData);
+
       expect(createResponse.status()).toBe(201);
 
       const createdReminder = await createResponse.json();
@@ -460,11 +487,13 @@ test.describe('Health Reminders Integration Tests', () => {
       const updateResponse = await updateHealthReminder(
         request,
         createdReminder.reminder.id,
-        updateData
+        updateData,
       );
+
       expect(updateResponse.status()).toBe(200);
 
       const updatedReminder = await updateResponse.json();
+
       expect(updatedReminder.reminder.cronExpr).toBe(updateData.cron_expr);
       expect(updatedReminder.reminder.message).toBe(updateData.message);
       expect(updatedReminder.reminder.active).toBe(updateData.active);
@@ -480,6 +509,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const createResponse = await createHealthReminder(request, reminderData);
+
       expect(createResponse.status()).toBe(201);
 
       const createdReminder = await createResponse.json();
@@ -487,11 +517,13 @@ test.describe('Health Reminders Integration Tests', () => {
       // Delete reminder
       const deleteResponse = await deleteHealthReminder(
         request,
-        createdReminder.reminder.id
+        createdReminder.reminder.id,
       );
+
       expect(deleteResponse.status()).toBe(200);
 
       const deleteBody = await deleteResponse.json();
+
       expect(deleteBody.message).toContain('deactivated successfully');
       expect(deleteBody.reminder.active).toBe(false);
     });
@@ -506,6 +538,7 @@ test.describe('Health Reminders Integration Tests', () => {
 
       for (const invalidData of invalidReminderData) {
         const response = await createHealthReminder(request, invalidData);
+
         expect(response.status()).toBe(422);
       }
     });
@@ -530,20 +563,26 @@ test.describe('Health Reminders Integration Tests', () => {
 
       // Filter by active status
       const activeResponse = await getHealthReminders(request, { active: 'true' });
+
       expect(activeResponse.status()).toBe(200);
 
       const activeBody = await activeResponse.json();
+
       expect(activeBody.reminders).toBeDefined();
+
       activeBody.reminders.forEach((reminder: any) => {
         expect(reminder.active).toBe(true);
       });
 
       // Filter by inactive status
       const inactiveResponse = await getHealthReminders(request, { active: 'false' });
+
       expect(inactiveResponse.status()).toBe(200);
 
       const inactiveBody = await inactiveResponse.json();
+
       expect(inactiveBody.reminders).toBeDefined();
+
       inactiveBody.reminders.forEach((reminder: any) => {
         expect(reminder.active).toBe(false);
       });
@@ -567,10 +606,13 @@ test.describe('Health Reminders Integration Tests', () => {
 
       // Filter by weight type
       const weightResponse = await getHealthReminders(request, { type_id: HEALTH_TYPES.WEIGHT });
+
       expect(weightResponse.status()).toBe(200);
 
       const weightBody = await weightResponse.json();
+
       expect(weightBody.reminders).toBeDefined();
+
       weightBody.reminders.forEach((reminder: any) => {
         expect(reminder.typeId).toBe(HEALTH_TYPES.WEIGHT);
       });
@@ -588,15 +630,17 @@ test.describe('Health Reminders Integration Tests', () => {
         });
         const body = await response.json();
         reminderIds.push(body.reminder.id);
-        
+
         // Small delay to ensure different creation times
         await new Promise(resolve => setTimeout(resolve, 10));
       }
 
       const response = await getHealthReminders(request);
+
       expect(response.status()).toBe(200);
 
       const body = await response.json();
+
       expect(body.reminders).toBeDefined();
       expect(body.reminders.length).toBeGreaterThanOrEqual(3);
 
@@ -604,6 +648,7 @@ test.describe('Health Reminders Integration Tests', () => {
       for (let i = 1; i < body.reminders.length; i++) {
         const prevDate = new Date(body.reminders[i - 1].createdAt);
         const currDate = new Date(body.reminders[i].createdAt);
+
         expect(prevDate.getTime()).toBeLessThanOrEqual(currDate.getTime());
       }
     });
@@ -627,9 +672,11 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
+
         expect(response.status()).toBe(201);
 
         const responseBody = await response.json();
+
         expect(responseBody.reminder.typeId).toBe(test.type_id);
         expect(responseBody.reminder.message).toBe(test.message);
       }
@@ -647,6 +694,7 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
+
         expect(response.status()).toBe(422);
       }
     });
@@ -683,15 +731,18 @@ test.describe('Health Reminders Integration Tests', () => {
 
       for (const scenario of scenarios) {
         const response = await createHealthReminder(request, scenario);
+
         expect(response.status()).toBe(201);
 
         const responseBody = await response.json();
+
         expect(responseBody.reminder.message).toBe(scenario.message);
         expect(responseBody.reminder.cronExpr).toBe(scenario.cron_expr);
         expect(responseBody.reminder.typeId).toBe(scenario.type_id);
 
         // Verify nextRunAt is calculated correctly
         const nextRunAt = new Date(responseBody.reminder.nextRunAt);
+
         expect(nextRunAt.getTime()).toBeGreaterThan(Date.now());
       }
     });
@@ -708,6 +759,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const emptyResponse = await createHealthReminder(request, emptyMessageData);
+
       expect(emptyResponse.status()).toBe(422);
 
       // Test too long message (over 500 characters)
@@ -720,6 +772,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const longResponse = await createHealthReminder(request, longMessageData);
+
       expect(longResponse.status()).toBe(422);
 
       // Test valid message length
@@ -732,6 +785,7 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const validResponse = await createHealthReminder(request, validMessageData);
+
       expect(validResponse.status()).toBe(201);
     });
 
@@ -763,7 +817,7 @@ test.describe('Health Reminders Integration Tests', () => {
         };
 
         const response = await createHealthReminder(request, reminderData);
-        
+
         if (edgeCase.shouldWork) {
           expect(response.status()).toBe(201);
         } else {
@@ -786,6 +840,7 @@ test.describe('Health Reminders Integration Tests', () => {
           data,
           headers: await getAuthHeaders(),
         });
+
         expect(response.status()).toBeGreaterThanOrEqual(400);
       }
     });
@@ -794,9 +849,10 @@ test.describe('Health Reminders Integration Tests', () => {
   test.describe('Authentication and Security', () => {
     test('should require authentication for all reminder operations', async ({ request }) => {
       const unauthenticatedRequest = request;
-      
+
       // Test GET without auth
       const getResponse = await unauthenticatedRequest.get(`${BASE_URL}/api/health/reminders`);
+
       expect(getResponse.status()).toBe(401);
 
       // Test POST without auth
@@ -808,16 +864,19 @@ test.describe('Health Reminders Integration Tests', () => {
           active: true,
         },
       });
+
       expect(postResponse.status()).toBe(401);
 
       // Test PATCH without auth
       const patchResponse = await unauthenticatedRequest.patch(`${BASE_URL}/api/health/reminders`, {
         data: { id: 1, message: 'Updated' },
       });
+
       expect(patchResponse.status()).toBe(401);
 
       // Test DELETE without auth
       const deleteResponse = await unauthenticatedRequest.delete(`${BASE_URL}/api/health/reminders?id=1`);
+
       expect(deleteResponse.status()).toBe(401);
     });
 
@@ -825,11 +884,13 @@ test.describe('Health Reminders Integration Tests', () => {
       // This test would require creating multiple users
       // For now, we'll test that reminders are properly filtered by user
       const response = await getHealthReminders(request);
+
       expect(response.status()).toBe(200);
 
       const body = await response.json();
+
       expect(body.reminders).toBeDefined();
-      
+
       // All reminders should belong to the current user
       // (This would be validated by the API implementation)
     });
@@ -843,10 +904,11 @@ test.describe('Health Reminders Integration Tests', () => {
       };
 
       const response = await createHealthReminder(request, reminderData);
+
       expect(response.status()).toBe(201);
 
       const responseBody = await response.json();
-      
+
       // Should not expose internal secrets or sensitive data
       expect(responseBody.reminder.userId).toBeUndefined();
       expect(responseBody.reminder.cronSecret).toBeUndefined();
@@ -857,7 +919,7 @@ test.describe('Health Reminders Integration Tests', () => {
   test.describe('Performance and Scalability', () => {
     test('should handle multiple concurrent reminder operations', async ({ request }) => {
       const concurrentOperations = [];
-      
+
       // Create multiple reminders concurrently
       for (let i = 0; i < 10; i++) {
         const reminderData = {
@@ -870,9 +932,9 @@ test.describe('Health Reminders Integration Tests', () => {
       }
 
       const responses = await Promise.all(concurrentOperations);
-      
+
       // All operations should succeed
-      responses.forEach(response => {
+      responses.forEach((response) => {
         expect(response.status()).toBe(201);
       });
     });
@@ -898,12 +960,14 @@ test.describe('Health Reminders Integration Tests', () => {
       const endTime = Date.now();
 
       expect(triggerResponse.status()).toBe(200);
-      
+
       // Response should be reasonably fast (under 5 seconds)
       const responseTime = endTime - startTime;
+
       expect(responseTime).toBeLessThan(5000);
 
       const triggerBody = await triggerResponse.json();
+
       expect(triggerBody.processed).toBeDefined();
       expect(triggerBody.timestamp).toBeDefined();
     });
@@ -923,14 +987,17 @@ test.describe('Health Reminders Integration Tests', () => {
 
       // Trigger reminders
       const triggerResponse = await triggerReminders(request, VALID_CRON_SECRET);
+
       expect(triggerResponse.status()).toBe(200);
 
       const triggerBody = await triggerResponse.json();
+
       expect(triggerBody.details).toBeDefined();
-      
+
       // Verify notification context is included
       if (triggerBody.details.successful && triggerBody.details.successful.length > 0) {
         const processedReminder = triggerBody.details.successful[0];
+
         expect(processedReminder.id).toBeDefined();
         expect(processedReminder.userId).toBeDefined();
         expect(processedReminder.healthType).toBeDefined();

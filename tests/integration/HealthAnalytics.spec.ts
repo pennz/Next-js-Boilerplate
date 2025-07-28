@@ -1,26 +1,26 @@
-import { test, expect } from '@playwright/test';
 import type { APIRequestContext } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Test data interfaces
-interface HealthRecord {
+type HealthRecord = {
   id?: number;
   type_id: number;
   value: number;
   unit: string;
   recorded_at: string;
   user_id?: string;
-}
+};
 
-interface HealthType {
+type HealthType = {
   id: number;
   slug: string;
   displayName: string;
   unit: string;
   typicalRangeLow?: number;
   typicalRangeHigh?: number;
-}
+};
 
-interface AnalyticsResponse {
+type AnalyticsResponse = {
   type: string;
   displayName: string;
   unit: string;
@@ -46,7 +46,7 @@ interface AnalyticsResponse {
     low: number | null;
     high: number | null;
   };
-}
+};
 
 // Helper functions
 class HealthAnalyticsTestHelper {
@@ -62,6 +62,7 @@ class HealthAnalyticsTestHelper {
     });
 
     expect(response.status()).toBe(201);
+
     return await response.json();
   }
 
@@ -71,16 +72,22 @@ class HealthAnalyticsTestHelper {
       start_date?: string;
       end_date?: string;
       aggregation?: 'daily' | 'weekly' | 'monthly';
-    } = {}
+    } = {},
   ): Promise<AnalyticsResponse> {
     const searchParams = new URLSearchParams();
-    if (params.start_date) searchParams.set('start_date', params.start_date);
-    if (params.end_date) searchParams.set('end_date', params.end_date);
-    if (params.aggregation) searchParams.set('aggregation', params.aggregation);
+    if (params.start_date) {
+      searchParams.set('start_date', params.start_date);
+    }
+    if (params.end_date) {
+      searchParams.set('end_date', params.end_date);
+    }
+    if (params.aggregation) {
+      searchParams.set('aggregation', params.aggregation);
+    }
 
     const response = await this.request.get(`/api/health/analytics/${type}?${searchParams}`, {
       headers: {
-        'Authorization': `Bearer ${this.authToken}`,
+        Authorization: `Bearer ${this.authToken}`,
       },
     });
 
@@ -92,24 +99,24 @@ class HealthAnalyticsTestHelper {
     unit: string,
     values: number[],
     startDate: Date,
-    intervalDays: number = 1
+    intervalDays: number = 1,
   ): Promise<HealthRecord[]> {
     const records: HealthRecord[] = [];
-    
+
     for (let i = 0; i < values.length; i++) {
       const recordDate = new Date(startDate);
       recordDate.setDate(recordDate.getDate() + (i * intervalDays));
-      
+
       const record = await this.createHealthRecord({
         type_id: typeId,
         value: values[i],
         unit,
         recorded_at: recordDate.toISOString(),
       });
-      
+
       records.push(record);
     }
-    
+
     return records;
   }
 
@@ -117,7 +124,7 @@ class HealthAnalyticsTestHelper {
     // Delete all health records for the test user
     await this.request.delete('/api/health/records/cleanup', {
       headers: {
-        'Authorization': `Bearer ${this.authToken}`,
+        Authorization: `Bearer ${this.authToken}`,
       },
     });
   }
@@ -126,7 +133,7 @@ class HealthAnalyticsTestHelper {
     const end = new Date();
     const start = new Date();
     start.setDate(start.getDate() - daysBack);
-    
+
     return {
       start: start.toISOString(),
       end: end.toISOString(),
@@ -145,7 +152,7 @@ class HealthAnalyticsTestHelper {
     const sumXX = values.reduce((sum, _, index) => sum + index * index, 0);
 
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-    
+
     return {
       direction: slope > 0 ? 'increasing' : slope < 0 ? 'decreasing' : 'stable',
       slope,
@@ -184,9 +191,9 @@ test.describe('Health Analytics Integration Tests', () => {
     });
     const authData = await authResponse.json();
     authToken = authData.token;
-    
+
     helper = new HealthAnalyticsTestHelper(request, authToken);
-    
+
     // Clean up any existing test data
     await helper.cleanupHealthRecords();
   });
@@ -200,16 +207,43 @@ test.describe('Health Analytics Integration Tests', () => {
     test('should calculate daily aggregation correctly with known dataset', async () => {
       // Create 30 days of weight data with known values
       const weightValues = [
-        80.0, 79.8, 79.5, 79.3, 79.0, 78.8, 78.5, 78.3, 78.0, 77.8,
-        77.5, 77.3, 77.0, 76.8, 76.5, 76.3, 76.0, 75.8, 75.5, 75.3,
-        75.0, 74.8, 74.5, 74.3, 74.0, 73.8, 73.5, 73.3, 73.0, 72.8
+        80.0,
+        79.8,
+        79.5,
+        79.3,
+        79.0,
+        78.8,
+        78.5,
+        78.3,
+        78.0,
+        77.8,
+        77.5,
+        77.3,
+        77.0,
+        76.8,
+        76.5,
+        76.3,
+        76.0,
+        75.8,
+        75.5,
+        75.3,
+        75.0,
+        74.8,
+        74.5,
+        74.3,
+        74.0,
+        73.8,
+        73.5,
+        73.3,
+        73.0,
+        72.8,
       ];
-      
+
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 29); // 30 days ago
-      
+
       await helper.createTestDataset(1, 'kg', weightValues, startDate);
-      
+
       const analytics = await helper.getAnalytics('weight', {
         aggregation: 'daily',
         start_date: startDate.toISOString(),
@@ -218,7 +252,7 @@ test.describe('Health Analytics Integration Tests', () => {
 
       expect(analytics.aggregation).toBe('daily');
       expect(analytics.data).toHaveLength(30);
-      
+
       // Verify each day's aggregation
       analytics.data.forEach((dayData, index) => {
         expect(dayData.value).toBeCloseTo(weightValues[index], 1);
@@ -226,7 +260,7 @@ test.describe('Health Analytics Integration Tests', () => {
         expect(dayData.max).toBe(weightValues[index]);
         expect(dayData.count).toBe(1);
       });
-      
+
       // Verify summary statistics
       expect(analytics.summary.totalRecords).toBe(30);
       expect(analytics.summary.currentValue).toBeCloseTo(72.8, 1);
@@ -237,9 +271,9 @@ test.describe('Health Analytics Integration Tests', () => {
       const dailyValues = Array.from({ length: 28 }, (_, i) => 80 - (i * 0.2));
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 27);
-      
+
       await helper.createTestDataset(1, 'kg', dailyValues, startDate);
-      
+
       const analytics = await helper.getAnalytics('weight', {
         aggregation: 'weekly',
         start_date: startDate.toISOString(),
@@ -248,7 +282,7 @@ test.describe('Health Analytics Integration Tests', () => {
 
       expect(analytics.aggregation).toBe('weekly');
       expect(analytics.data.length).toBeGreaterThan(0);
-      
+
       // Verify weekly aggregation calculations
       analytics.data.forEach((weekData) => {
         expect(weekData.count).toBeGreaterThan(0);
@@ -266,12 +300,12 @@ test.describe('Health Analytics Integration Tests', () => {
           monthlyData.push(80 - (month * 2) - (day * 0.05));
         }
       }
-      
+
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 3);
-      
+
       await helper.createTestDataset(1, 'kg', monthlyData, startDate);
-      
+
       const analytics = await helper.getAnalytics('weight', {
         aggregation: 'monthly',
         start_date: startDate.toISOString(),
@@ -280,7 +314,7 @@ test.describe('Health Analytics Integration Tests', () => {
 
       expect(analytics.aggregation).toBe('monthly');
       expect(analytics.data.length).toBeGreaterThan(0);
-      
+
       // Verify monthly aggregation
       analytics.data.forEach((monthData) => {
         expect(monthData.count).toBeGreaterThan(0);
@@ -295,19 +329,19 @@ test.describe('Health Analytics Integration Tests', () => {
       const weightValues = [80.0, 79.4, 78.8, 78.2, 77.6, 77.0, 76.4, 75.8, 75.2, 75.0];
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 9);
-      
+
       await helper.createTestDataset(1, 'kg', weightValues, startDate);
-      
+
       const analytics = await helper.getAnalytics('weight', {
         start_date: startDate.toISOString(),
         end_date: new Date().toISOString(),
       });
 
       const expectedTrend = helper.calculateExpectedTrend(weightValues);
-      
+
       expect(analytics.summary.trend).toBe('decreasing'); // Weight loss = decreasing trend
       expect(analytics.summary.trendValue).toBeGreaterThan(0);
-      
+
       // Verify trend calculation matches expected slope
       expect(Math.abs(analytics.summary.trendValue)).toBeCloseTo(Math.abs(expectedTrend.slope), 1);
     });
@@ -317,11 +351,11 @@ test.describe('Health Analytics Integration Tests', () => {
       const stableValues = [75.0, 75.1, 74.9, 75.0, 75.1, 74.9, 75.0, 75.1, 74.9, 75.0];
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 9);
-      
+
       await helper.createTestDataset(1, 'kg', stableValues, startDate);
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       expect(analytics.summary.trend).toBe('stable');
       expect(analytics.summary.trendValue).toBeLessThan(0.1);
     });
@@ -331,11 +365,11 @@ test.describe('Health Analytics Integration Tests', () => {
       const stepValues = [5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500];
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 9);
-      
+
       await helper.createTestDataset(2, 'steps', stepValues, startDate);
-      
+
       const analytics = await helper.getAnalytics('steps');
-      
+
       expect(analytics.summary.trend).toBe('increasing');
       expect(analytics.summary.trendValue).toBeGreaterThan(0);
     });
@@ -347,44 +381,44 @@ test.describe('Health Analytics Integration Tests', () => {
       const values = Array.from({ length: 30 }, (_, i) => 75 + i);
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 29);
-      
+
       await helper.createTestDataset(1, 'kg', values, startDate);
-      
+
       // Test 1 week range
       const weekRange = helper.generateDateRange(7);
       const weekAnalytics = await helper.getAnalytics('weight', {
         start_date: weekRange.start,
         end_date: weekRange.end,
       });
-      
+
       expect(weekAnalytics.data.length).toBeLessThanOrEqual(8); // 7 days + potential partial day
       expect(weekAnalytics.summary.totalRecords).toBeLessThanOrEqual(8);
-      
+
       // Test 1 month range
       const monthRange = helper.generateDateRange(30);
       const monthAnalytics = await helper.getAnalytics('weight', {
         start_date: monthRange.start,
         end_date: monthRange.end,
       });
-      
+
       expect(monthAnalytics.summary.totalRecords).toBe(30);
     });
 
     test('should handle same start and end date', async () => {
       const today = new Date().toISOString().split('T')[0];
-      
+
       await helper.createHealthRecord({
         type_id: 1,
         value: 75.0,
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       const analytics = await helper.getAnalytics('weight', {
         start_date: today,
         end_date: today,
       });
-      
+
       expect(analytics.summary.totalRecords).toBe(1);
       expect(analytics.data).toHaveLength(1);
     });
@@ -395,7 +429,7 @@ test.describe('Health Analytics Integration Tests', () => {
       yesterday.setDate(yesterday.getDate() - 1);
       const twoDaysAgo = new Date(today);
       twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-      
+
       // Create records on different days
       await helper.createHealthRecord({
         type_id: 1,
@@ -403,27 +437,27 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: twoDaysAgo.toISOString(),
       });
-      
+
       await helper.createHealthRecord({
         type_id: 1,
         value: 74.5,
         unit: 'kg',
         recorded_at: yesterday.toISOString(),
       });
-      
+
       await helper.createHealthRecord({
         type_id: 1,
         value: 74.0,
         unit: 'kg',
         recorded_at: today.toISOString(),
       });
-      
+
       // Query only yesterday's data
       const analytics = await helper.getAnalytics('weight', {
         start_date: yesterday.toISOString(),
         end_date: yesterday.toISOString(),
       });
-      
+
       expect(analytics.summary.totalRecords).toBe(1);
       expect(analytics.data[0].value).toBeCloseTo(74.5, 1);
     });
@@ -437,26 +471,26 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       const params = {
         start_date: helper.generateDateRange(7).start,
         end_date: helper.generateDateRange(7).end,
         aggregation: 'daily' as const,
       };
-      
+
       // First request
       const startTime1 = Date.now();
       const analytics1 = await helper.getAnalytics('weight', params);
       const duration1 = Date.now() - startTime1;
-      
+
       // Second identical request (should be cached)
       const startTime2 = Date.now();
       const analytics2 = await helper.getAnalytics('weight', params);
       const duration2 = Date.now() - startTime2;
-      
+
       // Verify results are identical
       expect(analytics1).toEqual(analytics2);
-      
+
       // Second request should be faster (cached)
       expect(duration2).toBeLessThan(duration1);
     });
@@ -464,8 +498,9 @@ test.describe('Health Analytics Integration Tests', () => {
     test('should invalidate cache when new records are added', async () => {
       // Initial request
       const analytics1 = await helper.getAnalytics('weight');
+
       expect(analytics1.summary.totalRecords).toBe(0);
-      
+
       // Add new record
       await helper.createHealthRecord({
         type_id: 1,
@@ -473,9 +508,10 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       // Request again - should reflect new data
       const analytics2 = await helper.getAnalytics('weight');
+
       expect(analytics2.summary.totalRecords).toBe(1);
       expect(analytics2.summary.currentValue).toBeCloseTo(75.0, 1);
     });
@@ -489,11 +525,11 @@ test.describe('Health Analytics Integration Tests', () => {
         { value: 78.0, daysAgo: 1 }, // Most recent
         { value: 77.0, daysAgo: 2 }, // Older than the 78.0 record
       ];
-      
+
       for (const record of records) {
         const recordDate = new Date();
         recordDate.setDate(recordDate.getDate() - record.daysAgo);
-        
+
         await helper.createHealthRecord({
           type_id: 1,
           value: record.value,
@@ -501,9 +537,9 @@ test.describe('Health Analytics Integration Tests', () => {
           recorded_at: recordDate.toISOString(),
         });
       }
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       // Should match the most recent record (78.0, 1 day ago)
       expect(analytics.summary.currentValue).toBeCloseTo(78.0, 1);
     });
@@ -513,11 +549,11 @@ test.describe('Health Analytics Integration Tests', () => {
       const values = Array.from({ length: recordCount }, (_, i) => 75 + i);
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - (recordCount - 1));
-      
+
       await helper.createTestDataset(1, 'kg', values, startDate);
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       expect(analytics.summary.totalRecords).toBe(recordCount);
     });
 
@@ -528,9 +564,9 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       // Verify typical range is included (values depend on health type config)
       expect(analytics.typicalRange).toBeDefined();
       expect(typeof analytics.typicalRange.low).toBe('number');
@@ -542,13 +578,14 @@ test.describe('Health Analytics Integration Tests', () => {
     test('should handle analytics for health types with no records', async ({ request }) => {
       const response = await request.get('/api/health/analytics/weight', {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
-      
+
       expect(response.status()).toBe(200);
-      
+
       const analytics = await response.json();
+
       expect(analytics.summary.totalRecords).toBe(0);
       expect(analytics.summary.currentValue).toBeNull();
       expect(analytics.data).toHaveLength(0);
@@ -557,26 +594,28 @@ test.describe('Health Analytics Integration Tests', () => {
     test('should return 404 for invalid health type IDs', async ({ request }) => {
       const response = await request.get('/api/health/analytics/invalid_type', {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
-      
+
       expect(response.status()).toBe(404);
-      
+
       const error = await response.json();
+
       expect(error.error).toBe('Invalid health type');
     });
 
     test('should return 422 for malformed date parameters', async ({ request }) => {
       const response = await request.get('/api/health/analytics/weight?start_date=invalid-date', {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
-      
+
       expect(response.status()).toBe(422);
-      
+
       const error = await response.json();
+
       expect(error.error).toBe('Invalid query parameters');
     });
 
@@ -587,9 +626,9 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       // Verify complete response structure
       expect(analytics).toHaveProperty('type');
       expect(analytics).toHaveProperty('displayName');
@@ -599,16 +638,17 @@ test.describe('Health Analytics Integration Tests', () => {
       expect(analytics).toHaveProperty('summary');
       expect(analytics).toHaveProperty('data');
       expect(analytics).toHaveProperty('typicalRange');
-      
+
       // Verify summary structure
       expect(analytics.summary).toHaveProperty('currentValue');
       expect(analytics.summary).toHaveProperty('trend');
       expect(analytics.summary).toHaveProperty('trendValue');
       expect(analytics.summary).toHaveProperty('totalRecords');
-      
+
       // Verify data array structure
       if (analytics.data.length > 0) {
         const dataPoint = analytics.data[0];
+
         expect(dataPoint).toHaveProperty('date');
         expect(dataPoint).toHaveProperty('value');
         expect(dataPoint).toHaveProperty('min');
@@ -624,21 +664,21 @@ test.describe('Health Analytics Integration Tests', () => {
       const largeDataset = Array.from({ length: 500 }, (_, i) => 75 + (i % 10));
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 499);
-      
+
       // Measure creation time
       const createStart = Date.now();
       await helper.createTestDataset(1, 'kg', largeDataset, startDate);
       const createDuration = Date.now() - createStart;
-      
+
       console.log(`Created 500 records in ${createDuration}ms`);
-      
+
       // Measure analytics query time
       const queryStart = Date.now();
       const analytics = await helper.getAnalytics('weight');
       const queryDuration = Date.now() - queryStart;
-      
+
       console.log(`Analytics query completed in ${queryDuration}ms`);
-      
+
       // Verify results
       expect(analytics.summary.totalRecords).toBe(500);
       expect(queryDuration).toBeLessThan(5000); // Should complete within 5 seconds
@@ -649,28 +689,28 @@ test.describe('Health Analytics Integration Tests', () => {
       const values = Array.from({ length: 50 }, (_, i) => 75 + i);
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 49);
-      
+
       await helper.createTestDataset(1, 'kg', values, startDate);
-      
+
       // Make 5 concurrent requests
       const concurrentRequests = Array.from({ length: 5 }, () =>
-        helper.getAnalytics('weight', { aggregation: 'daily' })
-      );
-      
+        helper.getAnalytics('weight', { aggregation: 'daily' }));
+
       const startTime = Date.now();
       const results = await Promise.all(concurrentRequests);
       const duration = Date.now() - startTime;
-      
+
       console.log(`5 concurrent requests completed in ${duration}ms`);
-      
+
       // Verify all requests returned the same data
       results.forEach((result, index) => {
         expect(result.summary.totalRecords).toBe(50);
+
         if (index > 0) {
           expect(result).toEqual(results[0]);
         }
       });
-      
+
       expect(duration).toBeLessThan(10000); // Should complete within 10 seconds
     });
   });
@@ -684,7 +724,7 @@ test.describe('Health Analytics Integration Tests', () => {
         { slug: 'sleep', unit: 'hours', value: 8.0 },
         { slug: 'water_intake', unit: 'liters', value: 2.5 },
       ];
-      
+
       for (const healthType of healthTypes) {
         await helper.createHealthRecord({
           type_id: 1, // This would need to map to actual type IDs
@@ -692,9 +732,9 @@ test.describe('Health Analytics Integration Tests', () => {
           unit: healthType.unit,
           recorded_at: new Date().toISOString(),
         });
-        
+
         const analytics = await helper.getAnalytics(healthType.slug);
-        
+
         expect(analytics.type).toBe(healthType.slug);
         expect(analytics.unit).toBe(healthType.unit);
         expect(analytics.summary.currentValue).toBeCloseTo(healthType.value, 1);
@@ -708,9 +748,9 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       expect(analytics.unit).toBe('kg');
       expect(analytics.displayName).toBeDefined();
       expect(analytics.displayName.length).toBeGreaterThan(0);
@@ -723,11 +763,11 @@ test.describe('Health Analytics Integration Tests', () => {
         unit: 'kg',
         recorded_at: new Date().toISOString(),
       });
-      
+
       const analytics = await helper.getAnalytics('weight');
-      
+
       expect(analytics.typicalRange).toBeDefined();
-      
+
       // If typical range is configured, it should have valid values
       if (analytics.typicalRange.low !== null && analytics.typicalRange.high !== null) {
         expect(analytics.typicalRange.low).toBeLessThan(analytics.typicalRange.high);

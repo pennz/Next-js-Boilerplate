@@ -118,13 +118,13 @@ export const HealthRecordForm = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        
+
         // Handle zod validation errors that come in tree format
         if (response.status === 422 && errorData) {
           // Extract validation errors from zod tree format
           const extractErrors = (obj: any, path = ''): string[] => {
             const errors: string[] = [];
-            
+
             if (typeof obj === 'string') {
               errors.push(obj);
             } else if (Array.isArray(obj)) {
@@ -133,21 +133,21 @@ export const HealthRecordForm = ({
               if (obj._errors && Array.isArray(obj._errors)) {
                 errors.push(...obj._errors);
               }
-              Object.keys(obj).forEach(key => {
+              Object.keys(obj).forEach((key) => {
                 if (key !== '_errors') {
                   const newPath = path ? `${path}.${key}` : key;
                   errors.push(...extractErrors(obj[key], newPath));
                 }
               });
             }
-            
+
             return errors;
           };
 
           const validationErrors = extractErrors(errorData);
           throw new Error(validationErrors.length > 0 ? validationErrors.join(', ') : 'Validation failed');
         }
-        
+
         throw new Error(errorData.message || errorData.error || 'Failed to save health record');
       }
 

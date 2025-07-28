@@ -697,17 +697,17 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">
               {t('goal_current')}
-            :
-            {analyticsData.goalProgress?.current ?? 0}
-            {' '}
-            {analyticsData.summary.unit}
+              :
+              {analyticsData.goalProgress?.current ?? 0}
+              {' '}
+              {analyticsData.summary.unit}
             </span>
             <span className="text-sm text-gray-600">
               {t('goal_target')}
-            :
-            {analyticsData.goalProgress?.target ?? 0}
-            {' '}
-            {analyticsData.summary.unit}
+              :
+              {analyticsData.goalProgress?.target ?? 0}
+              {' '}
+              {analyticsData.summary.unit}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
@@ -852,9 +852,11 @@ export default async function HealthAnalyticsPage(props: HealthAnalyticsPageProp
               <p className="text-sm text-gray-600">
                 {t('insight_radar_overview', {
                   metricsCount: radarData[0]?.metrics?.length ?? 0,
-                  avgScore: radarData[0]?.metrics ? Math.round(
-                    radarData[0].metrics.reduce((sum, metric) => sum + (metric.score ?? 0), 0) / radarData[0].metrics.length,
-                  ) : 0,
+                  avgScore: radarData[0]?.metrics
+                    ? Math.round(
+                        radarData[0].metrics.reduce((sum, metric) => sum + (metric.score ?? 0), 0) / radarData[0].metrics.length,
+                      )
+                    : 0,
                 })}
               </p>
             </div>

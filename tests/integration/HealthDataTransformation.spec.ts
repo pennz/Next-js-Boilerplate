@@ -1,33 +1,27 @@
-import { test, expect } from '@playwright/test';
 import type { APIRequestContext } from '@playwright/test';
+import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverview';
+import type {
+  HealthRadarMetric,
+  HealthSummaryMetric,
+  RadarChartData,
+  TrendDirection,
+} from '@/components/health/types';
+import { expect, test } from '@playwright/test';
 import {
-  transformToSummaryMetrics,
-  transformToRadarData,
-  transformToPredictiveData,
+  calculateOverallHealthScore,
   calculateTrend,
   getHealthTypeConfig,
-  normalizeHealthValue,
-  calculateOverallHealthScore,
   getScoreColor,
-  formatHealthValue,
+  normalizeHealthValue,
+  transformToPredictiveData,
+  transformToRadarData,
+  transformToSummaryMetrics,
 } from '@/utils/healthDataTransformers';
 import {
-  scoreHealthMetric,
   aggregateRadarData,
   getHealthMetricRanges,
-  calculateStatisticalData,
-  getScoreCategory,
+  scoreHealthMetric,
 } from '@/utils/healthScoring';
-import type {
-  HealthSummaryMetric,
-  HealthRadarMetric,
-  PredictedDataPoint,
-  RadarChartData,
-  ScoringSystem,
-  TrendDirection,
-  PredictionAlgorithm,
-} from '@/components/health/types';
-import type { HealthRecord, HealthGoal } from '@/components/health/HealthOverview';
 
 // Test data builders
 const buildHealthRecord = (overrides: Partial<HealthRecord> = {}): HealthRecord => ({
@@ -59,7 +53,7 @@ const buildAnalyticsData = (type: string, days: number = 30) => {
   const data = [];
   const baseValue = type === 'weight' ? 70 : type === 'steps' ? 8000 : 7;
   const trend = type === 'weight' ? -0.1 : type === 'steps' ? 50 : 0.02; // weight decreasing, steps increasing, sleep slightly increasing
-  
+
   for (let i = 0; i < days; i++) {
     const date = new Date(Date.now() - (days - i - 1) * 24 * 60 * 60 * 1000);
     const value = baseValue + (trend * i) + (Math.random() - 0.5) * 2; // Add some noise
@@ -89,7 +83,9 @@ class HealthAPIHelper {
         ...data,
       },
     });
+
     expect(response.status()).toBe(201);
+
     return response.json();
   }
 
@@ -104,7 +100,9 @@ class HealthAPIHelper {
         ...data,
       },
     });
+
     expect(response.status()).toBe(201);
+
     return response.json();
   }
 
@@ -112,7 +110,9 @@ class HealthAPIHelper {
     const response = await this.request.get('/api/health/records', {
       headers: { Authorization: `Bearer ${this.authToken}` },
     });
+
     expect(response.status()).toBe(200);
+
     return response.json();
   }
 
@@ -120,7 +120,9 @@ class HealthAPIHelper {
     const response = await this.request.get('/api/health/goals', {
       headers: { Authorization: `Bearer ${this.authToken}` },
     });
+
     expect(response.status()).toBe(200);
+
     return response.json();
   }
 
@@ -129,7 +131,9 @@ class HealthAPIHelper {
     const response = await this.request.get(`/api/health/analytics/${type}?${searchParams}`, {
       headers: { Authorization: `Bearer ${this.authToken}` },
     });
+
     expect(response.status()).toBe(200);
+
     return response.json();
   }
 }
@@ -146,7 +150,9 @@ test.describe('Health Data Transformation Integration Tests', () => {
         password: 'testpassword123',
       },
     });
+
     expect(loginResponse.status()).toBe(200);
+
     const loginData = await loginResponse.json();
     authToken = loginData.token;
     apiHelper = new HealthAPIHelper(request, authToken);
@@ -160,7 +166,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
         value: 72,
         unit: 'kg',
       });
-      
+
       const goalData = await apiHelper.createHealthGoal({
         type: 'weight',
         target_value: 65,
@@ -176,8 +182,9 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
       // Verify transformation
       expect(summaryMetrics).toHaveLength(1);
+
       const metric = summaryMetrics[0];
-      
+
       expect(metric).toMatchObject({
         label: 'Weight',
         value: 72,
@@ -201,8 +208,9 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const goals = await apiHelper.getHealthGoals();
 
       const summaryMetrics = transformToSummaryMetrics(records.data, goals.data);
-      
+
       const stepsMetric = summaryMetrics.find(m => m.label === 'Steps');
+
       expect(stepsMetric).toBeDefined();
       expect(stepsMetric?.goalTarget).toBeUndefined();
       expect(stepsMetric?.goalCurrent).toBeUndefined();
@@ -220,8 +228,9 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const goals = await apiHelper.getHealthGoals();
 
       const summaryMetrics = transformToSummaryMetrics(records.data, goals.data);
-      
+
       const sleepMetric = summaryMetrics.find(m => m.label === 'Sleep');
+
       expect(sleepMetric).toBeDefined();
       expect(sleepMetric?.value).toBe(6.5);
       expect(sleepMetric?.goalTarget).toBe(8);
@@ -229,9 +238,10 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
     test('should validate icon and color assignment from getHealthTypeConfig', async () => {
       const healthTypes = ['weight', 'steps', 'sleep', 'heart_rate', 'water_intake'];
-      
+
       for (const type of healthTypes) {
         const config = getHealthTypeConfig(type);
+
         expect(config.icon).toBeDefined();
         expect(config.color).toMatch(/^#[0-9a-f]{6}$/i);
         expect(config.unit).toBeDefined();
@@ -270,7 +280,9 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const radarData = transformToRadarData(records.data, goalsData.data);
 
       expect(radarData).toHaveLength(1);
+
       const radarChart = radarData[0];
+
       expect(radarChart.metrics.length).toBeGreaterThanOrEqual(4);
 
       // Verify radar metrics structure
@@ -282,7 +294,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
         expect(metric).toHaveProperty('score');
         expect(metric).toHaveProperty('color');
         expect(metric).toHaveProperty('icon');
-        
+
         expect(metric.score).toBeGreaterThanOrEqual(0);
         expect(metric.score).toBeLessThanOrEqual(100);
       });
@@ -299,10 +311,12 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const radarData = transformToRadarData(records.data, []);
 
       const weightMetric = radarData[0].metrics.find(m => m.category === 'Weight');
+
       expect(weightMetric).toBeDefined();
 
       // Compare with direct normalizeHealthValue call
       const directScore = normalizeHealthValue(70, 'weight', 'percentage');
+
       expect(weightMetric?.score).toBe(directScore);
     });
 
@@ -315,9 +329,10 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const radarData = transformToRadarData(records.data, []);
 
       expect(radarData[0].metrics.length).toBeGreaterThanOrEqual(3);
-      
+
       // Check for placeholder metrics
       const placeholderMetrics = radarData[0].metrics.filter(m => m.value === 0);
+
       expect(placeholderMetrics.length).toBeGreaterThan(0);
     });
   });
@@ -326,25 +341,25 @@ test.describe('Health Data Transformation Integration Tests', () => {
     test('should transform analytics data with linear regression', async () => {
       // Create analytics data with known trend
       const analyticsData = buildAnalyticsData('weight', 14); // 14 days of weight loss
-      
+
       // Transform to predictive data
       const predictiveData = transformToPredictiveData(
         analyticsData.map(d => ({ date: d.date, value: d.value, unit: 'kg' })),
         'linear-regression',
-        7
+        7,
       );
 
       // Verify structure
       expect(predictiveData.length).toBe(21); // 14 historical + 7 predictions
-      
+
       const historicalData = predictiveData.filter(p => !p.isPrediction);
       const predictions = predictiveData.filter(p => p.isPrediction);
-      
+
       expect(historicalData).toHaveLength(14);
       expect(predictions).toHaveLength(7);
 
       // Verify predictions have confidence intervals
-      predictions.forEach(prediction => {
+      predictions.forEach((prediction) => {
         expect(prediction.isPrediction).toBe(true);
         expect(prediction.algorithm).toBe('linear-regression');
         expect(prediction.confidenceUpper).toBeDefined();
@@ -356,19 +371,20 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
     test('should transform analytics data with moving average', async () => {
       const analyticsData = buildAnalyticsData('steps', 10);
-      
+
       const predictiveData = transformToPredictiveData(
         analyticsData.map(d => ({ date: d.date, value: d.value, unit: 'steps' })),
         'moving-average',
-        5
+        5,
       );
 
       expect(predictiveData.length).toBe(15); // 10 historical + 5 predictions
-      
+
       const predictions = predictiveData.filter(p => p.isPrediction);
+
       expect(predictions).toHaveLength(5);
-      
-      predictions.forEach(prediction => {
+
+      predictions.forEach((prediction) => {
         expect(prediction.algorithm).toBe('moving-average');
       });
     });
@@ -377,7 +393,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
       // Test with insufficient data
       const minimalData = [{ date: '2024-01-01', value: 70, unit: 'kg' }];
       const result = transformToPredictiveData(minimalData, 'linear-regression', 7);
-      
+
       expect(result).toHaveLength(1); // Only historical data, no predictions
       expect(result[0].isPrediction).toBe(false);
     });
@@ -395,7 +411,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
       const predictiveData = transformToPredictiveData(linearData, 'linear-regression', 3);
       const predictions = predictiveData.filter(p => p.isPrediction);
-      
+
       // With perfect linear trend, predictions should continue the pattern
       expect(predictions[0].value).toBeCloseTo(71, 1); // 80 - 9 = 71
       expect(predictions[1].value).toBeCloseTo(70, 1); // 80 - 10 = 70
@@ -415,7 +431,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
       for (const testCase of testCases) {
         const transformerScore = normalizeHealthValue(testCase.value, testCase.type, 'percentage');
         const scoringScore = scoreHealthMetric(testCase.type as any, testCase.value, 'percentage');
-        
+
         // Scores should be within reasonable range (allowing for different algorithms)
         expect(Math.abs(transformerScore - scoringScore)).toBeLessThan(20);
       }
@@ -435,7 +451,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
       // Transform using both methods
       const transformerRadar = transformToRadarData(records, goals);
-      
+
       const healthDataSets = {
         weight: [{ date: '2024-01-01', value: 70 }],
         steps: [{ date: '2024-01-01', value: 8500 }],
@@ -450,7 +466,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
       // Compare specific metrics
       const transformerWeight = transformerRadar[0].metrics.find(m => m.category === 'Weight');
       const scoringWeight = scoringRadar.find(m => m.category === 'Weight');
-      
+
       if (transformerWeight && scoringWeight) {
         expect(transformerWeight.value).toBe(scoringWeight.value);
         expect(Math.abs(transformerWeight.score - scoringWeight.score)).toBeLessThan(10);
@@ -459,25 +475,25 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
     test('should have consistent color mapping between modules', async () => {
       const scores = [25, 45, 65, 85]; // poor, fair, good, excellent
-      
+
       for (const score of scores) {
         const transformerColor = getScoreColor(score);
         const scoringColor = getScoreColor(score);
-        
+
         expect(transformerColor).toBe(scoringColor);
       }
     });
 
     test('should have consistent health metric ranges', async () => {
       const healthTypes = ['weight', 'steps', 'sleep', 'heart_rate'];
-      
+
       for (const type of healthTypes) {
         const transformerConfig = getHealthTypeConfig(type);
         const scoringRanges = getHealthMetricRanges(type as any);
-        
+
         // Units should match
         expect(transformerConfig.unit).toBe(scoringRanges.unit);
-        
+
         // Ideal ranges should be consistent
         if (transformerConfig.idealRange && scoringRanges.optimal) {
           expect(transformerConfig.idealRange.min).toBeCloseTo(scoringRanges.optimal.min, 1);
@@ -491,7 +507,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
     test('should handle complete health data scenario', async () => {
       // Create comprehensive health data
       const healthTypes = ['weight', 'steps', 'sleep', 'heart_rate', 'water_intake'];
-      
+
       // Create records
       for (const type of healthTypes) {
         await apiHelper.createHealthRecord({
@@ -526,7 +542,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
       expect(overallScore).toBeLessThanOrEqual(100);
 
       // Verify UI component prop requirements
-      summaryMetrics.forEach(metric => {
+      summaryMetrics.forEach((metric) => {
         expect(metric).toHaveProperty('id');
         expect(metric).toHaveProperty('label');
         expect(metric).toHaveProperty('value');
@@ -534,7 +550,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
         expect(metric).toHaveProperty('icon');
       });
 
-      radarData[0].metrics.forEach(metric => {
+      radarData[0].metrics.forEach((metric) => {
         expect(metric).toHaveProperty('category');
         expect(metric).toHaveProperty('value');
         expect(metric).toHaveProperty('maxValue');
@@ -585,11 +601,15 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
         // Compare with API trend
         const apiTrendDirection = analyticsResponse.summary.trend;
-        
+
         let expectedDirection: TrendDirection;
-        if (apiTrendDirection === 'increasing') expectedDirection = 'up';
-        else if (apiTrendDirection === 'decreasing') expectedDirection = 'down';
-        else expectedDirection = 'neutral';
+        if (apiTrendDirection === 'increasing') {
+          expectedDirection = 'up';
+        } else if (apiTrendDirection === 'decreasing') {
+          expectedDirection = 'down';
+        } else {
+          expectedDirection = 'neutral';
+        }
 
         expect(transformerTrend.direction).toBe(expectedDirection);
       }
@@ -605,6 +625,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
 
       for (const testCase of testCases) {
         const trend = calculateTrend(testCase.current, testCase.previous);
+
         expect(trend.direction).toBe(testCase.expectedDirection);
         expect(trend.percentage).toBeCloseTo(testCase.expectedPercentage, 1);
       }
@@ -624,11 +645,13 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const summaryMetrics = transformToSummaryMetrics([], goals.data);
 
       const weightMetric = summaryMetrics.find(m => m.label === 'Weight');
+
       expect(weightMetric?.goalCurrent).toBe(70);
       expect(weightMetric?.goalTarget).toBe(65);
 
       // Calculate expected progress percentage
       const expectedProgress = (70 / 65) * 100; // Over 100% since current > target for weight loss
+
       expect(expectedProgress).toBeGreaterThan(100);
     });
   });
@@ -636,15 +659,15 @@ test.describe('Health Data Transformation Integration Tests', () => {
   test.describe('Health Type Configuration Integration', () => {
     test('should have consistent health type configurations', async () => {
       const healthTypes = ['weight', 'steps', 'sleep', 'heart_rate', 'water_intake'];
-      
+
       for (const type of healthTypes) {
         const config = getHealthTypeConfig(type);
-        
+
         // Verify all required properties exist
         expect(config.icon).toBeDefined();
         expect(config.color).toMatch(/^#[0-9a-f]{6}$/i);
         expect(config.unit).toBeDefined();
-        
+
         // Verify ideal ranges are reasonable
         if (config.idealRange) {
           expect(config.idealRange.min).toBeGreaterThan(0);
@@ -710,19 +733,20 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const goals = [buildHealthGoal({ type: 'weight', target_value: 65 })];
 
       // Run multiple transformations concurrently
-      const promises = Array(10).fill(0).map(() => 
+      const promises = Array.from({ length: 10 }).fill(0).map(() =>
         Promise.all([
           transformToSummaryMetrics(records, goals),
           transformToRadarData(records, goals),
           transformToPredictiveData([{ date: '2024-01-01', value: 70 }], 'linear-regression', 7),
-        ])
+        ]),
       );
 
       const results = await Promise.all(promises);
-      
+
       // All should complete successfully
       expect(results).toHaveLength(10);
-      results.forEach(result => {
+
+      results.forEach((result) => {
         expect(result[0]).toHaveLength(1); // summary metrics
         expect(result[1]).toHaveLength(1); // radar data
         expect(result[2]).toHaveLength(8); // predictive data (1 historical + 7 predictions)
@@ -747,12 +771,12 @@ test.describe('Health Data Transformation Integration Tests', () => {
       // Transform to all formats
       const summaryMetrics = transformToSummaryMetrics(
         [buildHealthRecord({ type: 'weight', value: weightLossData[weightLossData.length - 1].value })],
-        [buildHealthGoal({ type: 'weight', target_value: 70, current_value: weightLossData[weightLossData.length - 1].value })]
+        [buildHealthGoal({ type: 'weight', target_value: 70, current_value: weightLossData[weightLossData.length - 1].value })],
       );
 
       const radarData = transformToRadarData(
         [buildHealthRecord({ type: 'weight', value: weightLossData[weightLossData.length - 1].value })],
-        [buildHealthGoal({ type: 'weight', target_value: 70 })]
+        [buildHealthGoal({ type: 'weight', target_value: 70 })],
       );
 
       const predictiveData = transformToPredictiveData(weightLossData, 'linear-regression', 30);
@@ -760,8 +784,9 @@ test.describe('Health Data Transformation Integration Tests', () => {
       // Verify realistic outputs
       expect(summaryMetrics[0].value).toBeCloseTo(71, 1);
       expect(radarData[0].metrics[0].score).toBeGreaterThan(50); // Should be good score
-      
+
       const predictions = predictiveData.filter(p => p.isPrediction);
+
       expect(predictions[0].value).toBeLessThan(weightLossData[weightLossData.length - 1].value); // Should predict continued loss
     });
 
@@ -801,17 +826,31 @@ test.describe('Health Data Transformation Integration Tests', () => {
         expect(typeof metric.label).toBe('string');
         expect(typeof metric.value).toBe('number');
         expect(typeof metric.unit).toBe('string');
-        if (metric.previousValue !== undefined) expect(typeof metric.previousValue).toBe('number');
-        if (metric.goalTarget !== undefined) expect(typeof metric.goalTarget).toBe('number');
-        if (metric.goalCurrent !== undefined) expect(typeof metric.goalCurrent).toBe('number');
-        if (metric.icon !== undefined) expect(typeof metric.icon).toBe('string');
+
+        if (metric.previousValue !== undefined) {
+          expect(typeof metric.previousValue).toBe('number');
+        }
+        if (metric.goalTarget !== undefined) {
+          expect(typeof metric.goalTarget).toBe('number');
+        }
+        if (metric.goalCurrent !== undefined) {
+          expect(typeof metric.goalCurrent).toBe('number');
+        }
+        if (metric.icon !== undefined) {
+          expect(typeof metric.icon).toBe('string');
+        }
       });
 
       // Verify RadarChartData type compliance
       radarData.forEach((chart: RadarChartData) => {
         expect(Array.isArray(chart.metrics)).toBe(true);
-        if (chart.timestamp !== undefined) expect(typeof chart.timestamp).toBe('string');
-        if (chart.label !== undefined) expect(typeof chart.label).toBe('string');
+
+        if (chart.timestamp !== undefined) {
+          expect(typeof chart.timestamp).toBe('string');
+        }
+        if (chart.label !== undefined) {
+          expect(typeof chart.label).toBe('string');
+        }
 
         chart.metrics.forEach((metric: HealthRadarMetric) => {
           expect(typeof metric.category).toBe('string');
@@ -819,8 +858,13 @@ test.describe('Health Data Transformation Integration Tests', () => {
           expect(typeof metric.maxValue).toBe('number');
           expect(typeof metric.unit).toBe('string');
           expect(typeof metric.score).toBe('number');
-          if (metric.color !== undefined) expect(typeof metric.color).toBe('string');
-          if (metric.icon !== undefined) expect(typeof metric.icon).toBe('string');
+
+          if (metric.color !== undefined) {
+            expect(typeof metric.color).toBe('string');
+          }
+          if (metric.icon !== undefined) {
+            expect(typeof metric.icon).toBe('string');
+          }
         });
       });
     });
@@ -833,7 +877,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
       const radarData = transformToRadarData(records, goals);
 
       // Check required fields for summary metrics
-      summaryMetrics.forEach(metric => {
+      summaryMetrics.forEach((metric) => {
         expect(metric.id).toBeDefined();
         expect(metric.label).toBeDefined();
         expect(metric.value).toBeDefined();
@@ -841,7 +885,7 @@ test.describe('Health Data Transformation Integration Tests', () => {
       });
 
       // Check required fields for radar data
-      radarData[0].metrics.forEach(metric => {
+      radarData[0].metrics.forEach((metric) => {
         expect(metric.category).toBeDefined();
         expect(metric.value).toBeDefined();
         expect(metric.maxValue).toBeDefined();

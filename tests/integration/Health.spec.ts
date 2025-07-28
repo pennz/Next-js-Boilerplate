@@ -23,8 +23,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthRecord.status()).toBe(201);
-      
+
       const recordJson = await healthRecord.json();
+
       expect(recordJson).toHaveProperty('id');
       expect(recordJson.type_id).toBe(1);
       expect(recordJson.value).toBe(70.5);
@@ -40,8 +41,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthRecord.status()).toBe(422);
-      
+
       const errorJson = await healthRecord.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
@@ -54,15 +56,16 @@ test.describe('Health Management', () => {
       });
 
       expect(healthRecord.status()).toBe(422);
-      
+
       const errorJson = await healthRecord.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('shouldn\'t create a health record with future date', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
-      
+
       const healthRecord = await apiRequest(request, 'post', '/api/health/records', {
         type_id: 1,
         value: 70.5,
@@ -71,8 +74,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthRecord.status()).toBe(422);
-      
+
       const errorJson = await healthRecord.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
@@ -88,8 +92,9 @@ test.describe('Health Management', () => {
       const records = await apiRequest(request, 'get', '/api/health/records');
 
       expect(records.status()).toBe(200);
-      
+
       const recordsJson = await records.json();
+
       expect(Array.isArray(recordsJson.data)).toBe(true);
       expect(recordsJson.data.length).toBeGreaterThan(0);
     });
@@ -104,7 +109,7 @@ test.describe('Health Management', () => {
       });
 
       const createdRecord = await createResponse.json();
-      
+
       // Update the record
       const updateResponse = await apiRequest(request, 'put', `/api/health/records/${createdRecord.id}`, {
         value: 72.0,
@@ -112,8 +117,9 @@ test.describe('Health Management', () => {
       });
 
       expect(updateResponse.status()).toBe(200);
-      
+
       const updatedRecord = await updateResponse.json();
+
       expect(updatedRecord.value).toBe(72.0);
     });
 
@@ -127,14 +133,15 @@ test.describe('Health Management', () => {
       });
 
       const createdRecord = await createResponse.json();
-      
+
       // Delete the record
       const deleteResponse = await apiRequest(request, 'delete', `/api/health/records/${createdRecord.id}`);
 
       expect(deleteResponse.status()).toBe(204);
-      
+
       // Verify record is deleted
       const getResponse = await apiRequest(request, 'get', `/api/health/records/${createdRecord.id}`);
+
       expect(getResponse.status()).toBe(404);
     });
   });
@@ -143,7 +150,7 @@ test.describe('Health Management', () => {
     test('should create a new health goal with valid data', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
-      
+
       const healthGoal = await apiRequest(request, 'post', '/api/health/goals', {
         type_id: 1,
         target_value: 65.0,
@@ -152,8 +159,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthGoal.status()).toBe(201);
-      
+
       const goalJson = await healthGoal.json();
+
       expect(goalJson).toHaveProperty('id');
       expect(goalJson.type_id).toBe(1);
       expect(goalJson.target_value).toBe(65.0);
@@ -163,7 +171,7 @@ test.describe('Health Management', () => {
     test('shouldn\'t create a health goal with past target date', async ({ request }) => {
       const pastDate = new Date();
       pastDate.setMonth(pastDate.getMonth() - 1);
-      
+
       const healthGoal = await apiRequest(request, 'post', '/api/health/goals', {
         type_id: 1,
         target_value: 65.0,
@@ -172,15 +180,16 @@ test.describe('Health Management', () => {
       });
 
       expect(healthGoal.status()).toBe(422);
-      
+
       const errorJson = await healthGoal.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('shouldn\'t create a health goal with invalid status', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
-      
+
       const healthGoal = await apiRequest(request, 'post', '/api/health/goals', {
         type_id: 1,
         target_value: 65.0,
@@ -189,15 +198,16 @@ test.describe('Health Management', () => {
       });
 
       expect(healthGoal.status()).toBe(422);
-      
+
       const errorJson = await healthGoal.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('should retrieve health goals for authenticated user', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
-      
+
       // Create a goal first
       await apiRequest(request, 'post', '/api/health/goals', {
         type_id: 1,
@@ -209,8 +219,9 @@ test.describe('Health Management', () => {
       const goals = await apiRequest(request, 'get', '/api/health/goals');
 
       expect(goals.status()).toBe(200);
-      
+
       const goalsJson = await goals.json();
+
       expect(Array.isArray(goalsJson.data)).toBe(true);
       expect(goalsJson.data.length).toBeGreaterThan(0);
     });
@@ -218,7 +229,7 @@ test.describe('Health Management', () => {
     test('should update goal status', async ({ request }) => {
       const futureDate = new Date();
       futureDate.setMonth(futureDate.getMonth() + 3);
-      
+
       // Create a goal first
       const createResponse = await apiRequest(request, 'post', '/api/health/goals', {
         type_id: 1,
@@ -228,15 +239,16 @@ test.describe('Health Management', () => {
       });
 
       const createdGoal = await createResponse.json();
-      
+
       // Update the goal status
       const updateResponse = await apiRequest(request, 'patch', `/api/health/goals/${createdGoal.id}`, {
         status: 'completed',
       });
 
       expect(updateResponse.status()).toBe(200);
-      
+
       const updatedGoal = await updateResponse.json();
+
       expect(updatedGoal.status).toBe('completed');
     });
   });
@@ -251,8 +263,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthReminder.status()).toBe(201);
-      
+
       const reminderJson = await healthReminder.json();
+
       expect(reminderJson).toHaveProperty('id');
       expect(reminderJson.type_id).toBe(1);
       expect(reminderJson.cron_expr).toBe('0 9 * * *');
@@ -270,8 +283,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthReminder.status()).toBe(422);
-      
+
       const errorJson = await healthReminder.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
@@ -284,8 +298,9 @@ test.describe('Health Management', () => {
       });
 
       expect(healthReminder.status()).toBe(422);
-      
+
       const errorJson = await healthReminder.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
@@ -301,8 +316,9 @@ test.describe('Health Management', () => {
       const reminders = await apiRequest(request, 'get', '/api/health/reminders');
 
       expect(reminders.status()).toBe(200);
-      
+
       const remindersJson = await reminders.json();
+
       expect(Array.isArray(remindersJson.data)).toBe(true);
       expect(remindersJson.data.length).toBeGreaterThan(0);
     });
@@ -317,15 +333,16 @@ test.describe('Health Management', () => {
       });
 
       const createdReminder = await createResponse.json();
-      
+
       // Deactivate the reminder
       const updateResponse = await apiRequest(request, 'patch', `/api/health/reminders/${createdReminder.id}`, {
         active: false,
       });
 
       expect(updateResponse.status()).toBe(200);
-      
+
       const updatedReminder = await updateResponse.json();
+
       expect(updatedReminder.active).toBe(false);
     });
   });
@@ -336,7 +353,7 @@ test.describe('Health Management', () => {
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       await apiRequest(request, 'post', '/api/health/records', {
         type_id: 1,
         value: 70.0,
@@ -354,8 +371,9 @@ test.describe('Health Management', () => {
       const analytics = await apiRequest(request, 'get', '/api/health/analytics/1');
 
       expect(analytics.status()).toBe(200);
-      
+
       const analyticsJson = await analytics.json();
+
       expect(analyticsJson).toHaveProperty('data');
       expect(analyticsJson).toHaveProperty('currentValue');
       expect(analyticsJson).toHaveProperty('trend');
@@ -367,12 +385,13 @@ test.describe('Health Management', () => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 7);
       const endDate = new Date();
-      
+
       const analytics = await apiRequest(request, 'get', `/api/health/analytics/1?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`);
 
       expect(analytics.status()).toBe(200);
-      
+
       const analyticsJson = await analytics.json();
+
       expect(analyticsJson).toHaveProperty('data');
       expect(analyticsJson).toHaveProperty('start_date');
       expect(analyticsJson).toHaveProperty('end_date');
@@ -382,8 +401,9 @@ test.describe('Health Management', () => {
       const analytics = await apiRequest(request, 'get', '/api/health/analytics/999');
 
       expect(analytics.status()).toBe(404);
-      
+
       const errorJson = await analytics.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
@@ -391,12 +411,13 @@ test.describe('Health Management', () => {
       const startDate = new Date();
       const endDate = new Date();
       endDate.setDate(endDate.getDate() - 7); // End date before start date
-      
+
       const analytics = await apiRequest(request, 'get', `/api/health/analytics/1?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`);
 
       expect(analytics.status()).toBe(422);
-      
+
       const errorJson = await analytics.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
@@ -407,7 +428,7 @@ test.describe('Health Management', () => {
         const date = new Date();
         date.setDate(date.getDate() - i);
         dates.push(date);
-        
+
         await apiRequest(request, 'post', '/api/health/records', {
           type_id: 1,
           value: 70 + i,
@@ -418,17 +439,21 @@ test.describe('Health Management', () => {
 
       // Test daily aggregation
       const dailyAnalytics = await apiRequest(request, 'get', '/api/health/analytics/1?aggregation=daily');
+
       expect(dailyAnalytics.status()).toBe(200);
-      
+
       const dailyJson = await dailyAnalytics.json();
+
       expect(dailyJson).toHaveProperty('data');
       expect(Array.isArray(dailyJson.data)).toBe(true);
 
       // Test weekly aggregation
       const weeklyAnalytics = await apiRequest(request, 'get', '/api/health/analytics/1?aggregation=weekly');
+
       expect(weeklyAnalytics.status()).toBe(200);
-      
+
       const weeklyJson = await weeklyAnalytics.json();
+
       expect(weeklyJson).toHaveProperty('data');
       expect(Array.isArray(weeklyJson.data)).toBe(true);
     });
@@ -439,7 +464,7 @@ test.describe('Health Management', () => {
       for (let i = 0; i < 5; i++) {
         const date = new Date(baseDate);
         date.setDate(date.getDate() - (4 - i));
-        
+
         await apiRequest(request, 'post', '/api/health/records', {
           type_id: 1,
           value: 70 + i, // Increasing values
@@ -449,9 +474,11 @@ test.describe('Health Management', () => {
       }
 
       const analytics = await apiRequest(request, 'get', '/api/health/analytics/1');
+
       expect(analytics.status()).toBe(200);
-      
+
       const analyticsJson = await analytics.json();
+
       expect(analyticsJson).toHaveProperty('trend');
       expect(analyticsJson.trend).toHaveProperty('direction');
       expect(['increasing', 'decreasing', 'stable']).toContain(analyticsJson.trend.direction);
@@ -462,13 +489,14 @@ test.describe('Health Management', () => {
     test('should trigger reminders with valid cron secret', async ({ request }) => {
       const triggerResponse = await request.post('/api/health/reminders/trigger', {
         headers: {
-          'Authorization': 'Bearer test-cron-secret',
+          Authorization: 'Bearer test-cron-secret',
         },
       });
 
       expect(triggerResponse.status()).toBe(200);
-      
+
       const triggerJson = await triggerResponse.json();
+
       expect(triggerJson).toHaveProperty('processed');
       expect(typeof triggerJson.processed).toBe('number');
     });
@@ -477,21 +505,23 @@ test.describe('Health Management', () => {
       const triggerResponse = await request.post('/api/health/reminders/trigger');
 
       expect(triggerResponse.status()).toBe(401);
-      
+
       const errorJson = await triggerResponse.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('shouldn\'t trigger reminders with invalid cron secret', async ({ request }) => {
       const triggerResponse = await request.post('/api/health/reminders/trigger', {
         headers: {
-          'Authorization': 'Bearer invalid-secret',
+          Authorization: 'Bearer invalid-secret',
         },
       });
 
       expect(triggerResponse.status()).toBe(401);
-      
+
       const errorJson = await triggerResponse.json();
+
       expect(errorJson).toHaveProperty('error');
     });
   });
@@ -499,33 +529,41 @@ test.describe('Health Management', () => {
   test.describe('Authentication and Authorization', () => {
     test('shouldn\'t access health records without authentication', async ({ request }) => {
       const records = await request.get('/api/health/records');
+
       expect(records.status()).toBe(401);
-      
+
       const errorJson = await records.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('shouldn\'t access health goals without authentication', async ({ request }) => {
       const goals = await request.get('/api/health/goals');
+
       expect(goals.status()).toBe(401);
-      
+
       const errorJson = await goals.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('shouldn\'t access health reminders without authentication', async ({ request }) => {
       const reminders = await request.get('/api/health/reminders');
+
       expect(reminders.status()).toBe(401);
-      
+
       const errorJson = await reminders.json();
+
       expect(errorJson).toHaveProperty('error');
     });
 
     test('shouldn\'t access analytics without authentication', async ({ request }) => {
       const analytics = await request.get('/api/health/analytics/1');
+
       expect(analytics.status()).toBe(401);
-      
+
       const errorJson = await analytics.json();
+
       expect(errorJson).toHaveProperty('error');
     });
   });
@@ -576,7 +614,7 @@ test.describe('Health Management', () => {
       // Verify data isolation - each user should only see their own records
       expect(Array.isArray(user1Json.data)).toBe(true);
       expect(Array.isArray(user2Json.data)).toBe(true);
-      
+
       // User 1 should not see user 2's record (value 80.0)
       expect(user1Json.data.some((record: any) => record.value === 80.0)).toBe(false);
       // User 2 should not see user 1's record (value 70.0)

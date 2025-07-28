@@ -5,17 +5,16 @@
  * realistic health data scenarios, and integration with healthScoring module.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverview';
-import type { HealthRadarMetric, PredictedDataPoint, RadarChartData, TrendDirection } from '@/components/health/types';
 import type { HealthDataPoint, HealthMetricType, UserProfile } from '@/utils/healthScoring';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   calculateOverallHealthScore,
   calculateTrend,
   formatHealthValue,
   getHealthTypeConfig,
-  getScoreColor,
   getPreviousValue,
+  getScoreColor,
   normalizeHealthValue,
   transformToPredictiveData,
   transformToRadarData,
@@ -164,8 +163,8 @@ describe('Health Data Transformers', () => {
           expect(transformerCategory).toBe(scoringCategory);
 
           // Both should return valid hex colors
-          expect(transformerColor).toMatch(/^#[0-9a-fA-F]{6}$/);
-          expect(scoringColor).toMatch(/^#[0-9a-fA-F]{6}$/);
+          expect(transformerColor).toMatch(/^#[0-9a-f]{6}$/i);
+          expect(scoringColor).toMatch(/^#[0-9a-f]{6}$/i);
         });
       });
 
@@ -205,7 +204,7 @@ describe('Health Data Transformers', () => {
 
           // Icons should be defined
           expect(transformerConfig.icon).toBeDefined();
-          expect(transformerConfig.icon).toMatch(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u);
+          expect(transformerConfig.icon).toMatch(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u);
         });
       });
 
@@ -230,9 +229,19 @@ describe('Health Data Transformers', () => {
   describe('Health Status Determination Tests', () => {
     describe('Comprehensive Health Metric Ranges', () => {
       const allHealthTypes = [
-        'weight', 'bmi', 'steps', 'sleep', 'heart_rate', 'blood_pressure',
-        'water_intake', 'exercise_minutes', 'calories_burned', 'distance',
-        'body_fat_percentage', 'muscle_mass', 'glucose'
+        'weight',
+        'bmi',
+        'steps',
+        'sleep',
+        'heart_rate',
+        'blood_pressure',
+        'water_intake',
+        'exercise_minutes',
+        'calories_burned',
+        'distance',
+        'body_fat_percentage',
+        'muscle_mass',
+        'glucose',
       ];
 
       allHealthTypes.forEach((type) => {
@@ -240,13 +249,14 @@ describe('Health Data Transformers', () => {
           const config = getHealthTypeConfig(type);
 
           expect(config.icon).toBeDefined();
-          expect(config.color).toMatch(/^#[0-9a-fA-F]{6}$/);
+          expect(config.color).toMatch(/^#[0-9a-f]{6}$/i);
           expect(config.unit).toBeDefined();
 
           // Test normalization with various values
           const testValues = [0, 50, 100, 1000];
           testValues.forEach((value) => {
             const score = normalizeHealthValue(value, type);
+
             expect(score).toBeGreaterThanOrEqual(0);
             expect(score).toBeLessThanOrEqual(100);
           });
@@ -270,7 +280,7 @@ describe('Health Data Transformers', () => {
           const category = score >= 80 ? 'excellent' : score >= 60 ? 'good' : score >= 40 ? 'fair' : 'poor';
 
           expect(category).toBe(expected);
-          expect(color).toMatch(/^#[0-9a-fA-F]{6}$/);
+          expect(color).toMatch(/^#[0-9a-f]{6}$/i);
         });
       });
 
@@ -308,11 +318,13 @@ describe('Health Data Transformers', () => {
 
         // Test steps with custom goal
         const stepsRange = getHealthMetricRanges('steps', customProfile);
+
         expect(stepsRange.optimal.min).toBe(9600); // 80% of 12000
         expect(stepsRange.optimal.max).toBe(14400); // 120% of 12000
 
         // Test sleep with custom goal
         const sleepRange = getHealthMetricRanges('sleep', customProfile);
+
         expect(sleepRange.optimal.min).toBe(8.5); // 9 - 0.5
         expect(sleepRange.optimal.max).toBe(9.5); // 9 + 0.5
       });
@@ -364,8 +376,8 @@ describe('Health Data Transformers', () => {
       });
 
       it('should validate input parameters', () => {
-        expect(() => calculateTrend(NaN, 100)).toThrow('Invalid current value');
-        expect(() => calculateTrend(100, NaN)).toThrow('Invalid previous value');
+        expect(() => calculateTrend(Number.NaN, 100)).toThrow('Invalid current value');
+        expect(() => calculateTrend(100, Number.NaN)).toThrow('Invalid previous value');
         expect(() => calculateTrend(Infinity, 100)).toThrow('Invalid current value');
         expect(() => calculateTrend(100, Infinity)).toThrow('Invalid previous value');
       });
@@ -423,11 +435,13 @@ describe('Health Data Transformers', () => {
         const metrics = transformToSummaryMetrics(mockHealthRecords, mockHealthGoals);
 
         const weightMetric = metrics.find(m => m.label.toLowerCase().includes('weight'));
+
         expect(weightMetric).toBeDefined();
         expect(weightMetric?.goalTarget).toBe(68);
         expect(weightMetric?.goalCurrent).toBe(70);
 
         const stepsMetric = metrics.find(m => m.label.toLowerCase().includes('steps'));
+
         expect(stepsMetric).toBeDefined();
         expect(stepsMetric?.goalTarget).toBe(10000);
         expect(stepsMetric?.goalCurrent).toBe(8500);
@@ -443,8 +457,10 @@ describe('Health Data Transformers', () => {
         const metrics = transformToSummaryMetrics(mockHealthRecords, customGoals);
 
         expect(metrics.length).toBeGreaterThan(0);
+
         metrics.forEach((metric) => {
           expect(metric.value).toBeGreaterThanOrEqual(0);
+
           if (metric.goalTarget) {
             expect(metric.goalTarget).toBeGreaterThan(0);
           }
@@ -510,6 +526,7 @@ describe('Health Data Transformers', () => {
         const metrics = transformToSummaryMetrics([], edgeCaseGoals);
 
         expect(metrics).toHaveLength(3);
+
         metrics.forEach((metric) => {
           expect(metric.goalTarget).toBeDefined();
           expect(metric.goalCurrent).toBeDefined();
@@ -551,6 +568,7 @@ describe('Health Data Transformers', () => {
 
         // Most metrics should score well
         const highScoringMetrics = radarData[0].metrics.filter(m => m.score >= 60);
+
         expect(highScoringMetrics.length).toBeGreaterThan(radarData[0].metrics.length / 2);
       });
     });
@@ -577,6 +595,7 @@ describe('Health Data Transformers', () => {
 
         // Most metrics should score poorly
         const lowScoringMetrics = radarData[0].metrics.filter(m => m.score <= 40);
+
         expect(lowScoringMetrics.length).toBeGreaterThan(0);
       });
     });
@@ -676,6 +695,7 @@ describe('Health Data Transformers', () => {
         expect(predictions.length).toBe(longTermData.length + 14);
 
         const futurePredictions = predictions.filter(p => p.isPrediction);
+
         expect(futurePredictions.length).toBe(14);
 
         // Should show continued downward trend
@@ -760,14 +780,17 @@ describe('Health Data Transformers', () => {
 
         // Upward trend should predict higher values
         const upwardFuture = upwardPredictions.filter(p => p.isPrediction);
+
         expect(upwardFuture[0].value).toBeGreaterThan(68);
 
         // Downward trend should predict lower values
         const downwardFuture = downwardPredictions.filter(p => p.isPrediction);
+
         expect(downwardFuture[0].value).toBeLessThan(72);
 
         // Stable trend should predict similar values
         const stableFuture = stablePredictions.filter(p => p.isPrediction);
+
         expect(stableFuture[0].value).toBeCloseTo(70, 1);
       });
 
@@ -832,6 +855,7 @@ describe('Health Data Transformers', () => {
         const radarData = transformToRadarData(extremeRecords, []);
 
         expect(radarData[0].metrics.length).toBe(extremeRecords.length);
+
         radarData[0].metrics.forEach((metric) => {
           expect(metric.score).toBeGreaterThanOrEqual(0);
           expect(metric.score).toBeLessThanOrEqual(100);
@@ -848,6 +872,7 @@ describe('Health Data Transformers', () => {
         const radarData = transformToRadarData(extremeRecords, []);
 
         expect(radarData[0].metrics.length).toBe(extremeRecords.length);
+
         radarData[0].metrics.forEach((metric) => {
           expect(metric.score).toBeGreaterThanOrEqual(0);
           expect(metric.score).toBeLessThanOrEqual(100);
@@ -865,6 +890,7 @@ describe('Health Data Transformers', () => {
         const radarData = transformToRadarData(recordsWithoutUnits, []);
 
         expect(radarData[0].metrics.length).toBe(2);
+
         radarData[0].metrics.forEach((metric) => {
           expect(metric.unit).toBeDefined();
           expect(metric.unit.length).toBeGreaterThan(0);
@@ -966,7 +992,7 @@ describe('Health Data Transformers', () => {
       });
 
       it('should validate normalizeHealthValue inputs', () => {
-        expect(normalizeHealthValue(NaN, 'steps')).toBe(50);
+        expect(normalizeHealthValue(Number.NaN, 'steps')).toBe(50);
         expect(normalizeHealthValue(Infinity, 'steps')).toBe(50);
         expect(normalizeHealthValue(100, '')).toBe(50);
         expect(normalizeHealthValue(100, null as any)).toBe(50);
@@ -975,11 +1001,11 @@ describe('Health Data Transformers', () => {
       it('should validate calculateOverallHealthScore inputs', () => {
         expect(calculateOverallHealthScore([])).toBe(50);
         expect(calculateOverallHealthScore(null as any)).toBe(50);
-        expect(calculateOverallHealthScore([{ score: NaN } as any])).toBe(50);
+        expect(calculateOverallHealthScore([{ score: Number.NaN } as any])).toBe(50);
       });
 
       it('should validate formatHealthValue inputs', () => {
-        expect(formatHealthValue(NaN, 'kg')).toBe('0');
+        expect(formatHealthValue(Number.NaN, 'kg')).toBe('0');
         expect(formatHealthValue(Infinity, 'kg')).toBe('0');
         expect(formatHealthValue(100, null as any)).toBe('100');
       });
@@ -1000,7 +1026,7 @@ describe('Health Data Transformers', () => {
       it('should handle partial data corruption', () => {
         const partiallyCorruptedData = [
           { date: '2024-01-01', value: 70, unit: 'kg' },
-          { date: 'invalid-date', value: NaN, unit: 'kg' },
+          { date: 'invalid-date', value: Number.NaN, unit: 'kg' },
           { date: '2024-01-03', value: 69, unit: 'kg' },
         ];
 
@@ -1047,12 +1073,12 @@ describe('Health Data Transformers', () => {
 
       it('should handle concurrent transformations', async () => {
         const promises = Array.from({ length: 10 }, () =>
-          Promise.resolve(transformToRadarData(mockHealthRecords, mockHealthGoals))
-        );
+          Promise.resolve(transformToRadarData(mockHealthRecords, mockHealthGoals)));
 
         const results = await Promise.all(promises);
 
         expect(results).toHaveLength(10);
+
         results.forEach((result) => {
           expect(result[0].metrics.length).toBeGreaterThan(0);
         });

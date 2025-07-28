@@ -1,32 +1,28 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import type { HealthRecord, HealthGoal } from '@/components/health/HealthOverview';
-import type { HealthRadarMetric, ScoringSystem, PredictedDataPoint } from '@/components/health/types';
+import type { HealthDataPoint, HealthMetricType, UserProfile } from './healthScoring';
+import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverview';
 
-// Import both modules for integration testing
-import {
-  scoreHealthMetric,
-  getHealthMetricRanges,
-  aggregateRadarData,
-  getScoreColor,
-  getScoreCategory,
-  normalizeToPercentage,
-  calculateStatisticalData,
-  type HealthMetricType,
-  type UserProfile,
-  type HealthDataPoint,
-  DEFAULT_SCORE_COLORS,
-} from './healthScoring';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
+  calculateOverallHealthScore,
+  calculateTrend,
+  getHealthTypeConfig,
+  getScoreColor as getTransformerScoreColor,
+  normalizeHealthValue,
+  transformToPredictiveData,
   transformToRadarData,
   transformToSummaryMetrics,
-  transformToPredictiveData,
-  normalizeHealthValue,
-  getHealthTypeConfig,
-  calculateTrend,
-  getScoreColor as getTransformerScoreColor,
-  calculateOverallHealthScore,
 } from './healthDataTransformers';
+// Import both modules for integration testing
+import {
+  aggregateRadarData,
+  DEFAULT_SCORE_COLORS,
+  getHealthMetricRanges,
+  getScoreCategory,
+  getScoreColor,
+  scoreHealthMetric,
+
+} from './healthScoring';
 
 describe('Health Status Integration Tests', () => {
   // Mock data fixtures
@@ -197,42 +193,48 @@ describe('Health Status Integration Tests', () => {
       testCases.forEach(({ type, value }) => {
         // Get score from healthScoring module
         const scoringScore = scoreHealthMetric(type, value, 'percentage', mockUserProfile);
-        
+
         // Get score from healthDataTransformers module
         const transformerScore = normalizeHealthValue(value, type, 'percentage');
-        
+
         // Scores should be within acceptable tolerance (±10 points due to different scoring approaches)
         const tolerance = 15;
+
         expect(Math.abs(scoringScore - transformerScore)).toBeLessThanOrEqual(tolerance);
       });
     });
 
     it('should have consistent score categorization between modules', () => {
       const testScores = [25, 45, 65, 85, 95];
-      
-      testScores.forEach(score => {
+
+      testScores.forEach((score) => {
         const scoringCategory = getScoreCategory(score);
-        
+
         // Determine category from transformer score color
         let transformerCategory: string;
         const color = getTransformerScoreColor(score);
-        
-        if (score >= 80) transformerCategory = 'excellent';
-        else if (score >= 60) transformerCategory = 'good';
-        else if (score >= 40) transformerCategory = 'fair';
-        else transformerCategory = 'poor';
-        
+
+        if (score >= 80) {
+          transformerCategory = 'excellent';
+        } else if (score >= 60) {
+          transformerCategory = 'good';
+        } else if (score >= 40) {
+          transformerCategory = 'fair';
+        } else {
+          transformerCategory = 'poor';
+        }
+
         expect(scoringCategory).toBe(transformerCategory);
       });
     });
 
     it('should have consistent color mapping between modules', () => {
       const testScores = [20, 50, 70, 90];
-      
-      testScores.forEach(score => {
+
+      testScores.forEach((score) => {
         const scoringColor = getScoreColor(score);
         const transformerColor = getTransformerScoreColor(score);
-        
+
         // Colors should match exactly for the same score ranges
         expect(scoringColor).toBe(transformerColor);
       });
@@ -242,24 +244,24 @@ describe('Health Status Integration Tests', () => {
   describe('Metric Range and Scoring Integration', () => {
     it('should have aligned metric ranges between getHealthMetricRanges and getHealthTypeConfig', () => {
       const overlappingTypes: HealthMetricType[] = ['weight', 'steps', 'sleep', 'heart_rate'];
-      
-      overlappingTypes.forEach(type => {
+
+      overlappingTypes.forEach((type) => {
         const scoringRange = getHealthMetricRanges(type, mockUserProfile);
         const transformerConfig = getHealthTypeConfig(type);
-        
+
         // Units should match
         expect(scoringRange.unit).toBe(transformerConfig.unit);
-        
+
         // Ideal ranges should be compatible (within reasonable bounds)
         if (transformerConfig.idealRange) {
           const { min: tMin, max: tMax } = transformerConfig.idealRange;
           const { min: sMin, max: sMax } = scoringRange.optimal;
-          
+
           // Ranges should overlap or be close
           const rangeOverlap = Math.max(0, Math.min(sMax, tMax) - Math.max(sMin, tMin));
           const totalRange = Math.max(sMax, tMax) - Math.min(sMin, tMin);
           const overlapPercentage = rangeOverlap / totalRange;
-          
+
           expect(overlapPercentage).toBeGreaterThan(0.3); // At least 30% overlap
         }
       });
@@ -271,20 +273,20 @@ describe('Health Status Integration Tests', () => {
         { type: 'sleep' as HealthMetricType, value: 7.5 },
         { type: 'heart_rate' as HealthMetricType, value: 70 },
       ];
-      
+
       testData.forEach(({ type, value }) => {
         const scoringResult = scoreHealthMetric(type, value, 'percentage', mockUserProfile);
         const transformerResult = normalizeHealthValue(value, type, 'percentage');
-        
+
         // Results should be in the same general category
         const scoringCategory = getScoreCategory(scoringResult);
         const transformerCategory = getScoreCategory(transformerResult);
-        
+
         // Allow for one category difference due to different algorithms
         const categories = ['poor', 'fair', 'good', 'excellent'];
         const scoringIndex = categories.indexOf(scoringCategory);
         const transformerIndex = categories.indexOf(transformerCategory);
-        
+
         expect(Math.abs(scoringIndex - transformerIndex)).toBeLessThanOrEqual(1);
       });
     });
@@ -299,12 +301,12 @@ describe('Health Status Integration Tests', () => {
           exerciseMinutes: 200,
         },
       };
-      
+
       // Test steps with personalized goal
       const stepsValue = 11000;
       const scoringScore = scoreHealthMetric('steps', stepsValue, 'percentage', personalizedProfile);
       const transformerScore = normalizeHealthValue(stepsValue, 'steps', 'percentage');
-      
+
       // Both should recognize this as a good score (close to personalized goal)
       expect(scoringScore).toBeGreaterThan(70);
       expect(transformerScore).toBeGreaterThan(50); // Transformer uses fixed ranges
@@ -318,38 +320,39 @@ describe('Health Status Integration Tests', () => {
         'percentage',
         mockUserProfile,
         undefined,
-        DEFAULT_SCORE_COLORS
+        DEFAULT_SCORE_COLORS,
       );
-      
+
       const transformerRadarData = transformToRadarData(
         mockHealthRecords,
         mockHealthGoals,
-        'percentage'
+        'percentage',
       );
-      
+
       // Both should produce radar data
       expect(scoringRadarData).toHaveLength.greaterThan(0);
       expect(transformerRadarData).toHaveLength.greaterThan(0);
-      
+
       // Find common metrics
       const scoringMetrics = scoringRadarData;
       const transformerMetrics = transformerRadarData[0]?.metrics || [];
-      
+
       const commonTypes = ['Weight', 'Daily Steps', 'Sleep Quality', 'Heart Rate'];
-      
-      commonTypes.forEach(categoryName => {
+
+      commonTypes.forEach((categoryName) => {
         const scoringMetric = scoringMetrics.find(m => m.category === categoryName);
         const transformerMetric = transformerMetrics.find(m => m.category === categoryName);
-        
+
         if (scoringMetric && transformerMetric) {
           // Values should match
           expect(scoringMetric.value).toBeCloseTo(transformerMetric.value, 1);
-          
+
           // Units should match
           expect(scoringMetric.unit).toBe(transformerMetric.unit);
-          
+
           // Scores should be within reasonable range
           const scoreDiff = Math.abs(scoringMetric.score - transformerMetric.score);
+
           expect(scoreDiff).toBeLessThanOrEqual(20);
         }
       });
@@ -358,17 +361,18 @@ describe('Health Status Integration Tests', () => {
     it('should have consistent maxValue calculations between approaches', () => {
       const scoringRadarData = aggregateRadarData(mockHealthDataPoints, 'percentage', mockUserProfile);
       const transformerRadarData = transformToRadarData(mockHealthRecords, mockHealthGoals, 'percentage');
-      
+
       const transformerMetrics = transformerRadarData[0]?.metrics || [];
-      
-      scoringRadarData.forEach(scoringMetric => {
+
+      scoringRadarData.forEach((scoringMetric) => {
         const matchingTransformerMetric = transformerMetrics.find(
-          tm => tm.category === scoringMetric.category
+          tm => tm.category === scoringMetric.category,
         );
-        
+
         if (matchingTransformerMetric) {
           // MaxValue calculations should be reasonable and consistent
           const ratio = scoringMetric.maxValue / matchingTransformerMetric.maxValue;
+
           expect(ratio).toBeGreaterThan(0.5);
           expect(ratio).toBeLessThan(2.0);
         }
@@ -381,11 +385,11 @@ describe('Health Status Integration Tests', () => {
         { type: 'steps' as HealthMetricType, value: 8500, expectedRange: [70, 90] },
         { type: 'sleep' as HealthMetricType, value: 7.5, expectedRange: [70, 90] },
       ];
-      
+
       testMetrics.forEach(({ type, value, expectedRange }) => {
         const scoringScore = scoreHealthMetric(type, value, 'percentage', mockUserProfile);
         const transformerScore = normalizeHealthValue(value, type, 'percentage');
-        
+
         // Both scores should be within expected range
         expect(scoringScore).toBeGreaterThanOrEqual(expectedRange[0]);
         expect(scoringScore).toBeLessThanOrEqual(expectedRange[1]);
@@ -398,20 +402,20 @@ describe('Health Status Integration Tests', () => {
   describe('Goal Progress and Analytics Integration', () => {
     it('should calculate end-to-end goal progress consistently', () => {
       const summaryMetrics = transformToSummaryMetrics(mockHealthRecords, mockHealthGoals);
-      
-      summaryMetrics.forEach(metric => {
+
+      summaryMetrics.forEach((metric) => {
         if (metric.goalTarget && metric.goalCurrent !== undefined) {
           const progress = (metric.goalCurrent / metric.goalTarget) * 100;
-          
+
           // Progress should be reasonable
           expect(progress).toBeGreaterThan(0);
           expect(progress).toBeLessThan(200); // Allow for over-achievement
-          
+
           // Current value should match record value for active goals
-          const matchingRecord = mockHealthRecords.find(r => 
-            r.type === metric.label.toLowerCase().replace(/\s+/g, '_')
+          const matchingRecord = mockHealthRecords.find(r =>
+            r.type === metric.label.toLowerCase().replace(/\s+/g, '_'),
           );
-          
+
           if (matchingRecord) {
             expect(metric.value).toBeCloseTo(matchingRecord.value, 1);
           }
@@ -422,18 +426,20 @@ describe('Health Status Integration Tests', () => {
     it('should integrate trend analysis with scoring systems properly', () => {
       // Test weight trend (decreasing is good)
       const weightTrend = calculateTrend(75.5, 76.0);
+
       expect(weightTrend.direction).toBe('down');
       expect(weightTrend.percentage).toBeCloseTo(0.66, 1);
-      
+
       // Test steps trend (increasing is good)
       const stepsTrend = calculateTrend(8500, 7800);
+
       expect(stepsTrend.direction).toBe('up');
       expect(stepsTrend.percentage).toBeCloseTo(8.97, 1);
-      
+
       // Verify trends align with scoring improvements
       const currentWeightScore = scoreHealthMetric('weight', 75.5, 'percentage', mockUserProfile);
       const previousWeightScore = scoreHealthMetric('weight', 76.0, 'percentage', mockUserProfile);
-      
+
       if (weightTrend.direction === 'down') {
         expect(currentWeightScore).toBeGreaterThanOrEqual(previousWeightScore);
       }
@@ -447,22 +453,23 @@ describe('Health Status Integration Tests', () => {
         { date: '2023-12-31', value: 76.0 },
         { date: '2024-01-01', value: 75.5 },
       ];
-      
+
       const predictions = transformToPredictiveData(trendData, 'linear-regression', 3);
-      
+
       // Verify predictions are reasonable
       const futurePredictions = predictions.filter(p => p.isPrediction);
+
       expect(futurePredictions).toHaveLength(3);
-      
+
       futurePredictions.forEach((prediction, index) => {
         // Weight should continue decreasing trend
         expect(prediction.value).toBeLessThan(75.5);
         expect(prediction.value).toBeGreaterThan(70); // Reasonable lower bound
-        
+
         // Confidence intervals should exist
         expect(prediction.confidenceUpper).toBeDefined();
         expect(prediction.confidenceLower).toBeDefined();
-        
+
         if (prediction.confidenceUpper && prediction.confidenceLower) {
           expect(prediction.confidenceUpper).toBeGreaterThan(prediction.value);
           expect(prediction.confidenceLower).toBeLessThan(prediction.value);
@@ -475,13 +482,13 @@ describe('Health Status Integration Tests', () => {
     it('should handle gender-specific adjustments consistently', () => {
       const maleProfile: UserProfile = { ...mockUserProfile, gender: 'male' };
       const femaleProfile: UserProfile = { ...mockUserProfile, gender: 'female' };
-      
+
       // Test body fat percentage (gender-specific ranges)
       const bodyFatValue = 15;
-      
+
       const maleScore = scoreHealthMetric('body_fat_percentage', bodyFatValue, 'percentage', maleProfile);
       const femaleScore = scoreHealthMetric('body_fat_percentage', bodyFatValue, 'percentage', femaleProfile);
-      
+
       // 15% body fat should be better for males than females
       expect(maleScore).toBeGreaterThan(femaleScore);
     });
@@ -489,13 +496,13 @@ describe('Health Status Integration Tests', () => {
     it('should apply activity level impacts correctly across modules', () => {
       const sedentaryProfile: UserProfile = { ...mockUserProfile, activityLevel: 'sedentary' };
       const activeProfile: UserProfile = { ...mockUserProfile, activityLevel: 'very_active' };
-      
+
       // Test steps scoring with different activity levels
       const stepsValue = 6000;
-      
+
       const sedentaryScore = scoreHealthMetric('steps', stepsValue, 'percentage', sedentaryProfile);
       const activeScore = scoreHealthMetric('steps', stepsValue, 'percentage', activeProfile);
-      
+
       // Both should be valid scores
       expect(sedentaryScore).toBeGreaterThanOrEqual(0);
       expect(sedentaryScore).toBeLessThanOrEqual(100);
@@ -513,11 +520,11 @@ describe('Health Status Integration Tests', () => {
           exerciseMinutes: 300,
         },
       };
-      
+
       // Test with high goals
       const stepsScore = scoreHealthMetric('steps', 12000, 'percentage', customProfile);
       const sleepScore = scoreHealthMetric('sleep', 8.5, 'percentage', customProfile);
-      
+
       // Scores should reflect personalized goals
       expect(stepsScore).toBeGreaterThan(60); // Good progress toward high goal
       expect(sleepScore).toBeGreaterThan(70); // Close to personalized sleep goal
@@ -533,25 +540,27 @@ describe('Health Status Integration Tests', () => {
         { date: '2024-02-15', value: 77.8 },
         { date: '2024-03-01', value: 77.0 },
       ];
-      
+
       // Test trend calculation
       const trend = calculateTrend(77.0, 80.0);
+
       expect(trend.direction).toBe('down');
       expect(trend.percentage).toBeCloseTo(3.75, 1);
-      
+
       // Test predictive analytics
       const predictions = transformToPredictiveData(weightLossData, 'linear-regression', 5);
       const futurePredictions = predictions.filter(p => p.isPrediction);
-      
+
       // Should predict continued weight loss
-      futurePredictions.forEach(prediction => {
+      futurePredictions.forEach((prediction) => {
         expect(prediction.value).toBeLessThan(77.0);
         expect(prediction.value).toBeGreaterThan(70.0); // Reasonable target
       });
-      
+
       // Test scoring improvement
       const initialScore = scoreHealthMetric('weight', 80.0, 'percentage', mockUserProfile);
       const currentScore = scoreHealthMetric('weight', 77.0, 'percentage', mockUserProfile);
+
       expect(currentScore).toBeGreaterThan(initialScore);
     });
 
@@ -572,24 +581,28 @@ describe('Health Status Integration Tests', () => {
           { date: '2024-03-01', value: 72 },
         ],
       };
-      
+
       // Test steps improvement
       const stepsTrend = calculateTrend(11000, 5000);
+
       expect(stepsTrend.direction).toBe('up');
       expect(stepsTrend.percentage).toBe(120);
-      
+
       // Test heart rate improvement (lower is better)
       const hrTrend = calculateTrend(72, 85);
+
       expect(hrTrend.direction).toBe('down');
       expect(hrTrend.percentage).toBeCloseTo(15.29, 1);
-      
+
       // Test overall health score improvement
       const initialStepsScore = scoreHealthMetric('steps', 5000, 'percentage', mockUserProfile);
       const currentStepsScore = scoreHealthMetric('steps', 11000, 'percentage', mockUserProfile);
+
       expect(currentStepsScore).toBeGreaterThan(initialStepsScore);
-      
+
       const initialHRScore = scoreHealthMetric('heart_rate', 85, 'percentage', mockUserProfile);
       const currentHRScore = scoreHealthMetric('heart_rate', 72, 'percentage', mockUserProfile);
+
       expect(currentHRScore).toBeGreaterThan(initialHRScore);
     });
 
@@ -604,7 +617,7 @@ describe('Health Status Integration Tests', () => {
           exerciseMinutes: 120,
         },
       };
-      
+
       // Test blood pressure monitoring
       const bpData = [
         { date: '2024-01-01', value: 140 }, // High
@@ -613,16 +626,18 @@ describe('Health Status Integration Tests', () => {
         { date: '2024-02-15', value: 125 },
         { date: '2024-03-01', value: 120 }, // Normal
       ];
-      
+
       const bpTrend = calculateTrend(120, 140);
+
       expect(bpTrend.direction).toBe('down');
       expect(bpTrend.percentage).toBeCloseTo(14.29, 1);
-      
+
       // Test scoring with condition-aware profile
       const initialBPScore = scoreHealthMetric('blood_pressure_systolic', 140, 'percentage', diabeticProfile);
       const currentBPScore = scoreHealthMetric('blood_pressure_systolic', 120, 'percentage', diabeticProfile);
+
       expect(currentBPScore).toBeGreaterThan(initialBPScore);
-      
+
       // Verify reasonable scores for condition management
       expect(currentBPScore).toBeGreaterThan(80); // Excellent control
       expect(initialBPScore).toBeLessThan(40); // Poor initial control
@@ -640,7 +655,7 @@ describe('Health Status Integration Tests', () => {
           exerciseMinutes: 200,
         },
       };
-      
+
       // Test optimal health metrics
       const optimalMetrics = {
         weight: 70,
@@ -649,12 +664,13 @@ describe('Health Status Integration Tests', () => {
         heart_rate: 65,
         water_intake: 3200,
       };
-      
+
       Object.entries(optimalMetrics).forEach(([type, value]) => {
         const score = scoreHealthMetric(type as HealthMetricType, value, 'percentage', preventiveProfile);
+
         expect(score).toBeGreaterThan(70); // Should score well for preventive care
       });
-      
+
       // Test radar chart for comprehensive health view
       const healthDataPoints: Record<HealthMetricType, HealthDataPoint[]> = {
         weight: [{ date: '2024-01-01', value: 70, unit: 'kg' }],
@@ -671,10 +687,10 @@ describe('Health Status Integration Tests', () => {
         body_fat_percentage: [],
         muscle_mass: [],
       };
-      
+
       const radarData = aggregateRadarData(healthDataPoints, 'percentage', preventiveProfile);
       const overallScore = calculateOverallHealthScore(radarData);
-      
+
       expect(overallScore).toBeGreaterThan(75); // Excellent overall health
     });
   });
@@ -683,34 +699,35 @@ describe('Health Status Integration Tests', () => {
     it('should maintain data integrity through complete transformation pipeline', () => {
       // Start with raw records
       const rawRecords = mockHealthRecords;
-      
+
       // Transform to summary metrics
       const summaryMetrics = transformToSummaryMetrics(rawRecords, mockHealthGoals);
-      
+
       // Verify data integrity
-      summaryMetrics.forEach(metric => {
-        const originalRecord = rawRecords.find(r => 
-          r.type === metric.label.toLowerCase().replace(/\s+/g, '_')
+      summaryMetrics.forEach((metric) => {
+        const originalRecord = rawRecords.find(r =>
+          r.type === metric.label.toLowerCase().replace(/\s+/g, '_'),
         );
-        
+
         if (originalRecord) {
           expect(metric.value).toBe(originalRecord.value);
           expect(metric.unit).toBe(originalRecord.unit || '');
         }
       });
-      
+
       // Transform to radar data
       const radarData = transformToRadarData(rawRecords, mockHealthGoals, 'percentage');
-      
+
       // Verify radar data integrity
       expect(radarData).toHaveLength(1);
+
       const metrics = radarData[0].metrics;
-      
-      metrics.forEach(metric => {
-        const originalRecord = rawRecords.find(r => 
-          r.type === metric.category.toLowerCase().replace(/\s+/g, '_')
+
+      metrics.forEach((metric) => {
+        const originalRecord = rawRecords.find(r =>
+          r.type === metric.category.toLowerCase().replace(/\s+/g, '_'),
         );
-        
+
         if (originalRecord) {
           expect(metric.value).toBe(originalRecord.value);
         }
@@ -723,13 +740,13 @@ describe('Health Status Integration Tests', () => {
         {
           id: 1,
           type: 'weight',
-          value: NaN,
+          value: Number.NaN,
           unit: 'kg',
           recorded_at: 'invalid-date',
           notes: 'Invalid data',
         },
       ];
-      
+
       // Both modules should handle invalid data gracefully
       expect(() => transformToSummaryMetrics(invalidRecords, [])).toThrow();
       expect(() => transformToRadarData(invalidRecords, [], 'percentage')).toThrow();
@@ -738,10 +755,10 @@ describe('Health Status Integration Tests', () => {
     it('should preserve data flow accuracy across transformations', () => {
       const testValue = 8500;
       const testType = 'steps';
-      
+
       // Direct scoring
       const directScore = scoreHealthMetric('steps', testValue, 'percentage', mockUserProfile);
-      
+
       // Through transformation pipeline
       const testRecord: HealthRecord = {
         id: 999,
@@ -751,16 +768,18 @@ describe('Health Status Integration Tests', () => {
         recorded_at: '2024-01-01T12:00:00Z',
         notes: 'Test record',
       };
-      
+
       const radarData = transformToRadarData([testRecord], [], 'percentage');
-      const radarMetric = radarData[0].metrics.find(m => 
-        m.category.toLowerCase().includes('steps')
+      const radarMetric = radarData[0].metrics.find(m =>
+        m.category.toLowerCase().includes('steps'),
       );
-      
+
       if (radarMetric) {
         expect(radarMetric.value).toBe(testValue);
+
         // Scores should be within reasonable range
         const scoreDiff = Math.abs(directScore - radarMetric.score);
+
         expect(scoreDiff).toBeLessThanOrEqual(15);
       }
     });
@@ -771,17 +790,26 @@ describe('Health Status Integration Tests', () => {
       // Create large dataset
       const largeRecords: HealthRecord[] = [];
       const largeDataPoints: Record<HealthMetricType, HealthDataPoint[]> = {
-        weight: [], steps: [], sleep: [], heart_rate: [], water_intake: [],
-        bmi: [], blood_pressure_systolic: [], blood_pressure_diastolic: [],
-        exercise_minutes: [], calories_burned: [], distance: [],
-        body_fat_percentage: [], muscle_mass: [],
+        weight: [],
+        steps: [],
+        sleep: [],
+        heart_rate: [],
+        water_intake: [],
+        bmi: [],
+        blood_pressure_systolic: [],
+        blood_pressure_diastolic: [],
+        exercise_minutes: [],
+        calories_burned: [],
+        distance: [],
+        body_fat_percentage: [],
+        muscle_mass: [],
       };
-      
+
       // Generate 1000 records over 100 days
       for (let i = 0; i < 1000; i++) {
         const date = new Date('2024-01-01');
         date.setDate(date.getDate() + (i % 100));
-        
+
         const record: HealthRecord = {
           id: i,
           type: ['weight', 'steps', 'sleep', 'heart_rate'][i % 4] as any,
@@ -790,9 +818,9 @@ describe('Health Status Integration Tests', () => {
           recorded_at: date.toISOString(),
           notes: `Record ${i}`,
         };
-        
+
         largeRecords.push(record);
-        
+
         // Add to data points
         const type = record.type as HealthMetricType;
         if (largeDataPoints[type]) {
@@ -803,20 +831,20 @@ describe('Health Status Integration Tests', () => {
           });
         }
       }
-      
+
       // Test performance
       const start = performance.now();
-      
+
       const summaryMetrics = transformToSummaryMetrics(largeRecords, []);
       const radarData = transformToRadarData(largeRecords, [], 'percentage');
       const aggregatedRadar = aggregateRadarData(largeDataPoints, 'percentage', mockUserProfile);
-      
+
       const end = performance.now();
       const duration = end - start;
-      
+
       // Should complete within reasonable time (< 1 second)
       expect(duration).toBeLessThan(1000);
-      
+
       // Should produce valid results
       expect(summaryMetrics.length).toBeGreaterThan(0);
       expect(radarData.length).toBeGreaterThan(0);
@@ -826,18 +854,18 @@ describe('Health Status Integration Tests', () => {
     it('should maintain memory efficiency during integrated operations', () => {
       // Test with repeated operations
       const iterations = 100;
-      
+
       for (let i = 0; i < iterations; i++) {
         const summaryMetrics = transformToSummaryMetrics(mockHealthRecords, mockHealthGoals);
         const radarData = transformToRadarData(mockHealthRecords, mockHealthGoals, 'percentage');
         const aggregatedRadar = aggregateRadarData(mockHealthDataPoints, 'percentage', mockUserProfile);
-        
+
         // Verify results are consistent across iterations
         expect(summaryMetrics.length).toBeGreaterThan(0);
         expect(radarData.length).toBe(1);
         expect(aggregatedRadar.length).toBeGreaterThan(0);
       }
-      
+
       // If we reach here without memory issues, the test passes
       expect(true).toBe(true);
     });
@@ -845,33 +873,33 @@ describe('Health Status Integration Tests', () => {
     it('should provide consistent benchmarks for integrated health status calculations', () => {
       const benchmarkRuns = 10;
       const durations: number[] = [];
-      
+
       for (let i = 0; i < benchmarkRuns; i++) {
         const start = performance.now();
-        
+
         // Perform integrated calculations
         const summaryMetrics = transformToSummaryMetrics(mockHealthRecords, mockHealthGoals);
         const radarData = transformToRadarData(mockHealthRecords, mockHealthGoals, 'percentage');
         const aggregatedRadar = aggregateRadarData(mockHealthDataPoints, 'percentage', mockUserProfile);
-        
+
         // Calculate overall health score
         const overallScore = calculateOverallHealthScore(aggregatedRadar);
-        
+
         // Perform trend analysis
-        const trends = mockHealthRecords.map(record => {
-          const previousValue = mockHealthRecords.find(r => 
-            r.type === record.type && r.id !== record.id
+        const trends = mockHealthRecords.map((record) => {
+          const previousValue = mockHealthRecords.find(r =>
+            r.type === record.type && r.id !== record.id,
           )?.value;
-          
+
           if (previousValue) {
             return calculateTrend(record.value, previousValue);
           }
           return null;
         }).filter(Boolean);
-        
+
         const end = performance.now();
         durations.push(end - start);
-        
+
         // Verify results
         expect(summaryMetrics.length).toBeGreaterThan(0);
         expect(radarData.length).toBe(1);
@@ -880,18 +908,19 @@ describe('Health Status Integration Tests', () => {
         expect(overallScore).toBeLessThanOrEqual(100);
         expect(trends.length).toBeGreaterThan(0);
       }
-      
+
       // Calculate benchmark statistics
       const avgDuration = durations.reduce((sum, d) => sum + d, 0) / durations.length;
       const maxDuration = Math.max(...durations);
-      
+
       // Performance benchmarks
       expect(avgDuration).toBeLessThan(50); // Average < 50ms
       expect(maxDuration).toBeLessThan(100); // Max < 100ms
-      
+
       // Consistency check (standard deviation should be low)
-      const variance = durations.reduce((sum, d) => sum + Math.pow(d - avgDuration, 2), 0) / durations.length;
+      const variance = durations.reduce((sum, d) => sum + (d - avgDuration) ** 2, 0) / durations.length;
       const stdDev = Math.sqrt(variance);
+
       expect(stdDev).toBeLessThan(avgDuration * 0.5); // StdDev < 50% of average
     });
   });

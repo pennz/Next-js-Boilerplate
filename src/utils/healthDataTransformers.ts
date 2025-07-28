@@ -88,7 +88,7 @@ export function calculateTrend(current: number, previous: number): {
   if (current === null || current === undefined || typeof current !== 'number' || !isFinite(current)) {
     throw new Error('Invalid current value: must be a finite number');
   }
-  
+
   if (previous === null || previous === undefined || typeof previous !== 'number' || !isFinite(previous)) {
     throw new Error('Invalid previous value: must be a finite number');
   }
@@ -124,27 +124,27 @@ export function getPreviousValue(
 ): number | undefined {
   // Input validation
   if (!Array.isArray(records)) {
-    throw new Error('Invalid records: must be an array');
+    throw new TypeError('Invalid records: must be an array');
   }
-  
+
   if (!type || typeof type !== 'string') {
     throw new Error('Invalid type: must be a non-empty string');
   }
-  
+
   // Validate each record in the array
   for (const record of records) {
     if (!record || typeof record !== 'object') {
       throw new Error('Invalid record: each record must be an object');
     }
-    
+
     if (record.type === undefined || record.recorded_at === undefined) {
       throw new Error('Invalid record: missing required properties (type, recorded_at)');
     }
-    
+
     // Validate date
     const date = new Date(record.recorded_at);
     if (isNaN(date.getTime())) {
-      throw new Error(`Invalid record date: ${record.recorded_at}`);
+      throw new TypeError(`Invalid record date: ${record.recorded_at}`);
     }
   }
 
@@ -154,11 +154,11 @@ export function getPreviousValue(
       // Validate dates before sorting
       const dateA = new Date(a.recorded_at);
       const dateB = new Date(b.recorded_at);
-      
+
       if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
-        throw new Error('Invalid date in records');
+        throw new TypeError('Invalid date in records');
       }
-      
+
       return dateB.getTime() - dateA.getTime();
     });
 
@@ -222,11 +222,11 @@ export function normalizeHealthValue(
   if (value === null || value === undefined || typeof value !== 'number' || !isFinite(value)) {
     return 50; // Default neutral score for invalid values
   }
-  
+
   if (!type || typeof type !== 'string') {
     return 50; // Default neutral score for invalid types
   }
-  
+
   if (!scoringSystem || (scoringSystem !== 'percentage' && scoringSystem !== 'z-score' && scoringSystem !== 'custom')) {
     scoringSystem = 'percentage'; // Default to percentage scoring
   }
@@ -242,9 +242,9 @@ export function normalizeHealthValue(
   if (!config.idealRange || typeof config.idealRange.min !== 'number' || typeof config.idealRange.max !== 'number') {
     return 50; // Default neutral score for invalid config
   }
-  
+
   const { min, max } = config.idealRange;
-  
+
   // Check for valid range
   if (min >= max) {
     return 50; // Default neutral score for invalid range
@@ -265,12 +265,12 @@ export function normalizeHealthValue(
       // Z-score based normalization (assuming normal distribution)
       const mean = (min + max) / 2;
       const stdDev = (max - min) / 4; // Approximate standard deviation
-      
+
       // Check for zero standard deviation
       if (stdDev === 0) {
         return 50; // Default neutral score for zero standard deviation
       }
-      
+
       const zScore = (value - mean) / stdDev;
       // Convert z-score to 0-100 scale (clamped)
       const score = Math.max(0, Math.min(100, 50 + (zScore * 15)));
@@ -282,7 +282,7 @@ export function normalizeHealthValue(
       if (typeof config.scoringMultiplier !== 'number' || !isFinite(config.scoringMultiplier)) {
         return 50; // Default neutral score for invalid multiplier
       }
-      
+
       const scaledValue = value * config.scoringMultiplier;
       const score = Math.max(0, Math.min(100, scaledValue));
       return Math.round(score);
@@ -305,54 +305,54 @@ export function transformToSummaryMetrics(
 ): HealthSummaryMetric[] {
   // Input validation
   if (!Array.isArray(records)) {
-    throw new Error('Invalid records: must be an array');
+    throw new TypeError('Invalid records: must be an array');
   }
-  
+
   if (!Array.isArray(goals)) {
-    throw new Error('Invalid goals: must be an array');
+    throw new TypeError('Invalid goals: must be an array');
   }
-  
+
   // Validate records
   for (const record of records) {
     if (!record || typeof record !== 'object') {
       throw new Error('Invalid record: each record must be an object');
     }
-    
+
     if (record.type === undefined || record.value === undefined || record.recorded_at === undefined) {
       throw new Error('Invalid record: missing required properties (type, value, recorded_at)');
     }
-    
+
     // Validate value
     if (typeof record.value !== 'number' || !isFinite(record.value)) {
-      throw new Error(`Invalid record value: ${record.value} must be a finite number`);
+      throw new TypeError(`Invalid record value: ${record.value} must be a finite number`);
     }
-    
+
     // Validate date
     const date = new Date(record.recorded_at);
     if (isNaN(date.getTime())) {
-      throw new Error(`Invalid record date: ${record.recorded_at}`);
+      throw new TypeError(`Invalid record date: ${record.recorded_at}`);
     }
   }
-  
+
   // Validate goals
   for (const goal of goals) {
     if (!goal || typeof goal !== 'object') {
       throw new Error('Invalid goal: each goal must be an object');
     }
-    
+
     if (goal.type === undefined || goal.current_value === undefined || goal.target_value === undefined || goal.status === undefined) {
       throw new Error('Invalid goal: missing required properties (type, current_value, target_value, status)');
     }
-    
+
     // Validate values
     if (typeof goal.current_value !== 'number' || !isFinite(goal.current_value)) {
-      throw new Error(`Invalid goal current_value: ${goal.current_value} must be a finite number`);
+      throw new TypeError(`Invalid goal current_value: ${goal.current_value} must be a finite number`);
     }
-    
+
     if (typeof goal.target_value !== 'number' || !isFinite(goal.target_value)) {
-      throw new Error(`Invalid goal target_value: ${goal.target_value} must be a finite number`);
+      throw new TypeError(`Invalid goal target_value: ${goal.target_value} must be a finite number`);
     }
-    
+
     // Validate status
     if (goal.status !== 'active' && goal.status !== 'completed' && goal.status !== 'paused') {
       throw new Error(`Invalid goal status: ${goal.status}`);
@@ -366,7 +366,7 @@ export function transformToSummaryMetrics(
     if (isNaN(recordDate.getTime())) {
       return acc; // Skip invalid dates
     }
-    
+
     if (!acc[record.type]) {
       acc[record.type] = record;
     } else {
@@ -431,42 +431,42 @@ export function transformToPredictiveData(
 ): PredictedDataPoint[] {
   // Input validation
   if (!Array.isArray(trendData)) {
-    throw new Error('Invalid trendData: must be an array');
+    throw new TypeError('Invalid trendData: must be an array');
   }
-  
+
   if (trendData.length === 0) {
     return [];
   }
-  
+
   // Validate trendData points
   for (let i = 0; i < trendData.length; i++) {
     const point = trendData[i];
-    
+
     if (!point || typeof point !== 'object') {
       throw new Error(`Invalid trendData point at index ${i}: must be an object`);
     }
-    
+
     if (point.date === undefined || point.value === undefined) {
       throw new Error(`Invalid trendData point at index ${i}: missing required properties (date, value)`);
     }
-    
+
     // Validate value
     if (typeof point.value !== 'number' || !isFinite(point.value)) {
-      throw new Error(`Invalid trendData value at index ${i}: ${point.value} must be a finite number`);
+      throw new TypeError(`Invalid trendData value at index ${i}: ${point.value} must be a finite number`);
     }
-    
+
     // Validate date
     const date = new Date(point.date);
     if (isNaN(date.getTime())) {
-      throw new Error(`Invalid trendData date at index ${i}: ${point.date}`);
+      throw new TypeError(`Invalid trendData date at index ${i}: ${point.date}`);
     }
   }
-  
+
   // Validate algorithm
   if (algorithm !== 'linear-regression' && algorithm !== 'moving-average') {
     algorithm = 'linear-regression'; // Default to linear regression
   }
-  
+
   // Validate predictionHorizon
   if (typeof predictionHorizon !== 'number' || !isFinite(predictionHorizon) || predictionHorizon <= 0) {
     predictionHorizon = 7; // Default to 7
@@ -484,24 +484,24 @@ export function transformToPredictiveData(
   // Generate predictions based on algorithm
   const predictions: PredictedDataPoint[] = [];
   const lastDate = new Date(trendData[trendData.length - 1].date);
-  
+
   // Validate lastDate
   if (isNaN(lastDate.getTime())) {
-    throw new Error('Invalid last date in trendData');
+    throw new TypeError('Invalid last date in trendData');
   }
-  
+
   const unit = trendData[0]?.unit || '';
 
   if (algorithm === 'linear-regression') {
     // Simple linear regression
     const n = trendData.length;
-    
+
     // Check for sufficient data
     if (n < 2) {
       // Not enough data for linear regression, return historical data only
       return historicalData;
     }
-    
+
     const sumX = trendData.reduce((sum, _, index) => sum + index, 0);
     const sumY = trendData.reduce((sum, point) => sum + point.value, 0);
     const sumXY = trendData.reduce((sum, point, index) => sum + (index * point.value), 0);
@@ -513,7 +513,7 @@ export function transformToPredictiveData(
       // Cannot perform linear regression, return historical data only
       return historicalData;
     }
-    
+
     const slope = (n * sumXY - sumX * sumY) / denominator;
     const intercept = (sumY - slope * sumX) / n;
 
@@ -527,15 +527,15 @@ export function transformToPredictiveData(
       }
 
       const predictedValue = slope * (n + i - 1) + intercept;
-      
+
       // Check for valid predicted value
       if (!isFinite(predictedValue)) {
         continue; // Skip invalid predictions
       }
-      
+
       const confidence = Math.max(0.1, 1 - (i * 0.1)); // Decreasing confidence
       const confidenceRange = Math.abs(predictedValue) * 0.1 * i; // Increasing uncertainty
-      
+
       // Check for valid confidence range
       if (!isFinite(confidenceRange)) {
         continue; // Skip invalid confidence ranges
@@ -554,21 +554,21 @@ export function transformToPredictiveData(
   } else if (algorithm === 'moving-average') {
     // Moving average prediction
     const windowSize = Math.min(5, trendData.length);
-    
+
     // Check for sufficient data
     if (windowSize < 1) {
       // Not enough data for moving average, return historical data only
       return historicalData;
     }
-    
+
     const recentValues = trendData.slice(-windowSize).map(point => point.value);
-    
+
     // Validate recent values
     if (recentValues.some(value => !isFinite(value))) {
       // Invalid values in recent data, return historical data only
       return historicalData;
     }
-    
+
     const average = recentValues.reduce((sum, value) => sum + value, 0) / recentValues.length;
 
     // Check for valid average
@@ -581,7 +581,7 @@ export function transformToPredictiveData(
     const trend = recentValues.length > 1
       ? (recentValues[recentValues.length - 1] - recentValues[0]) / (recentValues.length - 1)
       : 0;
-      
+
     // Check for valid trend
     if (!isFinite(trend)) {
       // Cannot calculate trend, use zero trend
@@ -597,14 +597,14 @@ export function transformToPredictiveData(
       }
 
       const predictedValue = average + (trend * i);
-      
+
       // Check for valid predicted value
       if (!isFinite(predictedValue)) {
         continue; // Skip invalid predictions
       }
-      
+
       const confidenceRange = Math.abs(predictedValue) * 0.05 * i; // Increasing uncertainty
-      
+
       // Check for valid confidence range
       if (!isFinite(confidenceRange)) {
         continue; // Skip invalid confidence ranges
@@ -641,57 +641,57 @@ export function transformToRadarData(
 ): RadarChartData[] {
   // Input validation
   if (!Array.isArray(records)) {
-    throw new Error('Invalid records: must be an array');
+    throw new TypeError('Invalid records: must be an array');
   }
-  
+
   if (!Array.isArray(goals)) {
-    throw new Error('Invalid goals: must be an array');
+    throw new TypeError('Invalid goals: must be an array');
   }
-  
+
   // Validate records
   for (let i = 0; i < records.length; i++) {
     const record = records[i];
-    
+
     if (!record || typeof record !== 'object') {
       throw new Error(`Invalid record at index ${i}: must be an object`);
     }
-    
+
     if (record.type === undefined || record.value === undefined || record.recorded_at === undefined) {
       throw new Error(`Invalid record at index ${i}: missing required properties (type, value, recorded_at)`);
     }
-    
+
     // Validate value
     if (typeof record.value !== 'number' || !isFinite(record.value)) {
-      throw new Error(`Invalid record value at index ${i}: ${record.value} must be a finite number`);
+      throw new TypeError(`Invalid record value at index ${i}: ${record.value} must be a finite number`);
     }
-    
+
     // Validate date
     const date = new Date(record.recorded_at);
     if (isNaN(date.getTime())) {
-      throw new Error(`Invalid record date at index ${i}: ${record.recorded_at}`);
+      throw new TypeError(`Invalid record date at index ${i}: ${record.recorded_at}`);
     }
   }
-  
+
   // Validate goals
   for (let i = 0; i < goals.length; i++) {
     const goal = goals[i];
-    
+
     if (!goal || typeof goal !== 'object') {
       throw new Error(`Invalid goal at index ${i}: must be an object`);
     }
-    
+
     if (goal.type === undefined || goal.current_value === undefined || goal.target_value === undefined) {
       throw new Error(`Invalid goal at index ${i}: missing required properties (type, current_value, target_value)`);
     }
-    
+
     // Validate current_value
     if (typeof goal.current_value !== 'number' || !isFinite(goal.current_value)) {
-      throw new Error(`Invalid goal current_value at index ${i}: ${goal.current_value} must be a finite number`);
+      throw new TypeError(`Invalid goal current_value at index ${i}: ${goal.current_value} must be a finite number`);
     }
-    
+
     // Validate target_value
     if (typeof goal.target_value !== 'number' || !isFinite(goal.target_value)) {
-      throw new Error(`Invalid goal target_value at index ${i}: ${goal.target_value} must be a finite number`);
+      throw new TypeError(`Invalid goal target_value at index ${i}: ${goal.target_value} must be a finite number`);
     }
   }
 
@@ -701,12 +701,12 @@ export function transformToRadarData(
     if (typeof record.type !== 'string') {
       return acc; // Skip invalid records
     }
-    
+
     const recordDate = new Date(record.recorded_at);
     if (isNaN(recordDate.getTime())) {
       return acc; // Skip invalid records
     }
-    
+
     if (!acc[record.type]) {
       acc[record.type] = record;
     } else {
@@ -834,9 +834,15 @@ export function getScoreColor(score: number): string {
   const clampedScore = Math.max(0, Math.min(100, score));
 
   // Determine color based on score ranges
-  if (clampedScore < 40) return '#ef4444'; // Red (poor)
-  if (clampedScore < 60) return '#f59e0b'; // Amber (fair)
-  if (clampedScore < 80) return '#3b82f6'; // Blue (good)
+  if (clampedScore < 40) {
+    return '#ef4444';
+  } // Red (poor)
+  if (clampedScore < 60) {
+    return '#f59e0b';
+  } // Amber (fair)
+  if (clampedScore < 80) {
+    return '#3b82f6';
+  } // Blue (good)
   return '#10b981'; // Green (excellent)
 }
 

@@ -1,11 +1,10 @@
 'use client';
 
-import { getTranslations } from 'next-intl/server';
-import { Suspense, useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { HealthRecordsFilters } from '@/components/health/HealthRecordsFilters';
+import { Suspense, useEffect, useState } from 'react';
 import { AddHealthRecordModal } from '@/components/health/AddHealthRecordModal';
+import { HealthRecordsFilters } from '@/components/health/HealthRecordsFilters';
 
 // Remove the 'use client' directive from line 1
 
