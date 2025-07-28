@@ -192,6 +192,13 @@ export function createChronicConditionData(
     blood_sugar: 'mg/dL',
     heart_rate: 'bpm',
     oxygen_saturation: '%',
+    steps: 'steps',
+    weight: 'kg',
+    calories: 'kcal',
+    water_intake: 'ml',
+    exercise_minutes: 'minutes',
+    temperature: '°C',
+    sleep_hours: 'hours',
   };
 
   metrics.forEach((metric) => {
@@ -243,6 +250,14 @@ export function createSeasonalHealthPattern(
     exercise_minutes: 'minutes',
     weight: 'kg',
     sleep_hours: 'hours',
+    blood_pressure_systolic: 'mmHg',
+    blood_pressure_diastolic: 'mmHg',
+    blood_sugar: 'mg/dL',
+    heart_rate: 'bpm',
+    oxygen_saturation: '%',
+    calories: 'kcal',
+    water_intake: 'ml',
+    temperature: '°C',
   };
 
   for (let day = 0; day <= totalDays; day += 7) { // Weekly records
@@ -317,7 +332,7 @@ export function createComprehensiveHealthProfile(
   const records = createFitnessProgression(profile.baseline, profile.improvementRate, duration);
 
   // Create realistic goals
-  const goals: HealthGoal[] = Object.entries(profile.baseline).map(([type, baseline]) => {
+  const goals: HealthGoal[] = Object.entries(profile.baseline).map(([type, baseline]: [string, { value: number; unit: string }]) => {
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() + duration * 7);
 
@@ -601,8 +616,6 @@ export async function validateRadarChartScores(
 
 export async function validatePredictiveAccuracy(
   page: Page,
-  historicalData: HealthRecord[],
-  predictions: number[],
   tolerance: number = 10,
 ): Promise<void> {
   const accuracyElement = page.getByTestId('prediction-accuracy');
@@ -641,7 +654,7 @@ export async function navigateToHealthAnalytics(
   dateRange: { start: Date; end: Date },
 ): Promise<void> {
   await page.goto('/health/analytics');
-  await page.getByLabel('Health Type').selectOption(healthType);
+  await page.getByLabel('Health Type').selectOption({ label: healthType });
   await page.getByLabel('Start Date').fill(dateRange.start.toISOString().split('T')[0]);
   await page.getByLabel('End Date').fill(dateRange.end.toISOString().split('T')[0]);
   await page.getByRole('button', { name: 'Apply Filters' }).click();
@@ -702,7 +715,7 @@ export function createLargeDataset(recordCount: number, metrics: HealthType[]): 
   startDate.setDate(startDate.getDate() - recordCount);
 
   for (let i = 0; i < recordCount; i++) {
-    const metric = metrics[i % metrics.length];
+    const metric = metrics[i % metrics.length] as HealthType;
     const date = new Date(startDate);
     date.setDate(date.getDate() + i);
 
@@ -865,7 +878,7 @@ export async function simulateDataCorruption(page: Page, endpoints: string[]): P
   }
 }
 
-export async function createDataConflicts(page: Page, conflictType: 'concurrent_edit' | 'stale_data'): Promise<void> {
+export async function createDataConflicts(_page: Page, _conflictType: 'concurrent_edit' | 'stale_data'): Promise<void> {
   // Implementation would depend on specific conflict scenarios
   // This is a placeholder for conflict simulation logic
 }
@@ -884,9 +897,9 @@ export async function resetHealthAnalytics(page: Page): Promise<void> {
   await page.waitForLoadState('networkidle');
 }
 
-export async function isolateTestData(page: Page, testId: string): Promise<void> {
-  await page.addInitScript((id) => {
-    window.testId = id;
+export async function isolateTestData(_page: Page, testId: string): Promise<void> {
+  await _page.addInitScript((id) => {
+    (window as any).testId = id;
   }, testId);
 }
 
