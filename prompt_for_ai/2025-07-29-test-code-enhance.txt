@@ -1,0 +1,22 @@
+╭───────────────────────────────────────────────────╮
+│ ✻ Welcome to Claude Code!                         │
+│                                                   │
+│   /help for help, /status for your current setup  │
+│                                                   │
+│   cwd: /Users/v/works/Next-js-Boilerplate         │
+│                                                   │
+│   ─────────────────────────────────────────────── │
+│                                                   │
+│   Overrides (via env):                            │
+│                                                   │
+│   • API Base URL: https://api.gpt2share.com       │
+╰───────────────────────────────────────────────────╯
+⏺ Compact summary (ctrl+r to expand)
+  ⎿  Read src/components/health/ReminderList.test.tsx (1626 lines)
+  ⎿  Read src/components/behavioral/BehaviorAnalyticsChart.fixtures.ts (135 lines)
+  ⎿  Read src/components/behavioral/fixtures/testScenarios.ts (59 lines)
+  ⎿  Read src/components/behavioral/fixtures/testUtilities.ts (84 lines)
+  ⎿  Read src/components/behavioral/fixtures/apiMocks.ts (67 lines)
+  ⎿  Todo list read (12 items)
+  ⎿  API Error: 403 {"error":{"type":"new_api_error","message":"token quota is not enough, token remain quota: ＄0.230854, need quota: ＄0.246148 (request id: 20250729132532713751067CEBvQdNv)"},"type":"error"}
+

@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## RULES FOR CLAUDE
+Adopt Test-driven development workflow for new features.
+
 ## Development Commands
 
 Development is centered around npm scripts for common tasks:

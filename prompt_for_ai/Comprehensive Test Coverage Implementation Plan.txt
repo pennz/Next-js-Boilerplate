@@ -1,3 +1,29 @@
+I use traycer to plan for Comprehensive Test Coverage Implementation. It gave me 5 phases plan. And the first 3 is Done. Now please continue to 
+- continue the last two phases.
+- improve the generated test codes
+
+Continue the last two phases first, then improve the the generated test codes. Also, check `CLAUDE.md` for guidance.
+
+# Last two phase to continue
+
+## Phase - Analytics and Tracking Components Testing
+Create test coverage for \`PostHogPageView.tsx\` and \`PostHogProvider.tsx\` components. Test analytics initialization, page view tracking, and provider setup. Mock PostHog service and verify tracking events are fired correctly.
+
+Relevant Files:
+- src/components/analytics/PostHogPageView.tsx
+- src/components/analytics/PostHogProvider.tsx
+- src/libs/Env.ts
+- src/templates/BaseTemplate.test.tsx
+
+## Phase - Core UI Components Testing
+Create test coverage for \`LocaleSwitcher.tsx\` and enhance \`CounterForm.tsx\` unit tests. Test internationalization functionality, locale switching, and form validation. Ensure proper integration with Next.js i18n routing.
+- src/components/LocaleSwitcher.tsx
+- src/components/CounterForm.tsx
+- src/libs/I18nRouting.ts
+- tests/e2e/I18n.e2e.ts
+
+# improve the generated test codes
+
 For Behavioural Analytics Components testing, after verification, got these to improve
 - Refactor `BehaviorAnalyticsChart.fixtures.ts` into smaller, focused modules while maintaining the current API through re-exports in the main fixtures file. Split into logical groups: data generators, component factories, test scenarios, and API mocks.
 - Split the large test files (`BehaviorAnalyticsDashboard.test.tsx` and potentially `BehaviorAnalyticsChart.test.tsx`) into smaller, focused test files organized by functionality while maintaining comprehensive coverage.
@@ -11,20 +37,3 @@ For test coverage for `AddHealthRecordModal.tsx`, `ReminderList.tsx`, and `Healt
 - Add integration tests in `HealthComponents.integration.test.tsx` for concurrent state updates across multiple components and complex state synchronization scenarios where one component's change affects multiple others.
 - Replace the `jest.mock('next-intl')` in `HealthComponents.stories.tsx` with Storybook decorators or parameters to properly handle internationalization in the Storybook environment, as Jest mocks don't work in Storybook.
 - Create standardized viewport constants in `HealthComponents.visual.test.ts` and use them consistently across all responsive visual tests instead of hardcoded viewport sizes to improve maintainability.
-
-
-# Failed Phase - Analytics and Tracking Components Testing
-Create test coverage for \`PostHogPageView.tsx\` and \`PostHogProvider.tsx\` components. Test analytics initialization, page view tracking, and provider setup. Mock PostHog service and verify tracking events are fired correctly.
-
-Relevant Files:
-- src/components/analytics/PostHogPageView.tsx
-- src/components/analytics/PostHogProvider.tsx
-- src/libs/Env.ts
-- src/templates/BaseTemplate.test.tsx
-
-# Failed Phase - Core UI Components Testing
-Create test coverage for \`LocaleSwitcher.tsx\` and enhance \`CounterForm.tsx\` unit tests. Test internationalization functionality, locale switching, and form validation. Ensure proper integration with Next.js i18n routing.
-- src/components/LocaleSwitcher.tsx
-- src/components/CounterForm.tsx
-- src/libs/I18nRouting.ts
-- tests/e2e/I18n.e2e.ts

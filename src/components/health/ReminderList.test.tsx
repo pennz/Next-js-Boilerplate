@@ -362,6 +362,336 @@ describe('ReminderList', () => {
       expect(screen.getByText('Monthly on day 15 at 10:00')).toBeInTheDocument();
     });
 
+    // Complex cron expressions - Multiple times and days
+    it('handles multiple times per day: "0 9,17 * * *" (9am and 5pm daily)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9,17 * * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      // Should display the original expression since it's complex
+      expect(screen.getByText('0 9,17 * * *')).toBeInTheDocument();
+    });
+
+    it('handles multiple days per week: "0 9 * * 1,3,5" (Monday, Wednesday, Friday at 9am)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 * * 1,3,5' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 * * 1,3,5')).toBeInTheDocument();
+    });
+
+    it('handles combined multiple times and days: "0 8,12,18 * * 1-5" (3 times daily on weekdays)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 8,12,18 * * 1-5' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 8,12,18 * * 1-5')).toBeInTheDocument();
+    });
+
+    // Interval-based expressions
+    it('handles every 15 minutes: "*/15 * * * *"', () => {
+      const reminder = createMockReminder({ cron_expr: '*/15 * * * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('*/15 * * * *')).toBeInTheDocument();
+    });
+
+    it('handles every 2 hours: "0 */2 * * *"', () => {
+      const reminder = createMockReminder({ cron_expr: '0 */2 * * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 */2 * * *')).toBeInTheDocument();
+    });
+
+    it('handles every 3 days: "0 9 */3 * *"', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 */3 * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 */3 * *')).toBeInTheDocument();
+    });
+
+    // Range-based expressions
+    it('handles weekday range: "0 9 * * 1-5" (Monday through Friday)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 * * 1-5' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 * * 1-5')).toBeInTheDocument();
+    });
+
+    it('handles hour range: "0 8-17 * * *" (every hour from 8am to 5pm)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 8-17 * * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 8-17 * * *')).toBeInTheDocument();
+    });
+
+    it('handles month range: "0 9 1 1-6 *" (first day of first 6 months)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 1 1-6 *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 1 1-6 *')).toBeInTheDocument();
+    });
+
+    // Malformed and edge case expressions
+    it('handles malformed expression with too many spaces: " 0  9  *  *  * "', () => {
+      const reminder = createMockReminder({ cron_expr: ' 0  9  *  *  * ' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText(' 0  9  *  *  * ')).toBeInTheDocument();
+    });
+
+    it('handles expression with invalid field count: "0 9 * *" (missing day of week)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 * *')).toBeInTheDocument();
+    });
+
+    it('handles expression with too many fields: "0 9 * * * * *" (7 fields)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 * * * * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 * * * * *')).toBeInTheDocument();
+    });
+
+    it('handles expression with invalid values: "0 25 * * *" (hour 25)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 25 * * *' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 25 * * *')).toBeInTheDocument();
+    });
+
+    it('handles expression with invalid day of week: "0 9 * * 8" (day 8)', () => {
+      const reminder = createMockReminder({ cron_expr: '0 9 * * 8' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('0 9 * * 8')).toBeInTheDocument();
+    });
+
+    it('handles empty string cron expression', () => {
+      const reminder = createMockReminder({ cron_expr: '' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('')).toBeInTheDocument();
+    });
+
+    it('handles null/undefined cron expression gracefully', () => {
+      const reminder = createMockReminder({ cron_expr: null });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      // Should not crash and should handle gracefully
+      expect(screen.getByTestId('reminder-1')).toBeInTheDocument();
+    });
+
+    // Special syntax expressions
+    it('handles @daily shorthand', () => {
+      const reminder = createMockReminder({ cron_expr: '@daily' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('@daily')).toBeInTheDocument();
+    });
+
+    it('handles @weekly shorthand', () => {
+      const reminder = createMockReminder({ cron_expr: '@weekly' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('@weekly')).toBeInTheDocument();
+    });
+
+    it('handles @monthly shorthand', () => {
+      const reminder = createMockReminder({ cron_expr: '@monthly' });
+      
+      render(
+        <TestWrapper>
+          <ReminderList
+            reminders={[reminder]}
+            onToggleActive={mockOnToggleActive}
+            onEdit={mockOnEdit}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByText('@monthly')).toBeInTheDocument();
+    });
+
     it('returns original expression for invalid/complex patterns', () => {
       const reminder = createMockReminder({ cron_expr: '*/15 * * * *' });
       

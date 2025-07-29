@@ -37,7 +37,7 @@ Object.defineProperty(window, 'performance', {
 // Performance measurement utility
 const measurePerformance = async <T>(
   operation: () => Promise<T> | T,
-  label: string,
+  label: string
 ): Promise<{ result: T; duration: number; memoryUsed: number }> => {
   const startTime = performance.now();
   const startMemory = process.memoryUsage().heapUsed;
