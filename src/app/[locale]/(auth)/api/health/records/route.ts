@@ -17,6 +17,19 @@ import {
   HealthRecordValidation,
 } from '@/validations/HealthRecordValidation';
 
+// Debug helper functions
+const isDebugEnabled = () => process.env.DEBUG_DRIZZLE === 'on';
+
+const debugLog = (...args: any[]) => {
+  if (isDebugEnabled()) {
+    console.log('🔍 [DRIZZLE DEBUG]', ...args);
+  }
+};
+
+const criticalLog = (...args: any[]) => {
+  console.error('💥 [DRIZZLE CRITICAL]', ...args);
+};
+
 // Arcjet rate limiting configuration
 const aj = arcjet({
   key: Env.ARCJET_KEY!,
@@ -85,6 +98,8 @@ const getCurrentUserId = async () => {
 
 // GET - List user's health records with filtering
 export const GET = async (request: NextRequest) => {
+  debugLog('🔍 GET /api/health/records started');
+  
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
   if (featureCheck) {
@@ -120,8 +135,11 @@ export const GET = async (request: NextRequest) => {
       offset: searchParams.get('offset'),
     };
 
+    debugLog('Query parameters:', queryData);
+
     const parse = HealthRecordQueryValidation.safeParse(queryData);
     if (!parse.success) {
+      debugLog('Validation failed:', parse.error);
       return NextResponse.json(z.treeifyError(parse.error), { status: 422 });
     }
 
@@ -142,6 +160,9 @@ export const GET = async (request: NextRequest) => {
       conditions.push(lte(SchemaModule.healthRecordSchema.recordedAt, end_date));
     }
 
+    debugLog('Query conditions built:', conditions.length, 'conditions');
+    debugLog('About to execute SELECT query...');
+
     // Execute query
     const records = await db
       .select()
@@ -151,11 +172,16 @@ export const GET = async (request: NextRequest) => {
       .limit(limit)
       .offset(offset);
 
+    debugLog('SELECT query executed successfully, records found:', records.length);
+
     // Get total count for pagination
+    debugLog('About to execute COUNT query...');
     const totalCount = await db
       .select({ count: sql<number>`count(*)` })
       .from(SchemaModule.healthRecordSchema)
       .where(and(...conditions));
+
+    debugLog('COUNT query executed successfully, total:', totalCount[0]?.count);
 
     logger.info('Health records retrieved', {
       userId,
@@ -183,6 +209,8 @@ export const GET = async (request: NextRequest) => {
       },
     );
 
+    debugLog('GET /api/health/records completed successfully');
+
     return NextResponse.json({
       records,
       pagination: {
@@ -193,6 +221,15 @@ export const GET = async (request: NextRequest) => {
       },
     });
   } catch (error) {
+    criticalLog('Error in GET /api/health/records:');
+    criticalLog('Error name:', error?.name);
+    criticalLog('Error message:', error?.message);
+    criticalLog('Error stack:', error?.stack);
+    
+    if (error?.code) criticalLog('Database error code:', error.code);
+    if (error?.constraint) criticalLog('Constraint violation:', error.constraint);
+    if (error?.detail) criticalLog('Error detail:', error.detail);
+
     logger.error('Error retrieving health records', { error, userId });
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -203,72 +240,107 @@ export const GET = async (request: NextRequest) => {
 
 // POST - Create new health record
 export const POST = async (request: NextRequest) => {
-  console.log('🚀 === POST /api/health/records START ===');
-  console.log('⏰ Timestamp:', new Date().toISOString());
+  const debugEnabled = isDebugEnabled();
+  
+  if (debugEnabled) {
+    console.log('🚀 === POST /api/health/records START ===');
+    console.log('⏰ Timestamp:', new Date().toISOString());
+    console.log('🔧 DEBUG_DRIZZLE is enabled - full logging active');
+  }
 
   try {
     // Step 1: Check feature flag
-    console.log('🚩 Step 1: Checking feature flag...');
+    if (debugEnabled) {
+      console.log('🚩 Step 1: Checking feature flag...');
+    }
     const featureCheck = checkHealthFeatureFlag();
     if (featureCheck) {
-      console.log('❌ Feature flag check failed - health mgmt disabled');
+      if (debugEnabled) {
+        console.log('❌ Feature flag check failed - health mgmt disabled');
+      }
       return featureCheck;
     }
-    console.log('✅ Feature flag check passed');
+    if (debugEnabled) {
+      console.log('✅ Feature flag check passed');
+    }
 
     // Step 2: Check authentication
-    console.log('🔐 Step 2: Checking authentication...');
+    if (debugEnabled) {
+      console.log('🔐 Step 2: Checking authentication...');
+    }
     const userId = await getCurrentUserId();
-    console.log('👤 User ID from Clerk:', userId);
+    if (debugEnabled) {
+      console.log('👤 User ID from Clerk:', userId);
+    }
     
     if (!userId) {
-      console.log('❌ Authentication failed - no user ID');
+      if (debugEnabled) {
+        console.log('❌ Authentication failed - no user ID');
+      }
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 },
       );
     }
-    console.log('✅ Authentication successful');
+    if (debugEnabled) {
+      console.log('✅ Authentication successful');
+    }
 
     // Step 3: Apply rate limiting
-    console.log('⚡ Step 3: Applying rate limiting...');
+    if (debugEnabled) {
+      console.log('⚡ Step 3: Applying rate limiting...');
+    }
     const decision = await aj.protect(request, { userId, requested: 1 });
     if (decision.isDenied()) {
-      console.log('❌ Rate limit exceeded');
+      if (debugEnabled) {
+        console.log('❌ Rate limit exceeded');
+      }
       return NextResponse.json(
         { error: 'Too many requests' },
         { status: 429 },
       );
     }
-    console.log('✅ Rate limiting passed');
+    if (debugEnabled) {
+      console.log('✅ Rate limiting passed');
+    }
 
     // Step 4: Parse request JSON
-    console.log('📦 Step 4: Parsing request JSON...');
+    if (debugEnabled) {
+      console.log('📦 Step 4: Parsing request JSON...');
+    }
     let json;
     try {
       json = await request.json();
-      console.log('📋 Raw request body:', JSON.stringify(json, null, 2));
-      console.log('📊 Body type:', typeof json);
-      console.log('📏 Body keys:', Object.keys(json || {}));
+      if (debugEnabled) {
+        console.log('📋 Raw request body:', JSON.stringify(json, null, 2));
+        console.log('📊 Body type:', typeof json);
+        console.log('📏 Body keys:', Object.keys(json || {}));
+      }
     } catch (parseError) {
-      console.error('❌ JSON parsing failed:', parseError);
+      criticalLog('JSON parsing failed:', parseError);
       logger.error('JSON parsing error', { error: parseError, userId });
       return NextResponse.json(
         { error: 'Invalid JSON format' },
         { status: 400 },
       );
     }
-    console.log('✅ JSON parsing successful');
+    if (debugEnabled) {
+      console.log('✅ JSON parsing successful');
+    }
 
     // Step 5: Validate request data
-    console.log('🔍 Step 5: Validating request data...');
-    console.log('🧪 Attempting Zod validation with HealthRecordValidation schema...');
+    if (debugEnabled) {
+      console.log('🔍 Step 5: Validating request data...');
+      console.log('🧪 Attempting Zod validation with HealthRecordValidation schema...');
+    }
     
     const parse = HealthRecordValidation.safeParse(json);
     
     if (!parse.success) {
-      console.error('❌ Validation failed:', parse.error);
-      console.error('📋 Validation errors:', JSON.stringify(parse.error.errors, null, 2));
+      criticalLog('Validation failed:', parse.error);
+      if (debugEnabled) {
+        console.error('📋 Validation errors:', JSON.stringify(parse.error.errors, null, 2));
+      }
       logger.error('Validation error', { 
         error: parse.error, 
         requestData: json, 
@@ -278,23 +350,25 @@ export const POST = async (request: NextRequest) => {
     }
     
     const { type_id, value, unit, recorded_at } = parse.data;
-    console.log('✅ Validation successful');
-    console.log('📊 Validated data:', {
-      type_id,
-      value,
-      unit,
-      recorded_at: recorded_at?.toISOString(),
-    });
+    if (debugEnabled) {
+      console.log('✅ Validation successful');
+      console.log('📊 Validated data:', {
+        type_id,
+        value,
+        unit,
+        recorded_at: recorded_at?.toISOString(),
+      });
+    }
 
     // Step 6: Prepare database insertion
-    console.log('🗄️ Step 6: Preparing database insertion...');
-    
-    // Let's check what we actually received and ensure proper mapping
-    console.log('🔍 Validated data received:');
-    console.log('   - type_id:', type_id, '(type:', typeof type_id, ')');
-    console.log('   - value:', value, '(type:', typeof value, ')');
-    console.log('   - unit:', unit, '(type:', typeof unit, ')');
-    console.log('   - recorded_at:', recorded_at, '(type:', typeof recorded_at, ')');
+    if (debugEnabled) {
+      console.log('🗄️ Step 6: Preparing database insertion...');
+      console.log('🔍 Validated data received:');
+      console.log('   - type_id:', type_id, '(type:', typeof type_id, ')');
+      console.log('   - value:', value, '(type:', typeof value, ')');
+      console.log('   - unit:', unit, '(type:', typeof unit, ')');
+      console.log('   - recorded_at:', recorded_at, '(type:', typeof recorded_at, ')');
+    }
     
     const insertData = {
       userId: userId,
@@ -304,21 +378,27 @@ export const POST = async (request: NextRequest) => {
       recordedAt: recorded_at,
     };
     
-    console.log('💾 Final data to insert:', JSON.stringify({
-      userId: insertData.userId,
-      typeId: insertData.typeId,
-      value: insertData.value,
-      unit: insertData.unit,
-      recordedAt: insertData.recordedAt?.toISOString(),
-    }, null, 2));
+    if (debugEnabled) {
+      console.log('💾 Final data to insert:', JSON.stringify({
+        userId: insertData.userId,
+        typeId: insertData.typeId,
+        value: insertData.value,
+        unit: insertData.unit,
+        recordedAt: insertData.recordedAt?.toISOString(),
+      }, null, 2));
+    }
 
     // Step 7: Test database connection
-    console.log('🔗 Step 7: Testing database connection...');
+    if (debugEnabled) {
+      console.log('🔗 Step 7: Testing database connection...');
+    }
     try {
       await db.execute(sql`SELECT 1 as connection_test`);
-      console.log('✅ Database connection confirmed');
+      if (debugEnabled) {
+        console.log('✅ Database connection confirmed');
+      }
     } catch (dbConnectionError) {
-      console.error('❌ Database connection failed:', dbConnectionError);
+      criticalLog('Database connection failed:', dbConnectionError);
       logger.error('Database connection error', { error: dbConnectionError, userId });
       return NextResponse.json(
         { error: 'Database connection error' },
@@ -327,10 +407,10 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Step 8: Verify schema availability
-    console.log('📋 Step 8: Verifying schema availability...');
-    
-    // Debug: Check what's available in the Schema module
-    console.log('🔍 Available exports in Schema module:', Object.keys(SchemaModule));
+    if (debugEnabled) {
+      console.log('📋 Step 8: Verifying schema availability...');
+      console.log('🔍 Available exports in Schema module:', Object.keys(SchemaModule));
+    }
     
     // Try to get healthRecordSchema from different possible names
     const healthRecordSchema = SchemaModule.healthRecordSchema || 
@@ -339,44 +419,43 @@ export const POST = async (request: NextRequest) => {
                               SchemaModule.HealthRecord ||
                               SchemaModule.HealthRecords;
     
-    console.log('🗂️ healthRecordSchema found:', !!healthRecordSchema);
-    console.log('🗂️ healthRecordSchema type:', typeof healthRecordSchema);
-    
-    if (healthRecordSchema) {
-      console.log('🗂️ healthRecordSchema keys:', Object.keys(healthRecordSchema));
+    if (debugEnabled) {
+      console.log('🗂️ healthRecordSchema found:', !!healthRecordSchema);
+      console.log('🗂️ healthRecordSchema type:', typeof healthRecordSchema);
       
-      // Try to inspect the columns of the table
-      // Note: In Drizzle ORM, the schema structure is different
-      // We'll check for the columns property in a safer way
-      if (healthRecordSchema && typeof healthRecordSchema === 'object') {
-        console.log('📋 Table columns:', Object.keys(healthRecordSchema));
+      if (healthRecordSchema) {
+        console.log('🗂️ healthRecordSchema keys:', Object.keys(healthRecordSchema));
         
-        // Log available schema properties (excluding functions)
-        Object.entries(healthRecordSchema).forEach(([key, value]) => {
-          if (typeof value !== 'function') {
-            console.log(`   - ${key}:`, typeof value);
-          }
-        });
-      }
-      
-      // Safe check for schema table name
-      try {
-        // In Drizzle ORM, we need to access the table name differently
-        const tableName = healthRecordSchema?.[Symbol.toStringTag] || 
-                         (healthRecordSchema?.[Symbol.toPrimitive] ? healthRecordSchema[Symbol.toPrimitive]('string') : undefined) ||
-                         healthRecordSchema?.name || 
-                         'unknown';
-        console.log('🏷️ Schema table name:', tableName);
-      } catch (nameError) {
-        console.log('⚠️ Could not determine schema table name:', nameError.message);
+        // Try to inspect the columns of the table
+        if (healthRecordSchema && typeof healthRecordSchema === 'object') {
+          console.log('📋 Table columns:', Object.keys(healthRecordSchema));
+          
+          // Log available schema properties (excluding functions)
+          Object.entries(healthRecordSchema).forEach(([key, value]) => {
+            if (typeof value !== 'function') {
+              console.log(`   - ${key}:`, typeof value);
+            }
+          });
+        }
+        
+        // Safe check for schema table name
+        try {
+          const tableName = healthRecordSchema?.[Symbol.toStringTag] || 
+                           (healthRecordSchema?.[Symbol.toPrimitive] ? healthRecordSchema[Symbol.toPrimitive]('string') : undefined) ||
+                           healthRecordSchema?.name || 
+                           'unknown';
+          console.log('🏷️ Schema table name:', tableName);
+        } catch (nameError) {
+          console.log('⚠️ Could not determine schema table name:', nameError.message);
+        }
       }
     }
     
     // Verify schema structure
     if (!healthRecordSchema) {
-      console.error('❌ healthRecordSchema not found in any expected export names!');
-      console.error('🔍 Available exports:', Object.keys(SchemaModule));
-      console.error('🔍 Check your Schema.ts file and make sure the health record table is properly exported');
+      criticalLog('healthRecordSchema not found in any expected export names!');
+      criticalLog('Available exports:', Object.keys(SchemaModule));
+      criticalLog('Check your Schema.ts file and make sure the health record table is properly exported');
       return NextResponse.json(
         { error: 'Database schema not found' },
         { status: 500 }
@@ -384,19 +463,25 @@ export const POST = async (request: NextRequest) => {
     }
 
     // Step 9: Execute database insertion
-    console.log('💾 Step 9: Executing database insertion...');
-    console.log('🎯 About to execute INSERT query with Drizzle...');
+    if (debugEnabled) {
+      console.log('💾 Step 9: Executing database insertion...');
+      console.log('🎯 About to execute INSERT query with Drizzle...');
+    }
+    
+    debugLog('Executing INSERT with data:', insertData);
     
     const newRecord = await db
       .insert(healthRecordSchema)
       .values(insertData)
       .returning();
 
-    console.log('✅ Database insertion successful!');
-    console.log('📋 New record created:', JSON.stringify({
-      ...newRecord[0],
-      recordedAt: newRecord[0]?.recordedAt?.toISOString(),
-    }, null, 2));
+    if (debugEnabled) {
+      console.log('✅ Database insertion successful!');
+      console.log('📋 New record created:', JSON.stringify({
+        ...newRecord[0],
+        recordedAt: newRecord[0]?.recordedAt?.toISOString(),
+      }, null, 2));
+    }
 
     logger.info('Health record created', {
       userId,
@@ -407,7 +492,9 @@ export const POST = async (request: NextRequest) => {
     });
 
     // Step 10: Track behavioral event
-    console.log('📊 Step 10: Tracking behavioral event...');
+    if (debugEnabled) {
+      console.log('📊 Step 10: Tracking behavioral event...');
+    }
     try {
       await trackBehaviorEvent(
         userId,
@@ -428,55 +515,62 @@ export const POST = async (request: NextRequest) => {
           },
         },
       );
-      console.log('✅ Behavioral event tracked successfully');
+      if (debugEnabled) {
+        console.log('✅ Behavioral event tracked successfully');
+      }
     } catch (trackingError) {
-      console.error('⚠️ Behavioral event tracking failed (non-critical):', trackingError);
+      if (debugEnabled) {
+        console.error('⚠️ Behavioral event tracking failed (non-critical):', trackingError);
+      }
     }
 
-    console.log('🎉 Health record creation completed successfully');
+    if (debugEnabled) {
+      console.log('🎉 Health record creation completed successfully');
+    }
+    
     return NextResponse.json({
       record: newRecord[0],
       message: 'Health record created successfully',
     }, { status: 201 });
 
   } catch (error) {
-    console.error('💥 === CRITICAL ERROR OCCURRED ===');
-    console.error('🏷️ Error name:', error?.name);
-    console.error('📝 Error message:', error?.message);
-    console.error('📚 Error stack:', error?.stack);
+    criticalLog('=== CRITICAL ERROR OCCURRED ===');
+    criticalLog('Error name:', error?.name);
+    criticalLog('Error message:', error?.message);
+    criticalLog('Error stack:', error?.stack);
     
     // Additional database-specific error info
     if (error?.code) {
-      console.error('🔢 Database error code:', error.code);
+      criticalLog('Database error code:', error.code);
     }
     if (error?.constraint) {
-      console.error('⚠️ Constraint violation:', error.constraint);
+      criticalLog('Constraint violation:', error.constraint);
     }
     if (error?.detail) {
-      console.error('🔍 Error detail:', error.detail);
+      criticalLog('Error detail:', error.detail);
     }
     if (error?.position) {
-      console.error('📍 Error position:', error.position);
+      criticalLog('Error position:', error.position);
     }
     if (error?.table) {
-      console.error('🗂️ Error table:', error.table);
+      criticalLog('Error table:', error.table);
     }
     if (error?.column) {
-      console.error('📋 Error column:', error.column);
+      criticalLog('Error column:', error.column);
     }
 
     // Check error type
     if (error?.message?.includes('relation') || error?.message?.includes('column')) {
-      console.error('🗄️ This appears to be a database schema error');
+      criticalLog('This appears to be a database schema error');
     }
     if (error?.message?.includes('constraint')) {
-      console.error('⚠️ This appears to be a constraint violation');
+      criticalLog('This appears to be a constraint violation');
     }
     if (error?.message?.includes('syntax')) {
-      console.error('📝 This appears to be a SQL syntax error');
+      criticalLog('This appears to be a SQL syntax error');
     }
 
-    console.error('=== END CRITICAL ERROR ===');
+    criticalLog('=== END CRITICAL ERROR ===');
 
     logger.error('Error creating health record', { error, userId: await getCurrentUserId() });
 
@@ -518,12 +612,16 @@ export const POST = async (request: NextRequest) => {
       { status: 500 },
     );
   } finally {
-    console.log('🏁 === POST /api/health/records END ===\n');
+    if (isDebugEnabled()) {
+      console.log('🏁 === POST /api/health/records END ===\n');
+    }
   }
 };
 
 // PUT - Update existing health record
 export const PUT = async (request: NextRequest) => {
+  debugLog('PUT /api/health/records started');
+  
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
   if (featureCheck) {
@@ -550,13 +648,18 @@ export const PUT = async (request: NextRequest) => {
 
   try {
     const json = await request.json();
+    debugLog('PUT request data:', json);
+    
     const parse = HealthRecordUpdateValidation.safeParse(json);
 
     if (!parse.success) {
+      debugLog('PUT validation failed:', parse.error);
       return NextResponse.json(z.treeifyError(parse.error), { status: 422 });
     }
 
     const { id, type_id, value, unit, recorded_at } = parse.data;
+
+    debugLog('About to check existing record with ID:', id);
 
     // Check if record exists and belongs to user
     const existingRecord = await db
@@ -568,6 +671,8 @@ export const PUT = async (request: NextRequest) => {
           eq(SchemaModule.healthRecordSchema.userId, userId),
         ),
       );
+
+    debugLog('Existing record query completed, found:', existingRecord.length, 'records');
 
     if (existingRecord.length === 0) {
       return NextResponse.json(
@@ -591,6 +696,8 @@ export const PUT = async (request: NextRequest) => {
       updateData.recordedAt = recorded_at;
     }
 
+    debugLog('About to execute UPDATE with data:', updateData);
+
     // Update health record
     const updatedRecord = await db
       .update(SchemaModule.healthRecordSchema)
@@ -602,6 +709,8 @@ export const PUT = async (request: NextRequest) => {
         ),
       )
       .returning();
+
+    debugLog('UPDATE query executed successfully');
 
     logger.info('Health record updated', {
       userId,
@@ -636,11 +745,22 @@ export const PUT = async (request: NextRequest) => {
       },
     );
 
+    debugLog('PUT /api/health/records completed successfully');
+
     return NextResponse.json({
       record: updatedRecord[0],
       message: 'Health record updated successfully',
     });
   } catch (error) {
+    criticalLog('Error in PUT /api/health/records:');
+    criticalLog('Error name:', error?.name);
+    criticalLog('Error message:', error?.message);
+    criticalLog('Error stack:', error?.stack);
+    
+    if (error?.code) criticalLog('Database error code:', error.code);
+    if (error?.constraint) criticalLog('Constraint violation:', error.constraint);
+    if (error?.detail) criticalLog('Error detail:', error.detail);
+
     logger.error('Error updating health record', { error, userId });
 
     // Track behavioral event for failed health record update
@@ -671,6 +791,8 @@ export const PUT = async (request: NextRequest) => {
 
 // DELETE - Soft delete health record
 export const DELETE = async (request: NextRequest) => {
+  debugLog('DELETE /api/health/records started');
+  
   // Check feature flag
   const featureCheck = checkHealthFeatureFlag();
   if (featureCheck) {
@@ -699,6 +821,8 @@ export const DELETE = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url);
     const recordId = searchParams.get('id');
 
+    debugLog('DELETE request for record ID:', recordId);
+
     if (!recordId) {
       return NextResponse.json(
         { error: 'Record ID is required' },
@@ -714,6 +838,8 @@ export const DELETE = async (request: NextRequest) => {
       );
     }
 
+    debugLog('About to check existing record for deletion with ID:', id);
+
     // Check if record exists and belongs to user
     const existingRecord = await db
       .select()
@@ -725,12 +851,16 @@ export const DELETE = async (request: NextRequest) => {
         ),
       );
 
+    debugLog('Existing record query for deletion completed, found:', existingRecord.length, 'records');
+
     if (existingRecord.length === 0) {
       return NextResponse.json(
         { error: 'Health record not found or access denied' },
         { status: 404 },
       );
     }
+
+    debugLog('About to execute DELETE query');
 
     // Soft delete by removing the record (hard delete for now, can be changed to soft delete later)
     await db
@@ -741,6 +871,8 @@ export const DELETE = async (request: NextRequest) => {
           eq(SchemaModule.healthRecordSchema.userId, userId),
         ),
       );
+
+    debugLog('DELETE query executed successfully');
 
     logger.info('Health record deleted', {
       userId,
@@ -770,10 +902,21 @@ export const DELETE = async (request: NextRequest) => {
       },
     );
 
+    debugLog('DELETE /api/health/records completed successfully');
+
     return NextResponse.json({
       message: 'Health record deleted successfully',
     });
   } catch (error) {
+    criticalLog('Error in DELETE /api/health/records:');
+    criticalLog('Error name:', error?.name);
+    criticalLog('Error message:', error?.message);
+    criticalLog('Error stack:', error?.stack);
+    
+    if (error?.code) criticalLog('Database error code:', error.code);
+    if (error?.constraint) criticalLog('Constraint violation:', error.constraint);
+    if (error?.detail) criticalLog('Error detail:', error.detail);
+
     logger.error('Error deleting health record', { error, userId });
 
     // Track behavioral event for failed health record deletion
