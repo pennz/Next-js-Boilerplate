@@ -324,5 +324,31 @@
     "tooltip_correlation_strength": "相关性强度表示两种行为的关联程度",
     "tooltip_pattern_frequency": "此模式在您的数据中出现的频率",
     "tooltip_confidence_score": "基于数据质量和数量的洞察可靠性"
+  },
+  "HealthSummaryCards": {
+    "title": "健康摘要",
+    "subtitle": "关键指标一目了然",
+    "ariaLabel": "健康摘要卡片",
+    "metricsCount": "{count} 个指标",
+    "emptyState": {
+      "title": "无健康指标",
+      "description": "添加健康记录以查看您的指标摘要"
+    },
+    "trend": {
+      "increase": "增加",
+      "decrease": "减少",
+      "noChange": "无变化"
+    },
+    "goal": {
+      "progress": "进度",
+      "current": "当前",
+      "target": "目标"
+    },
+    "summary": {
+      "withTrends": "带趋势",
+      "withGoals": "带目标",
+      "completed": "已完成",
+      "improving": "改善中"
+    }
   }
 }

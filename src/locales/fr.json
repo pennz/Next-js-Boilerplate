@@ -239,5 +239,31 @@
     "meta_description": "Suivez vos séances d'entraînement, plans de formation et progrès fitness",
     "page_title_dashboard": "Exercice et Entraînement",
     "dashboard_subtitle": "Gérez vos séances d'entraînement et plans de formation"
+  },
+  "HealthSummaryCards": {
+    "title": "Résumé de la Santé",
+    "subtitle": "Indicateurs clés en un coup d'œil",
+    "ariaLabel": "Cartes de résumé de la santé",
+    "metricsCount": "{count} indicateurs",
+    "emptyState": {
+      "title": "Aucun Indicateur de Santé",
+      "description": "Ajoutez des dossiers de santé pour voir le résumé de vos indicateurs"
+    },
+    "trend": {
+      "increase": "augmentation",
+      "decrease": "diminution",
+      "noChange": "pas de changement"
+    },
+    "goal": {
+      "progress": "Progression",
+      "current": "Actuel",
+      "target": "Cible"
+    },
+    "summary": {
+      "withTrends": "Avec Tendances",
+      "withGoals": "Avec Objectifs",
+      "completed": "Terminé",
+      "improving": "En Amélioration"
+    }
   }
 }

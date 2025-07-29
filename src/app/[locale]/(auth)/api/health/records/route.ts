@@ -30,6 +30,90 @@ const criticalLog = (...args: any[]) => {
   console.error('💥 [DRIZZLE CRITICAL]', ...args);
 };
 
+// Database connection debugging helper
+const logDatabaseConnectionInfo = () => {
+  console.log('🔍 === DATABASE CONNECTION DEBUG ===');
+  console.log('⏰ Timestamp:', new Date().toISOString());
+  
+  // Log all database-related environment variables
+  console.log('📋 Database Environment Variables:');
+  const dbEnvVars = Object.keys(process.env).filter(key => 
+    key.toLowerCase().includes('database') || 
+    key.toLowerCase().includes('db_') ||
+    key.toLowerCase().includes('postgres') ||
+    key.toLowerCase().includes('mysql') ||
+    key.toLowerCase().includes('mongo')
+  );
+  
+  dbEnvVars.forEach(key => {
+    const value = process.env[key];
+    if (value) {
+      // Mask passwords but show hostnames
+      const maskedValue = value.replace(/:([^:@]+)@/g, ':***@');
+      console.log(`   ${key}=${maskedValue}`);
+    } else {
+      console.log(`   ${key}=undefined`);
+    }
+  });
+  
+  if (dbEnvVars.length === 0) {
+    console.log('   ⚠️ No database environment variables found');
+  }
+  
+  // Try to extract connection info from DATABASE_URL if it exists
+  if (process.env.DATABASE_URL) {
+    try {
+      const dbUrl = new URL(process.env.DATABASE_URL);
+      console.log('🔗 Parsed DATABASE_URL:');
+      console.log('   Protocol:', dbUrl.protocol);
+      console.log('   Hostname:', dbUrl.hostname, '← 🎯 THIS IS YOUR DB HOST');
+      console.log('   Port:', dbUrl.port);
+      console.log('   Database:', dbUrl.pathname.slice(1));
+      console.log('   Username:', dbUrl.username);
+      console.log('   Has Password:', !!dbUrl.password);
+      
+      if (dbUrl.hostname === 'base') {
+        console.log('   🚨 FOUND THE ISSUE: hostname is "base"');
+      }
+    } catch (urlError) {
+      console.error('   ❌ Failed to parse DATABASE_URL:', urlError.message);
+      console.log('   Raw DATABASE_URL (first 50 chars):', process.env.DATABASE_URL?.substring(0, 50) + '...');
+    }
+  }
+  
+  // Log other potentially relevant environment variables
+  console.log('🌍 Other Relevant Environment:');
+  console.log('   NODE_ENV:', process.env.NODE_ENV);
+  console.log('   DOCKER_ENV:', process.env.DOCKER_ENV || 'not set');
+  console.log('   VERCEL:', process.env.VERCEL || 'not set');
+  console.log('   CI:', process.env.CI || 'not set');
+  
+  // Try to inspect the db object if possible
+  console.log('🗄️ Database Object Inspection:');
+  try {
+    // Check if db object has any accessible connection info
+    if (db && typeof db === 'object') {
+      console.log('   DB object exists:', !!db);
+      console.log('   DB object keys:', Object.keys(db));
+      
+      // Try to access common connection properties (these might not exist)
+      const possibleProps = ['config', 'options', 'connection', '_connection', 'client'];
+      possibleProps.forEach(prop => {
+        if (db[prop]) {
+          console.log(`   DB.${prop} exists:`, typeof db[prop]);
+          if (typeof db[prop] === 'object' && db[prop].host) {
+            console.log(`   🎯 DB.${prop}.host:`, db[prop].host);
+          }
+        }
+      });
+    }
+  } catch (inspectionError) {
+    console.log('   ⚠️ Could not inspect db object:', inspectionError.message);
+  }
+  
+  console.log('🔍 === END DATABASE CONNECTION DEBUG ===\n');
+};
+
 // Arcjet rate limiting configuration
 const aj = arcjet({
   key: Env.ARCJET_KEY!,
@@ -243,6 +327,7 @@ export const POST = async (request: NextRequest) => {
   const debugEnabled = isDebugEnabled();
   
   if (debugEnabled) {
+    logDatabaseConnectionInfo();
     console.log('🚀 === POST /api/health/records START ===');
     console.log('⏰ Timestamp:', new Date().toISOString());
     console.log('🔧 DEBUG_DRIZZLE is enabled - full logging active');
