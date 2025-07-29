@@ -1,0 +1,30 @@
+For Behavioural Analytics Components testing, after verification, got these to improve
+- Refactor `BehaviorAnalyticsChart.fixtures.ts` into smaller, focused modules while maintaining the current API through re-exports in the main fixtures file. Split into logical groups: data generators, component factories, test scenarios, and API mocks.
+- Split the large test files (`BehaviorAnalyticsDashboard.test.tsx` and potentially `BehaviorAnalyticsChart.test.tsx`) into smaller, focused test files organized by functionality while maintaining comprehensive coverage.
+- Enhance the visual regression test configuration in `BehaviorAnalytics.visual.test.ts` to explicitly configure cross-browser testing with appropriate browser-specific settings and thresholds.
+- Extract utility functions from `src/components/behavioral/index.ts` into separate utility modules (`utils/formatters.ts`, `utils/validators.ts`, etc.) while maintaining the current export API through re-exports.
+
+For test coverage for `AddHealthRecordModal.tsx`, `ReminderList.tsx`, and `HealthRecordsFilters.tsx`, after verification, got these to improve:
+- Add additional test cases in `ReminderList.test.tsx` for complex cron expressions like `0 9,17 * * 1-5` (multiple times/days), `*/15 * * * *` (every 15 minutes), and malformed expressions with invalid syntax to ensure robust parsing.
+- Enhance the `window.location` mocking in `HealthRecordsFilters.test.tsx` to use `Object.defineProperty` or a more sophisticated mock that better simulates browser navigation behavior for URL parameter testing.
+- Add specific error handling test cases in `HealthComponents.e2e.ts` for API rate limiting (429 status), authentication failures (401/403 status), and partial data corruption scenarios to improve production readiness.
+- Add integration tests in `HealthComponents.integration.test.tsx` for concurrent state updates across multiple components and complex state synchronization scenarios where one component's change affects multiple others.
+- Replace the `jest.mock('next-intl')` in `HealthComponents.stories.tsx` with Storybook decorators or parameters to properly handle internationalization in the Storybook environment, as Jest mocks don't work in Storybook.
+- Create standardized viewport constants in `HealthComponents.visual.test.ts` and use them consistently across all responsive visual tests instead of hardcoded viewport sizes to improve maintainability.
+
+
+# Failed Phase - Analytics and Tracking Components Testing
+Create test coverage for \`PostHogPageView.tsx\` and \`PostHogProvider.tsx\` components. Test analytics initialization, page view tracking, and provider setup. Mock PostHog service and verify tracking events are fired correctly.
+
+Relevant Files:
+- src/components/analytics/PostHogPageView.tsx
+- src/components/analytics/PostHogProvider.tsx
+- src/libs/Env.ts
+- src/templates/BaseTemplate.test.tsx
+
+# Failed Phase - Core UI Components Testing
+Create test coverage for \`LocaleSwitcher.tsx\` and enhance \`CounterForm.tsx\` unit tests. Test internationalization functionality, locale switching, and form validation. Ensure proper integration with Next.js i18n routing.
+- src/components/LocaleSwitcher.tsx
+- src/components/CounterForm.tsx
+- src/libs/I18nRouting.ts
+- tests/e2e/I18n.e2e.ts

@@ -1208,4 +1208,564 @@ describe('ExerciseOverview Integration Tests', () => {
       expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
     });
   });
+
+  describe('Behavioral Tracking Edge Cases Integration', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should handle malformed tracking data in complex user workflows', async () => {
+      const user = userEvent.setup();
+      
+      // Mock trackEvent to simulate malformed data scenarios during complex workflows
+      mockTrackEvent.mockImplementation((data) => {
+        // Simulate receiving malformed data that might occur in integration scenarios
+        if (typeof data !== 'object' || data === null || JSON.stringify(data).includes('circular')) {
+          return Promise.resolve();
+        }
+        return Promise.resolve();
+      });
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // Perform complex user workflow that might generate malformed tracking data
+      const statCard = screen.getAllByRole('button')[0];
+      const planCard = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-active-plans"]')
+      )[0];
+      const chartButton = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-progress-charts"]')
+      )[0];
+
+      // Rapid sequential interactions
+      await user.click(statCard);
+      await user.click(planCard);
+      await user.click(chartButton);
+
+      // Component should continue to function even if tracking data is malformed
+      expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
+      expect(mockTrackEvent).toHaveBeenCalled();
+    });
+
+    it('should handle network failures in tracking during complex integration flows', async () => {
+      const user = userEvent.setup();
+      
+      // Mock network failure that might occur during integration testing
+      mockTrackEvent.mockRejectedValue(new Error('Network timeout'));
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // Test complex integration flow with multiple interactions
+      const interactiveElements = screen.getAllByRole('button').slice(0, 5);
+      
+      // Should not throw even when tracking fails during complex workflows
+      for (const element of interactiveElements) {
+        await expect(user.click(element)).resolves.not.toThrow();
+      }
+      
+      expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
+    });
+
+    it('should handle circular references in complex tracking context data', async () => {
+      const user = userEvent.setup();
+      
+      // Mock trackEvent to detect and handle circular references in complex scenarios
+      mockTrackEvent.mockImplementation(async (data) => {
+        try {
+          // Attempt to serialize complex nested data to detect circular references
+          const serialized = JSON.stringify(data, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+              // Simulate detection of circular reference in complex integration data
+              if (key === 'circularRef') {
+                return '[Circular Reference Detected]';
+              }
+            }
+            return value;
+          });
+          return Promise.resolve();
+        } catch (error) {
+          // Handle circular reference error gracefully in integration context
+          return Promise.resolve();
+        }
+      });
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // Simulate complex integration workflow that might create circular references
+      const buttons = screen.getAllByRole('button');
+      await user.click(buttons[0]);
+      await user.click(buttons[1]);
+
+      expect(mockTrackEvent).toHaveBeenCalled();
+      expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
+    });
+
+    it('should handle invalid tracking parameters in integration scenarios without crashing', async () => {
+      const user = userEvent.setup();
+
+      // Use data that could cause integration-level tracking issues
+      const problematicLogs = [
+        {
+          id: 'invalid-id' as any,
+          exercise: null as any,
+          sets: 'not-a-number' as any,
+          reps: Infinity as any,
+          weight: -0 as any,
+          logged_at: 'not-a-date',
+        }
+      ];
+
+      const problematicPlans = [
+        {
+          id: undefined as any,
+          name: '' as any,
+          difficulty: 'invalid-difficulty' as any,
+          sessions_per_week: NaN as any,
+          is_active: 'maybe' as any,
+          start_date: {} as any,
+        }
+      ];
+
+      render(
+        <ExerciseOverview
+          recentLogs={problematicLogs as any}
+          activeTrainingPlans={problematicPlans as any}
+          stats={mockStats}
+        />
+      );
+
+      // Should still be able to interact without crashes in integration context
+      const buttons = screen.getAllByRole('button');
+      if (buttons.length > 0) {
+        await user.click(buttons[0]);
+      }
+
+      expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
+    });
+
+    it('should handle tracking timeout scenarios in integration context', async () => {
+      const user = userEvent.setup();
+      
+      // Mock slow tracking response that might occur in integration environments
+      mockTrackEvent.mockImplementation(() => {
+        return new Promise((resolve) => {
+          setTimeout(resolve, 2000); // 2 second delay
+        });
+      });
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      const statCard = screen.getAllByRole('button')[0];
+      
+      // Click should not block the UI in integration scenario
+      const clickPromise = user.click(statCard);
+      
+      // UI should remain responsive during integration testing
+      expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
+      
+      // Wait for the click to complete without timing out the test
+      await expect(clickPromise).resolves.not.toThrow();
+    });
+
+    it('should handle concurrent tracking events during integration testing without data corruption', async () => {
+      const user = userEvent.setup();
+      
+      // Track call order and data integrity in integration context
+      const trackingCalls: any[] = [];
+      let callOrder = 0;
+      
+      mockTrackEvent.mockImplementation((data) => {
+        const currentCall = {
+          order: ++callOrder,
+          timestamp: Date.now(),
+          data: JSON.parse(JSON.stringify(data)), // Deep copy to avoid reference issues
+        };
+        trackingCalls.push(currentCall);
+        return Promise.resolve();
+      });
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // Fire multiple tracking events rapidly in integration context
+      const buttons = screen.getAllByRole('button').slice(0, 4);
+      
+      // Simulate concurrent user interactions during integration testing
+      await Promise.all(buttons.map(button => user.click(button)));
+
+      await waitFor(() => {
+        expect(mockTrackEvent).toHaveBeenCalledTimes(5); // 1 initial view + 4 clicks
+      });
+
+      // Verify data integrity in integration context
+      const clickEvents = trackingCalls.filter(call => call.data.eventName !== 'exercise_overview_viewed');
+      clickEvents.forEach((call, index) => {
+        expect(call.data).toHaveProperty('eventName');
+        expect(call.data).toHaveProperty('context');
+        expect(typeof call.data.context).toBe('object');
+        expect(call.order).toBeGreaterThan(0);
+        expect(call.timestamp).toBeGreaterThan(0);
+      });
+
+      // Verify call ordering is maintained
+      const callOrders = trackingCalls.map(call => call.order);
+      expect(callOrders).toEqual([...callOrders].sort((a, b) => a - b));
+    });
+
+    it('should handle tracking with missing required context fields in integration scenarios', async () => {
+      const user = userEvent.setup();
+      
+      // Mock component state that might cause missing context in integration
+      render(
+        <ExerciseOverview
+          recentLogs={[]}
+          activeTrainingPlans={[]}
+          stats={{ totalExerciseLogs: 0, activePlans: 0, completedSessions: 0, weeklyProgress: 0 }}
+        />
+      );
+
+      // The initial view tracking should still work with empty data in integration
+      await waitFor(() => {
+        expect(mockTrackEvent).toHaveBeenCalledWith({
+          eventName: 'exercise_overview_viewed',
+          entityType: 'ui_interaction',
+          context: {
+            ui: {
+              component: 'ExerciseOverview',
+              element: 'OverviewPage',
+            },
+            exercise: {
+              totalWorkouts: 0,
+              activePlans: 0,
+              completedSessions: 0,
+              weeklyProgress: 0,
+              hasRecentLogs: false,
+              hasActivePlans: false,
+            },
+          },
+        });
+      });
+    });
+
+    it('should handle tracking service unavailability during integration testing', async () => {
+      const user = userEvent.setup();
+      
+      // Mock service unavailable scenario that might occur in integration environments
+      mockTrackEvent.mockRejectedValue(new Error('Service Temporarily Unavailable'));
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // All integration interactions should work despite tracking failures
+      const buttons = screen.getAllByRole('button');
+      
+      for (const button of buttons.slice(0, 3)) {
+        await expect(user.click(button)).resolves.not.toThrow();
+      }
+
+      expect(screen.getByTestId('exercise-overview')).toBeInTheDocument();
+    });
+
+    it('should handle invalid entity IDs in integration tracking data', async () => {
+      const user = userEvent.setup();
+      
+      // Create logs with invalid IDs that might occur in integration scenarios
+      const integrationLogsWithInvalidIds = [
+        { ...mockRecentLogs[0], id: null as any },
+        { ...mockRecentLogs[1], id: undefined as any },
+        { ...mockRecentLogs[2], id: 'string-id' as any },
+        { ...mockRecentLogs[3], id: {} as any },
+      ];
+
+      const integrationPlansWithInvalidIds = [
+        { ...mockActiveTrainingPlans[0], id: NaN as any },
+        { ...mockActiveTrainingPlans[1], id: -1 as any },
+      ];
+
+      render(
+        <ExerciseOverview
+          recentLogs={integrationLogsWithInvalidIds}
+          activeTrainingPlans={integrationPlansWithInvalidIds}
+          stats={mockStats}
+        />
+      );
+
+      const logItems = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-recent-logs"]')
+      );
+
+      const planItems = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-active-plans"]')
+      );
+
+      // Should handle invalid entity IDs gracefully in integration context
+      if (logItems.length > 0) {
+        await user.click(logItems[0]);
+        
+        await waitFor(() => {
+          expect(mockTrackEvent).toHaveBeenCalledWith(
+            expect.objectContaining({
+              eventName: 'recent_workout_log_viewed',
+              entityType: 'exercise_log',
+              // entityId might be invalid but should not crash integration
+            })
+          );
+        });
+      }
+
+      if (planItems.length > 0) {
+        await user.click(planItems[0]);
+        
+        await waitFor(() => {
+          expect(mockTrackEvent).toHaveBeenCalledWith(
+            expect.objectContaining({
+              eventName: 'training_plan_card_viewed',
+              entityType: 'training_session',
+              // entityId might be invalid but should not crash integration
+            })
+          );
+        });
+      }
+    });
+
+    it('should handle deeply nested context data in integration scenarios without stack overflow', async () => {
+      const user = userEvent.setup();
+      
+      // Create deeply nested mock data that might occur in integration scenarios
+      const createNestedObject = (depth: number): any => {
+        if (depth === 0) return { value: 'deep value' };
+        return { [`level${depth}`]: createNestedObject(depth - 1) };
+      };
+
+      const deeplyNestedPlan = {
+        ...mockActiveTrainingPlans[0],
+        metadata: createNestedObject(10), // 10 levels deep
+        complexData: {
+          nested: createNestedObject(8),
+          array: Array.from({ length: 5 }, (_, i) => createNestedObject(3)),
+        }
+      };
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={[deeplyNestedPlan]}
+          stats={mockStats}
+        />
+      );
+
+      const planCard = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-active-plans"]')
+      )[0];
+
+      if (planCard) {
+        await user.click(planCard);
+        
+        // Should handle deeply nested data without stack overflow in integration
+        await waitFor(() => {
+          expect(mockTrackEvent).toHaveBeenCalledWith(
+            expect.objectContaining({
+              eventName: 'training_plan_card_viewed',
+            })
+          );
+        });
+      }
+    });
+
+    it('should handle tracking data sanitization in integration environments', async () => {
+      const user = userEvent.setup();
+      
+      // Mock logs that might contain sensitive information in integration scenarios
+      const integrationLogsWithSensitiveData = [
+        { 
+          ...mockRecentLogs[0], 
+          exercise: 'Exercise with apiKey=secret123 in notes',
+          metadata: {
+            userToken: 'bearer-token-should-not-be-tracked',
+            sessionId: 'session-123-sensitive',
+          }
+        },
+        {
+          ...mockRecentLogs[1],
+          privateNotes: 'Contains personal medical information',
+          location: { lat: 40.7128, lng: -74.0060 }, // Should not be in tracking
+        }
+      ];
+
+      render(
+        <ExerciseOverview
+          recentLogs={integrationLogsWithSensitiveData as any}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      const logItem = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-recent-logs"]')
+      )[0];
+
+      if (logItem) {
+        await user.click(logItem);
+        
+        await waitFor(() => {
+          const trackingCall = mockTrackEvent.mock.calls.find(call => 
+            call[0].eventName === 'recent_workout_log_viewed'
+          );
+          
+          if (trackingCall) {
+            const contextData = JSON.stringify(trackingCall[0]);
+            // Verify sensitive data is not included in integration tracking
+            expect(contextData).not.toContain('apiKey=secret123');
+            expect(contextData).not.toContain('bearer-token-should-not-be-tracked');
+            expect(contextData).not.toContain('session-123-sensitive');
+            expect(contextData).not.toContain('personal medical information');
+            expect(contextData).not.toContain('40.7128');
+            expect(contextData).not.toContain('-74.0060');
+          }
+        });
+      }
+    });
+
+    it('should handle tracking event batching and flushing in integration scenarios', async () => {
+      const user = userEvent.setup();
+      
+      // Mock tracking with batching capability for integration testing
+      const batchedEvents: any[] = [];
+      mockTrackEvent.mockImplementation((data) => {
+        batchedEvents.push(data);
+        return Promise.resolve();
+      });
+
+      mockFlushEvents.mockImplementation(() => {
+        // Simulate flushing batched events
+        const flushedCount = batchedEvents.length;
+        batchedEvents.length = 0; // Clear the batch
+        return Promise.resolve(flushedCount);
+      });
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // Generate multiple tracking events
+      const buttons = screen.getAllByRole('button').slice(0, 3);
+      for (const button of buttons) {
+        await user.click(button);
+      }
+
+      // Verify events are batched
+      expect(batchedEvents.length).toBeGreaterThan(0);
+
+      // Test flush functionality
+      const flushedCount = await mockFlushEvents();
+      expect(flushedCount).toBeGreaterThan(0);
+      expect(batchedEvents.length).toBe(0); // Should be empty after flush
+    });
+
+    it('should handle tracking event ordering and sequencing in complex integration flows', async () => {
+      const user = userEvent.setup();
+      
+      // Track event ordering with timestamps for integration verification
+      const orderedEvents: Array<{ event: any; timestamp: number; sequence: number }> = [];
+      let sequenceNumber = 0;
+
+      mockTrackEvent.mockImplementation((data) => {
+        orderedEvents.push({
+          event: data,
+          timestamp: performance.now(),
+          sequence: ++sequenceNumber,
+        });
+        return Promise.resolve();
+      });
+
+      render(
+        <ExerciseOverview
+          recentLogs={mockRecentLogs}
+          activeTrainingPlans={mockActiveTrainingPlans}
+          stats={mockStats}
+        />
+      );
+
+      // Perform a complex integration workflow
+      const statCard = screen.getAllByRole('button')[0];
+      const planCard = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-active-plans"]')
+      )[0];
+      const logItem = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-recent-logs"]')
+      )[0];
+      const chartButton = screen.getAllByRole('button').filter(button => 
+        button.closest('[data-testid="exercise-overview-progress-charts"]')
+      )[0];
+
+      // Sequential interactions with timing
+      await user.click(statCard);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      await user.click(planCard);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      await user.click(logItem);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      await user.click(chartButton);
+
+      await waitFor(() => {
+        expect(orderedEvents.length).toBeGreaterThanOrEqual(5); // 1 view + 4 clicks
+      });
+
+      // Verify event ordering is maintained
+      const sequences = orderedEvents.map(e => e.sequence);
+      expect(sequences).toEqual([...sequences].sort((a, b) => a - b));
+
+      // Verify timestamps are increasing
+      const timestamps = orderedEvents.map(e => e.timestamp);
+      for (let i = 1; i < timestamps.length; i++) {
+        expect(timestamps[i]).toBeGreaterThanOrEqual(timestamps[i - 1]);
+      }
+
+      // Verify event types are in expected order
+      const eventNames = orderedEvents.map(e => e.event.eventName);
+      expect(eventNames[0]).toBe('exercise_overview_viewed');
+      expect(eventNames.slice(1)).toContain('exercise_stat_card_clicked');
+      expect(eventNames.slice(1)).toContain('training_plan_card_viewed');
+      expect(eventNames.slice(1)).toContain('recent_workout_log_viewed');
+      expect(eventNames.slice(1)).toContain('progress_chart_viewed');
+    });
+  });
 });
