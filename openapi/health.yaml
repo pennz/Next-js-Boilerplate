@@ -455,6 +455,74 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /api/health/reminders/trigger:
+    post:
+      tags:
+        - Health Reminders
+      summary: Trigger scheduled health reminders
+      description: Process due health reminders (cron endpoint)
+      security: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Bearer token for cron authentication
+          schema:
+            type: string
+            example: Bearer {HEALTH_REMINDER_CRON_SECRET}
+      responses:
+        '200':
+          description: Health reminders processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Reminders processed
+                  processed:
+                    type: integer
+                    example: 5
+                  failed:
+                    type: integer
+                    example: 0
+                  timestamp:
+                    type: string
+                    format: date-time
+                  details:
+                    type: object
+                    properties:
+                      successful:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            userId:
+                              type: string
+                            healthType:
+                              type: string
+                            nextRunAt:
+                              type: string
+                              format: date-time
+                      failed:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            userId:
+                              type: string
+                            error:
+                              type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 components:
   securitySchemes:
     ClerkAuth:

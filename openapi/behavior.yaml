@@ -1,0 +1,1389 @@
+openapi: 3.0.3
+info:
+  title: Behavior Management API
+  description: API for tracking, analyzing, and understanding user behavioral patterns
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: https://staging-api.example.com
+    description: Staging server
+  - url: http://localhost:3000
+    description: Development server
+security:
+  - ClerkAuth: []
+
+tags:
+  - name: Behavior Events
+    description: Behavioral event tracking endpoints
+  - name: Micro-Behavior Patterns
+    description: Micro-behavior pattern identification and management
+  - name: Behavior Analytics
+    description: Behavioral analytics and insights
+
+paths:
+  /api/behavior/events:
+    get:
+      tags:
+        - Behavior Events
+      summary: Retrieve behavior events
+      description: Get a list of behavior events with filtering and pagination
+      parameters:
+        - name: eventName
+          in: query
+          description: Filter by event name
+          required: false
+          schema:
+            type: string
+        - name: entityType
+          in: query
+          description: Filter by entity type
+          required: false
+          schema:
+            type: string
+            enum:
+              - health_record
+              - training_session
+              - exercise_log
+              - health_goal
+              - ui_interaction
+        - name: entityId
+          in: query
+          description: Filter by entity ID
+          required: false
+          schema:
+            type: integer
+        - name: sessionId
+          in: query
+          description: Filter by session ID
+          required: false
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          description: Filter by start date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter by end date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: Number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: sortBy
+          in: query
+          description: Field to sort by
+          required: false
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - eventName
+              - entityType
+            default: createdAt
+        - name: sortOrder
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+      responses:
+        '200':
+          description: Successful response with behavior events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BehaviorEvent'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    post:
+      tags:
+        - Behavior Events
+      summary: Create behavior events
+      description: Create one or more behavior events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/BehaviorEvent'
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/BehaviorEvent'
+                - type: object
+                  properties:
+                    events:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/BehaviorEvent'
+      responses:
+        '201':
+          description: Events created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BehaviorEvent'
+                  message:
+                    type: string
+                  count:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - Behavior Events
+      summary: Delete behavior events
+      description: Delete behavior events by various criteria
+      parameters:
+        - name: eventId
+          in: query
+          description: Delete by event ID
+          required: false
+          schema:
+            type: integer
+        - name: sessionId
+          in: query
+          description: Delete by session ID
+          required: false
+          schema:
+            type: string
+        - name: olderThanDays
+          in: query
+          description: Delete events older than specified days
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Events deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deletedCount:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/behavior/micro-patterns:
+    get:
+      tags:
+        - Micro-Behavior Patterns
+      summary: Retrieve micro-behavior patterns
+      description: Get a list of micro-behavior patterns with filtering and pagination
+      parameters:
+        - name: patternType
+          in: query
+          description: Filter by pattern type
+          required: false
+          schema:
+            type: string
+            enum:
+              - habit
+              - trigger
+              - outcome
+              - context
+              - correlation
+        - name: behaviorName
+          in: query
+          description: Filter by behavior name
+          required: false
+          schema:
+            type: string
+        - name: minFrequency
+          in: query
+          description: Minimum frequency filter
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+        - name: minStrength
+          in: query
+          description: Minimum strength filter
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+        - name: minConfidence
+          in: query
+          description: Minimum confidence filter
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+        - name: startDate
+          in: query
+          description: Filter by start date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter by end date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: Number of items to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          description: Offset for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: sortBy
+          in: query
+          description: Field to sort by
+          required: false
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - frequency
+              - strength
+              - confidence
+            default: createdAt
+        - name: sortOrder
+          in: query
+          description: Sort order
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+        - name: includeCorrelations
+          in: query
+          description: Include correlation data
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: includeInsights
+          in: query
+          description: Include pattern insights
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response with micro-behavior patterns
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patterns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MicroBehaviorPattern'
+                  insights:
+                    $ref: '#/components/schemas/PatternInsights'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    post:
+      tags:
+        - Micro-Behavior Patterns
+      summary: Create micro-behavior patterns
+      description: Create one or more micro-behavior patterns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/MicroBehaviorPattern'
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/MicroBehaviorPattern'
+                - type: object
+                  properties:
+                    patterns:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/MicroBehaviorPattern'
+      responses:
+        '201':
+          description: Patterns created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patterns:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MicroBehaviorPattern'
+                  message:
+                    type: string
+                  count:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    put:
+      tags:
+        - Micro-Behavior Patterns
+      summary: Update micro-behavior pattern
+      description: Update an existing micro-behavior pattern
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicroBehaviorPatternUpdate'
+      responses:
+        '200':
+          description: Pattern updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pattern:
+                    $ref: '#/components/schemas/MicroBehaviorPattern'
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags:
+        - Micro-Behavior Patterns
+      summary: Delete or archive micro-behavior pattern
+      description: Delete or archive a micro-behavior pattern
+      parameters:
+        - name: id
+          in: query
+          description: Pattern ID to delete or archive
+          required: true
+          schema:
+            type: integer
+        - name: archive
+          in: query
+          description: Set to true to archive instead of delete
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Pattern deleted or archived successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pattern:
+                    $ref: '#/components/schemas/MicroBehaviorPattern'
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/behavior/analytics/summary:
+    get:
+      tags:
+        - Behavior Analytics
+      summary: Get behavior analytics summary
+      description: Get a summary of behavior analytics
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for analytics
+          required: false
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - 90d
+              - 1y
+            default: 30d
+      responses:
+        '200':
+          description: Successful response with behavior analytics summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/BehaviorAnalyticsSummary'
+                  meta:
+                    type: object
+                    properties:
+                      timeRange:
+                        type: string
+                      userId:
+                        type: string
+                      generatedAt:
+                        type: string
+                        format: date-time
+                      dateRange:
+                        type: object
+                        properties:
+                          start:
+                            type: string
+                            format: date-time
+                          end:
+                            type: string
+                            format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/behavior/analytics/habit-strength:
+    get:
+      tags:
+        - Behavior Analytics
+      summary: Get habit strength analytics
+      description: Get habit strength analytics data
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for analytics
+          required: false
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - 90d
+              - 1y
+            default: 30d
+        - name: behaviorType
+          in: query
+          description: Filter by behavior type
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response with habit strength analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/HabitStrengthData'
+                  meta:
+                    type: object
+                    properties:
+                      timeRange:
+                        type: string
+                      behaviorType:
+                        type: string
+                      userId:
+                        type: string
+                      generatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/behavior/analytics/context-patterns:
+    get:
+      tags:
+        - Behavior Analytics
+      summary: Get context patterns analytics
+      description: Get context patterns analytics data
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for analytics
+          required: false
+          schema:
+            type: string
+            enum:
+              - 30d
+              - 90d
+              - 1y
+            default: 90d
+        - name: minPredictivePower
+          in: query
+          description: Minimum predictive power filter
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Successful response with context patterns analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ContextPattern'
+                  meta:
+                    type: object
+                    properties:
+                      timeRange:
+                        type: string
+                      minPredictivePower:
+                        type: number
+                      totalPatterns:
+                        type: integer
+                      filteredPatterns:
+                        type: integer
+                      userId:
+                        type: string
+                      generatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/behavior/analytics/frequency:
+    get:
+      tags:
+        - Behavior Analytics
+      summary: Get frequency analytics
+      description: Get frequency analytics data
+      parameters:
+        - name: timeRange
+          in: query
+          description: Time range for analytics
+          required: false
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - 90d
+              - 1y
+            default: 30d
+        - name: behaviorType
+          in: query
+          description: Filter by behavior type
+          required: false
+          schema:
+            type: string
+        - name: aggregation
+          in: query
+          description: Aggregation level
+          required: false
+          schema:
+            type: string
+            enum:
+              - daily
+              - weekly
+            default: daily
+      responses:
+        '200':
+          description: Successful response with frequency analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FrequencyDataPoint'
+                  meta:
+                    $ref: '#/components/schemas/FrequencyAnalyticsMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/behavior/analytics/patterns:
+    get:
+      tags:
+        - Behavior Analytics
+      summary: Get pattern recognition analytics
+      description: Get pattern recognition analytics data
+      parameters:
+        - name: behaviorType
+          in: query
+          description: Filter by behavior type
+          required: false
+          schema:
+            type: string
+        - name: minConfidence
+          in: query
+          description: Minimum confidence filter
+          required: false
+          schema:
+            type: number
+            minimum: 0
+            maximum: 100
+            default: 70
+        - name: limit
+          in: query
+          description: Maximum number of patterns to return
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Successful response with pattern recognition analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecognizedPattern'
+                  meta:
+                    type: object
+                    properties:
+                      behaviorType:
+                        type: string
+                      minConfidence:
+                        type: number
+                      limit:
+                        type: number
+                      totalPatterns:
+                        type: integer
+                      returnedPatterns:
+                        type: integer
+                      userId:
+                        type: string
+                      generatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+components:
+  securitySchemes:
+    ClerkAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    BehaviorEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        eventName:
+          type: string
+        entityType:
+          type: string
+          enum:
+            - health_record
+            - training_session
+            - exercise_log
+            - health_goal
+            - ui_interaction
+        entityId:
+          type: integer
+        context:
+          $ref: '#/components/schemas/ContextData'
+        sessionId:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - eventName
+        - entityType
+
+    ContextData:
+      type: object
+      properties:
+        device:
+          $ref: '#/components/schemas/DeviceInfo'
+        ui:
+          $ref: '#/components/schemas/UIState'
+        environment:
+          $ref: '#/components/schemas/EnvironmentalData'
+        custom:
+          type: object
+          additionalProperties: true
+        healthData:
+          $ref: '#/components/schemas/HealthContextData'
+        exerciseData:
+          $ref: '#/components/schemas/ExerciseContextData'
+        performance:
+          $ref: '#/components/schemas/PerformanceData'
+
+    DeviceInfo:
+      type: object
+      properties:
+        userAgent:
+          type: string
+        platform:
+          type: string
+        screenWidth:
+          type: integer
+        screenHeight:
+          type: integer
+        deviceType:
+          type: string
+          enum:
+            - mobile
+            - tablet
+            - desktop
+        browser:
+          type: string
+        os:
+          type: string
+
+    UIState:
+      type: object
+      properties:
+        componentName:
+          type: string
+        route:
+          type: string
+        action:
+          type: string
+        elementId:
+          type: string
+        elementType:
+          type: string
+        position:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+        viewport:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+
+    EnvironmentalData:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+        locale:
+          type: string
+        sessionDuration:
+          type: integer
+        pageLoadTime:
+          type: number
+        networkType:
+          type: string
+          enum:
+            - wifi
+            - cellular
+            - 4g
+            - 5g
+            - ethernet
+            - unknown
+        referrer:
+          type: string
+
+    HealthContextData:
+      type: object
+      properties:
+        recordType:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+        goalId:
+          type: integer
+
+    ExerciseContextData:
+      type: object
+      properties:
+        exerciseType:
+          type: string
+        duration:
+          type: number
+        intensity:
+          type: string
+          enum:
+            - low
+            - moderate
+            - high
+        planId:
+          type: integer
+        sessionId:
+          type: integer
+
+    PerformanceData:
+      type: object
+      properties:
+        loadTime:
+          type: number
+        renderTime:
+          type: number
+        interactionTime:
+          type: number
+
+    MicroBehaviorPattern:
+      type: object
+      properties:
+        id:
+          type: integer
+        patternType:
+          type: string
+          enum:
+            - habit
+            - trigger
+            - outcome
+            - context
+            - correlation
+        behaviorName:
+          type: string
+        frequency:
+          type: number
+          minimum: 0
+          maximum: 1
+        strength:
+          type: number
+          minimum: 0
+          maximum: 1
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        context:
+          type: object
+          additionalProperties: true
+        triggers:
+          type: array
+          items:
+            type: string
+        outcomes:
+          type: array
+          items:
+            type: string
+        correlations:
+          type: array
+          items:
+            type: object
+            properties:
+              behaviorName:
+                type: string
+              correlation:
+                type: number
+                minimum: -1
+                maximum: 1
+        timeframe:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - active
+            - archived
+            - deprecated
+      required:
+        - patternType
+        - behaviorName
+        - frequency
+        - strength
+        - confidence
+
+    MicroBehaviorPatternUpdate:
+      type: object
+      properties:
+        id:
+          type: integer
+        patternType:
+          type: string
+          enum:
+            - habit
+            - trigger
+            - outcome
+            - context
+            - correlation
+        behaviorName:
+          type: string
+        frequency:
+          type: number
+          minimum: 0
+          maximum: 1
+        strength:
+          type: number
+          minimum: 0
+          maximum: 1
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        context:
+          type: object
+          additionalProperties: true
+        triggers:
+          type: array
+          items:
+            type: string
+        outcomes:
+          type: array
+          items:
+            type: string
+        correlations:
+          type: array
+          items:
+            type: object
+            properties:
+              behaviorName:
+                type: string
+              correlation:
+                type: number
+                minimum: -1
+                maximum: 1
+        timeframe:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date-time
+            endDate:
+              type: string
+              format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+          enum:
+            - active
+            - archived
+            - deprecated
+      required:
+        - id
+
+    PatternInsights:
+      type: object
+      properties:
+        totalPatterns:
+          type: integer
+        strongPatterns:
+          type: integer
+        frequentPatterns:
+          type: integer
+        highConfidencePatterns:
+          type: integer
+        patternsByType:
+          type: object
+          additionalProperties:
+            type: integer
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    BehaviorAnalyticsSummary:
+      type: object
+      properties:
+        totalEvents:
+          type: integer
+        activePatterns:
+          type: integer
+        habitStrengthAvg:
+          type: number
+        consistencyScore:
+          type: integer
+        topContext:
+          type: string
+        weeklyTrend:
+          type: number
+        predictionAccuracy:
+          type: integer
+
+    HabitStrengthData:
+      type: object
+      properties:
+        habitStrength:
+          type: number
+        trend:
+          type: number
+        dataPoints:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              value:
+                type: number
+
+    ContextPattern:
+      type: object
+      properties:
+        contextType:
+          type: string
+        contextValue:
+          type: string
+        predictivePower:
+          type: number
+        successRate:
+          type: number
+        frequency:
+          type: integer
+        correlation:
+          type: number
+
+    FrequencyDataPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        frequency:
+          type: integer
+        consistency:
+          type: integer
+        strength:
+          type: integer
+
+    FrequencyAnalyticsMeta:
+      type: object
+      properties:
+        timeRange:
+          type: string
+        behaviorType:
+          type: string
+        aggregation:
+          type: string
+        totalDataPoints:
+          type: integer
+        totalFrequency:
+          type: integer
+        avgFrequency:
+          type: number
+        avgConsistency:
+          type: integer
+        avgStrength:
+          type: integer
+        userId:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        dateRange:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+
+    RecognizedPattern:
+      type: object
+      properties:
+        patternId:
+          type: string
+        patternType:
+          type: string
+        behaviorType:
+          type: string
+        description:
+          type: string
+        confidence:
+          type: number
+        frequency:
+          type: number
+        strength:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+      required:
+        - error
+        - details
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    TooManyRequests:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServiceUnavailable:
+      description: Service unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
