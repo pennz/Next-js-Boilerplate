@@ -14,7 +14,7 @@ export const Env = createEnv({
      * Note: Client-side buffer settings (NEXT_PUBLIC_BEHAVIOR_EVENT_BUFFER_SIZE and
      * NEXT_PUBLIC_BEHAVIOR_EVENT_FLUSH_INTERVAL) are only used when this is enabled.
      */
-    ENABLE_BEHAVIOR_TRACKING: z.string().transform(val => val === 'true').optional().default(false),
+    ENABLE_BEHAVIOR_TRACKING: z.string().transform(val => val === 'true').optional().default(true),
     /**
      * Enables user profile management functionality.
      * When set to 'true', users can create and manage detailed profiles including
