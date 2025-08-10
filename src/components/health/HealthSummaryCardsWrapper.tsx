@@ -1,5 +1,5 @@
 // Types matching those in HealthOverview
-import type { HealthGoal, HealthRecord } from './HealthOverview';
+import type { HealthGoal, HealthRecord } from './HealthOverviewContainer';
 import { currentUser } from '@clerk/nextjs/server';
 import { and, desc, eq } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';

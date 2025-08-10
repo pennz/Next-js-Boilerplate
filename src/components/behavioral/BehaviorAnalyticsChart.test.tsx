@@ -4,7 +4,7 @@ import type {
   ContextPatternData,
   HabitStrengthData,
 } from './BehaviorAnalyticsChart';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from 'vitest-browser-react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

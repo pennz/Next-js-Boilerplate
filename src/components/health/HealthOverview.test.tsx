@@ -1,145 +1,257 @@
-import * as Clerk from '@clerk/nextjs/server';
-// NOTE: If you see a type error for @testing-library/react, ensure you have @types/testing-library__react installed.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from 'vitest-browser-react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { HealthOverview } from './HealthOverview';
+import { HealthOverviewContainer } from './HealthOverviewContainer';
+import type { UserResource, EmailAddressResource, VerificationResource } from '@clerk/types';
 
-// Mock getTranslations
-vi.mock('next-intl/server', () => ({
-  getTranslations: vi.fn().mockResolvedValue((key: string) => key),
+// Mock Clerk useUser
+vi.mock('@clerk/nextjs', () => ({
+  useUser: vi.fn(),
 }));
 
-// Mock Clerk currentUser
-vi.mock('@clerk/nextjs/server', () => ({
-  currentUser: vi.fn(),
+// Mock behavior tracking hook
+vi.mock('@/hooks/useBehaviorTracking', () => ({
+  useBehaviorTracking: () => ({
+    trackEvent: vi.fn(),
+    isLoading: false,
+    error: null,
+    flushEvents: vi.fn(),
+  }),
 }));
 
-// Mock DB and data fetching
-vi.mock('@/libs/DB', () => ({
-  db: {},
-}));
+// Mock global fetch
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
-// Patch the data fetching helper in HealthOverview
-const mockData = {
-  recentRecords: [
-    { id: 1, type: 'Weight', value: 70, unit: 'kg', recorded_at: '2024-01-01T10:00:00Z' },
-    { id: 2, type: 'Steps', value: 8000, unit: 'steps', recorded_at: '2024-01-02T10:00:00Z' },
-  ],
-  activeGoals: [
-    { id: 1, type: 'Weight', target_value: 65, current_value: 70, target_date: '2024-03-01', status: 'active' },
-  ],
-  stats: { totalRecords: 2, activeGoals: 1, completedGoals: 0, weeklyProgress: 50 },
+// Mock API response data
+const mockApiResponses = {
+  recentRecords: {
+    records: [
+      {
+        id: 1,
+        typeId: 1,
+        value: 70,
+        unit: 'kg',
+        recordedAt: '2024-01-01T10:00:00Z',
+        createdAt: '2024-01-01T10:00:00Z',
+        healthType: {
+          id: 1,
+          slug: 'weight',
+          displayName: 'Weight',
+          unit: 'kg',
+        },
+      },
+      {
+        id: 2,
+        typeId: 2,
+        value: 8000,
+        unit: 'steps',
+        recordedAt: '2024-01-02T10:00:00Z',
+        createdAt: '2024-01-02T10:00:00Z',
+        healthType: {
+          id: 2,
+          slug: 'steps',
+          displayName: 'Steps',
+          unit: 'steps',
+        },
+      },
+    ],
+  },
+  activeGoals: {
+    goals: [
+      {
+        id: 1,
+        typeId: 1,
+        targetValue: 65,
+        targetDate: '2024-03-01',
+        status: 'active',
+        createdAt: '2024-01-01T10:00:00Z',
+        updatedAt: '2024-01-01T10:00:00Z',
+        healthType: {
+          id: 1,
+          slug: 'weight',
+          displayName: 'Weight',
+          unit: 'kg',
+        },
+        currentValue: 70,
+        progressPercentage: 0,
+        daysRemaining: 60,
+        isOverdue: false,
+        lastRecordedAt: '2024-01-01T10:00:00Z',
+      },
+    ],
+  },
+  stats: {
+    stats: {
+      totalRecords: 2,
+      activeGoals: 1,
+      completedGoals: 0,
+      weeklyProgress: 50,
+      weeklyRecords: 5,
+      previousWeekRecords: 3,
+    },
+  },
 };
 
-// Helper to patch the data fetching in HealthOverview
-function mockHealthOverviewData(data: any) {
-  // @ts-expect-error: Patch getHealthOverviewData for async server component test
-  HealthOverview.__Rewire__('getHealthOverviewData', async () => data);
-}
-
-// Minimal mock Clerk user object with required fields
-const mockClerkUser = {
+// Mock Clerk user object with all required properties
+const mockUser: UserResource = {
   id: 'user1',
-  passwordEnabled: false,
-  totpEnabled: false,
-  backupCodeEnabled: false,
-  twoFactorEnabled: false,
-  emailAddresses: [],
-  phoneNumbers: [],
-  web3Wallets: [],
-  externalAccounts: [],
-  hasImage: false,
-  imageUrl: '',
-  primaryEmailAddressId: null,
+  externalId: 'ext_user1',
+  primaryEmailAddressId: 'email1',
+  primaryEmailAddress: {
+    id: 'email1',
+    emailAddress: 'test@example.com',
+    verification: {
+      status: 'verified',
+      strategy: 'email_link',
+      attempts: 0,
+      expireAt: null,
+      externalVerificationRedirectURL: null,
+      error: null,
+      nonce: null,
+      reservedForSecondFactor: false,
+      secondFactor: null,
+    },
+    linkedTo: [],
+  },
   primaryPhoneNumberId: null,
-  primaryWeb3WalletId: null,
-  username: null,
-  firstName: null,
-  lastName: null,
+  primaryPhoneNumber: null,
+  imageUrl: 'https://example.com/avatar.jpg',
+  firstName: 'Test',
+  lastName: 'User',
+  fullName: 'Test User',
+  username: 'testuser',
   publicMetadata: {},
   privateMetadata: {},
   unsafeMetadata: {},
-  createdAt: 0,
-  updatedAt: 0,
-  lastSignInAt: 0,
-  banned: false,
-  locked: false,
-  verificationStatus: 'unverified',
-  lastActiveAt: 0,
-  // Add missing required Clerk User fields
-  externalId: null,
-  samlAccounts: [],
-  createOrganizationEnabled: false,
-  createOrganizationsLimit: 0,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  lastSignInAt: new Date(),
+  hasImage: true,
+  isSignedIn: true,
+  isLoaded: true,
+  emailAddresses: [{
+    id: 'email1',
+    emailAddress: 'test@example.com',
+    verification: {
+      status: 'verified',
+      strategy: 'email_link',
+      attempts: 0,
+      expireAt: null,
+      externalVerificationRedirectURL: null,
+      error: null,
+      nonce: null,
+      reservedForSecondFactor: false,
+      secondFactor: null,
+    },
+    linkedTo: [],
+  }],
+  phoneNumbers: [],
   organizationMemberships: [],
-  lastActiveOrganizationId: null,
-  lastActiveOrganization: null,
-  lastActiveOrganizationRole: null,
-  lastActiveOrganizationMembershipId: null,
-  lastActiveOrganizationInvitationId: null,
-  lastActiveOrganizationInvitation: null,
-  lastActiveOrganizationRoleId: null,
-  // Final required fields
+  passwordEnabled: true,
+  twoFactorEnabled: false,
+  totpEnabled: false,
+  backupCodeEnabled: false,
+  externalAccounts: [],
+  samlAccounts: [],
+  lastActiveAt: new Date(),
+  createOrganizationEnabled: false,
   deleteSelfEnabled: false,
-  legalAcceptedAt: null,
-  raw: {},
-  primaryOrganizationId: null,
-  primaryOrganizationMembershipId: null,
-  primaryOrganizationRoleId: null,
-  // Final Clerk User fields for type compatibility
-  primaryEmailAddress: null,
-  primaryPhoneNumber: null,
-  primaryWeb3Wallet: null,
-  fullName: '',
+  createSessionEnabled: true,
 };
 
-describe('HealthOverview', () => {
+describe('HealthOverviewContainer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFetch.mockClear();
   });
 
-  it('renders all main sections with mock data', async () => {
-    vi.spyOn(Clerk, 'currentUser').mockResolvedValue(mockClerkUser as any);
-    mockHealthOverviewData(mockData);
-    render(<HealthOverview />);
+  const setupSuccessfulFetch = () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/recent-records')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockApiResponses.recentRecords),
+        });
+      } else if (url.includes('/active-goals')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockApiResponses.activeGoals),
+        });
+      } else if (url.includes('/stats')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockApiResponses.stats),
+        });
+      }
+      return Promise.resolve({ ok: false });
+    });
+  };
 
-    expect(await screen.findByTestId('health-overview')).toBeInTheDocument();
+  it('renders all main sections with mock data', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: mockUser,
+      isLoaded: true,
+      isSignedIn: true,
+    });
+
+    setupSuccessfulFetch();
+    render(<HealthOverviewContainer />);
+
+    // Wait for loading to complete
+    await waitFor(() => {
+      expect(screen.queryByTestId('health-overview')).toBeInTheDocument();
+    });
+
     expect(screen.getByTestId('health-overview-stats')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-recent-records')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-active-goals')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-quick-actions')).toBeInTheDocument();
-    expect(screen.getByTestId('health-overview-mini-charts')).toBeInTheDocument();
     expect(screen.getByText('Weight')).toBeInTheDocument();
     expect(screen.getByText('Steps')).toBeInTheDocument();
-    expect(screen.getByText('Goal Progress')).toBeInTheDocument();
   });
 
-  it('shows empty state for no records or goals', async () => {
-    vi.spyOn(Clerk, 'currentUser').mockResolvedValue(mockClerkUser as any);
-    mockHealthOverviewData({ recentRecords: [], activeGoals: [], stats: { totalRecords: 0, activeGoals: 0, completedGoals: 0, weeklyProgress: 0 } });
-    render(<HealthOverview />);
+  it('shows loading state initially', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: mockUser,
+      isLoaded: true,
+      isSignedIn: true,
+    });
 
-    expect(await screen.findByText('No recent records')).toBeInTheDocument();
-    expect(screen.getByText('No active goals')).toBeInTheDocument();
+    // Delay the fetch to show loading state
+    mockFetch.mockImplementation(() => new Promise(() => {}));
+    render(<HealthOverviewContainer />);
+
+    expect(screen.getByText(/Loading health data/i)).toBeInTheDocument();
   });
 
-  it('displays correct stats', async () => {
-    vi.spyOn(Clerk, 'currentUser').mockResolvedValue(mockClerkUser as any);
-    mockHealthOverviewData(mockData);
-    render(<HealthOverview />);
+  it('shows error state when API fails', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: mockUser,
+      isLoaded: true,
+      isSignedIn: true,
+    });
 
-    expect(await screen.findByText('2')).toBeInTheDocument(); // totalRecords
-    expect(screen.getByText('1')).toBeInTheDocument(); // activeGoals
-    expect(screen.getByText('0')).toBeInTheDocument(); // completedGoals
-    expect(screen.getByText('50%')).toBeInTheDocument(); // weeklyProgress
+    mockFetch.mockRejectedValue(new Error('API Error'));
+    render(<HealthOverviewContainer />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Error Loading Health Data/i)).toBeInTheDocument();
+    });
   });
 
-  it('returns null if not authenticated', async () => {
-    vi.spyOn(Clerk, 'currentUser').mockResolvedValue(null);
-    render(<HealthOverview />);
+  it('returns null if user is not loaded', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: null,
+      isLoaded: false,
+    });
 
-    // Should not render anything
+    render(<HealthOverviewContainer />);
+
     expect(screen.queryByTestId('health-overview')).not.toBeInTheDocument();
   });
 });

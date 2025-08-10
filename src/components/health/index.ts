@@ -10,10 +10,11 @@ export type { HealthGoal as GoalCardHealthGoal } from './GoalCard';
 export { GoalCard } from './GoalCard';
 
 // Re-export existing health component types for convenience
-export type { HealthGoal, HealthRecord, HealthStats } from './HealthOverview';
+export type { HealthGoal, HealthRecord, HealthStats } from './HealthOverviewContainer';
 
-// Export existing components
-export { HealthOverview } from './HealthOverview';
+// Export new container/presentation pattern components
+export { HealthOverviewContainer } from './HealthOverviewContainer';
+export { HealthOverviewLayout } from './HealthOverviewLayout';
 
 // Export the main HealthPredictiveChart component
 export { HealthPredictiveChart } from './HealthPredictiveChart';

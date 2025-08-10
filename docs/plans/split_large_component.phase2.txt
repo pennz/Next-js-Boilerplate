@@ -1,0 +1,142 @@
+I have created the following plan after thorough exploration and analysis of the codebase. Follow the below plan verbatim. Trust the files and references. Do not re-verify what's written in the plan. Explore only when absolutely necessary. First implement all the proposed file changes and then I'll review all the changes together at the end.
+
+### Observations
+
+The current `HealthOverviewLayout.tsx` is a comprehensive component containing multiple distinct sections. I identified three main sections that can be extracted: Stats Section (stats grid with 4 StatCard components), Records Section (recent records display), and Goals Section (goal progress display). Each section has its own sub-components, styling, and behavior tracking. The existing tests use data-testid attributes to verify component rendering, which need to be preserved. The component also includes Quick Actions and Health Trends sections that will remain in the main layout.
+
+### Approach
+
+I'll extract the three main sections from `HealthOverviewLayout.tsx` into separate components following the container/presentation pattern:
+
+1. **Create StatsSection.tsx** - Extract the stats grid (lines 212-242) with StatCard components and their behavior tracking
+2. **Create RecordsSection.tsx** - Extract the recent records section (lines 247-272) with RecentRecordItem components and their interactions
+3. **Create GoalsSection.tsx** - Extract the goals section (lines 275-300) with GoalProgressCard components and progress tracking
+4. **Update HealthOverviewLayout.tsx** - Replace the extracted sections with the new components while maintaining identical styling and behavior
+
+Each section component will include its relevant sub-components (StatCard, RecentRecordItem, GoalProgressCard) and maintain all existing data-testid attributes, styling, and behavior tracking to ensure tests continue to pass.
+
+### Reasoning
+
+I explored the repository structure and found that the user has already implemented the first phase of health overview decomposition. I read the current `HealthOverviewLayout.tsx` file to understand its structure and identified three distinct sections that need to be extracted. I also examined the existing test file to understand the testing patterns and ensure the new components maintain compatibility with existing tests. The layout contains well-defined sections with clear boundaries that can be cleanly extracted.
+
+## Mermaid Diagram
+
+sequenceDiagram
+    participant Container as HealthOverviewContainer
+    participant Layout as HealthOverviewLayout
+    participant Stats as StatsSection
+    participant Records as RecordsSection
+    participant Goals as GoalsSection
+    participant Tracking as useHealthOverviewTracking
+
+    Container->>Layout: Pass data (stats, records, goals)
+    Layout->>Tracking: Get tracking functions
+    Layout->>Stats: Pass stats + trackStatCardView
+    Layout->>Records: Pass recentRecords + trackRecordView
+    Layout->>Goals: Pass activeGoals + trackGoalProgressView
+    
+    Stats->>Stats: Render StatCard components
+    Records->>Records: Render RecentRecordItem components
+    Goals->>Goals: Render GoalProgressCard components
+    
+    Note over Stats,Goals: Each section maintains identical<br/>styling and behavior as original
+    
+    Stats-->>Layout: Rendered stats grid
+    Records-->>Layout: Rendered records list
+    Goals-->>Layout: Rendered goals progress
+    Layout-->>Container: Complete health overview UI
+
+## Proposed File Changes
+
+### src/components/health/StatsSection.tsx(NEW)
+
+References: 
+
+- src/components/health/HealthOverviewLayout.tsx(MODIFY)
+
+Create a dedicated component for the health statistics section that displays the stats grid with four StatCard components. This component will:
+
+- Extract the StatCard sub-component from `HealthOverviewLayout.tsx` (lines 9-52) with all its styling, accessibility features, and interaction handling
+- Extract the stats grid section (lines 212-242) with the exact same layout, CSS classes, and data-testid attributes
+- Accept props for stats data and tracking functions from the parent component
+- Include all four StatCard instances: Total Records, Active Goals, Completed Goals, and Weekly Progress
+- Maintain the responsive grid layout (grid-cols-1 md:grid-cols-2 lg:grid-cols-4)
+- Preserve all existing behavior tracking calls through props
+- Keep all accessibility features including role, tabIndex, and keyboard navigation
+- Maintain the exact same visual styling and hover effects
+- Include the data-testid="health-overview-stats" attribute for test compatibility
+- Use the same trend indicators and icons as the original implementation
+
+The component will be a pure presentation component that receives all data and tracking functions as props, ensuring it maintains identical behavior to the original implementation.
+
+### src/components/health/RecordsSection.tsx(NEW)
+
+References: 
+
+- src/components/health/HealthOverviewLayout.tsx(MODIFY)
+
+Create a dedicated component for the recent health records section that displays the records list with RecentRecordItem components. This component will:
+
+- Extract the RecentRecordItem sub-component from `HealthOverviewLayout.tsx` (lines 111-147) with all its styling, time calculation, and interaction handling
+- Extract the recent records section (lines 247-272) with the exact same layout, CSS classes, and data-testid attributes
+- Accept props for recentRecords data and tracking functions from the parent component
+- Include the section header with "Recent Records" title and "View All" link to `/dashboard/health/records`
+- Maintain the white background card styling with border and padding
+- Preserve the records list layout with proper spacing and border styling
+- Keep the "No recent records" empty state message with identical styling
+- Include the data-testid="health-overview-recent-records" attribute for test compatibility
+- Maintain all accessibility features including role, tabIndex, and keyboard navigation for record items
+- Preserve the time calculation logic (hours ago) and record value/unit display
+- Keep all existing behavior tracking calls through props
+- Maintain the exact same hover effects and transition styling
+
+The component will be a pure presentation component that receives all data and tracking functions as props, ensuring it maintains identical behavior to the original implementation.
+
+### src/components/health/GoalsSection.tsx(NEW)
+
+References: 
+
+- src/components/health/HealthOverviewLayout.tsx(MODIFY)
+
+Create a dedicated component for the health goals section that displays active goals with GoalProgressCard components. This component will:
+
+- Extract the GoalProgressCard sub-component from `HealthOverviewLayout.tsx` (lines 54-109) with all its styling, progress calculation, and interaction handling
+- Extract the goals section (lines 275-300) with the exact same layout, CSS classes, and data-testid attributes
+- Accept props for activeGoals data and tracking functions from the parent component
+- Include the section header with "Goal Progress" title and "Manage" link to `/dashboard/health/goals`
+- Maintain the white background card styling with border and padding
+- Preserve the goals grid layout with proper spacing between goal cards
+- Keep the "No active goals" empty state message with identical styling
+- Include the data-testid="health-overview-active-goals" attribute for test compatibility
+- Maintain all accessibility features including role, tabIndex, and keyboard navigation for goal cards
+- Preserve the progress calculation logic (percentage, completion status)
+- Keep the progress bar styling with conditional colors (green for completed, blue for active)
+- Maintain the goal type display, current/target value formatting, and completion indicators
+- Keep all existing behavior tracking calls through props
+- Maintain the exact same hover effects and transition styling
+
+The component will be a pure presentation component that receives all data and tracking functions as props, ensuring it maintains identical behavior to the original implementation.
+
+### src/components/health/HealthOverviewLayout.tsx(MODIFY)
+
+References: 
+
+- src/components/health/StatsSection.tsx(NEW)
+- src/components/health/RecordsSection.tsx(NEW)
+- src/components/health/GoalsSection.tsx(NEW)
+
+Update the HealthOverviewLayout component to use the new section components while maintaining identical output and behavior. The changes will:
+
+- Import the new section components: `StatsSection`, `RecordsSection`, and `GoalsSection`
+- Remove the StatCard, GoalProgressCard, and RecentRecordItem sub-components (lines 9-147) as they are now part of the section components
+- Replace the stats grid section (lines 212-242) with `<StatsSection stats={stats} trackStatCardView={trackStatCardView} />`
+- Replace the recent records section (lines 247-272) with `<RecordsSection recentRecords={recentRecords} trackRecordView={trackRecordView} />`
+- Replace the goals section (lines 275-300) with `<GoalsSection activeGoals={activeGoals} trackGoalProgressView={trackGoalProgressView} />`
+- Keep all other sections unchanged: header, Quick Actions, Health Trends, and Behavior Analytics
+- Maintain all existing props, types, and component structure
+- Preserve all data-testid attributes and CSS classes in the remaining sections
+- Keep the QuickActionButton sub-component as it's used in the Quick Actions section that remains in this layout
+- Ensure all tracking functions are properly passed to the section components
+- Maintain the exact same overall layout structure and responsive design
+
+The updated component will render identically to the original but with better separation of concerns through the extracted section components.

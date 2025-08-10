@@ -1,4 +1,4 @@
-import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverview';
+import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverviewContainer';
 import type {
   HealthRadarMetric,
 } from '@/components/health/types';
