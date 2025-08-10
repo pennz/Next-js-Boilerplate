@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { HealthOverviewWrapper } from '@/components/health/HealthOverviewWrapper';
+import { HealthOverviewContainer } from '@/components/health/HealthOverviewContainer';
 import { HealthSummaryCardsWrapper } from '@/components/health/HealthSummaryCardsWrapper';
 
 export async function generateMetadata(props: {
@@ -33,7 +33,7 @@ export default async function HealthDashboard() {
       </div>
 
       {/* Health Overview Section */}
-      <HealthOverviewWrapper />
+      <HealthOverviewContainer />
 
       {/* Health Summary Cards Section */}
       <div className="space-y-4">

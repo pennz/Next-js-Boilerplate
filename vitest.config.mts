@@ -6,6 +6,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
+    setupFiles: ['./vitest.setup.ts'],
     coverage: {
       include: ['src/**/*'],
       exclude: ['src/**/*.stories.{js,jsx,ts,tsx}'],

@@ -1,5 +1,5 @@
 import type { HealthDataPoint, HealthMetricType, UserProfile } from './healthScoring';
-import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverview';
+import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverviewContainer';
 
 import { beforeEach, describe, expect, it } from 'vitest';
 

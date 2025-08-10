@@ -1,7 +1,7 @@
 import type {
   HealthGoal,
   HealthRecord,
-} from '@/components/health/HealthOverview';
+} from '@/components/health/HealthOverviewContainer';
 import type {
   HealthRadarMetric,
   HealthSummaryMetric,

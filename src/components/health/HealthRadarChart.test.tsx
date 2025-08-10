@@ -4,7 +4,7 @@ import type {
   RadarChartConfig,
   RadarChartData,
 } from './types';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from 'vitest-browser-react';
 import React from 'react';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';

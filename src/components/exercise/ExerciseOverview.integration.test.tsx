@@ -1,5 +1,5 @@
 import type { ExerciseLog, TrainingPlan, Stats } from '@/components/exercise/ExerciseOverview';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from 'vitest-browser-react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

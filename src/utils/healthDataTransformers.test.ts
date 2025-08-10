@@ -5,7 +5,7 @@
  * realistic health data scenarios, and integration with healthScoring module.
  */
 
-import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverview';
+import type { HealthGoal, HealthRecord } from '@/components/health/HealthOverviewContainer';
 import type { HealthDataPoint, HealthMetricType, UserProfile } from '@/utils/healthScoring';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
