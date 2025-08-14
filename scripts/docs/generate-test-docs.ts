@@ -154,10 +154,20 @@ class TestDocumentationGenerator {
     let currentSuite: string | undefined;
 
     const visit = (node: ts.Node) => {
-      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
-        const functionName = node.expression.text;
+      if (ts.isCallExpression(node)) {
+        let functionName: string | undefined;
         
-        if (['describe', 'it', 'test'].includes(functionName)) {
+        if (ts.isIdentifier(node.expression)) {
+          functionName = node.expression.text;
+        } else if (ts.isPropertyAccessExpression(node.expression) && 
+                   ts.isIdentifier(node.expression.expression)) {
+          const baseIdentifier = node.expression.expression.text;
+          if (['describe', 'it', 'test'].includes(baseIdentifier)) {
+            functionName = baseIdentifier;
+          }
+        }
+        
+        if (functionName && ['describe', 'it', 'test'].includes(functionName)) {
           const [firstArg] = node.arguments;
           if (firstArg && ts.isStringLiteral(firstArg)) {
             const testName = firstArg.text;
@@ -309,6 +319,7 @@ class TestDocumentationGenerator {
   private async updateTestingQARequirements(testResults: TestResults, coverageData: CoverageData | null): Promise<void> {
     const filePath = path.join(this.docsDir, 'testing-quality-assurance-requirements.md');
     
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
     try {
       let content: string;
       
@@ -350,6 +361,7 @@ class TestDocumentationGenerator {
   private async updateTestUpdatesSummary(testResults: TestResults, requirementMappings: RequirementMapping[]): Promise<void> {
     const filePath = path.join(this.docsDir, 'test-updates-summary.md');
     
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
     const content = this.generateTestUpdatesSummary(testResults, requirementMappings);
     
     try {
@@ -658,7 +670,9 @@ async function main() {
 }
 
 // Run if called directly
-if (require.main === module) {
+import { pathToFileURL } from 'url';
+const isCli = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) {
   main();
 }
 

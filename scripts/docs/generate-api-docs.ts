@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import yaml from 'yaml';
 import { glob } from 'glob';
+import { Project, SyntaxKind, VariableDeclaration, CallExpression } from 'ts-morph';
 
 interface OpenAPISpec {
   openapi: string;
@@ -81,7 +82,7 @@ class APIDocumentationGenerator {
 
   private async loadOpenAPISpecs(): Promise<OpenAPISpec[]> {
     const specs: OpenAPISpec[] = [];
-    const specFiles = ['health.yaml', 'behavior.yaml'];
+    const specFiles = await glob('*.{yml,yaml}', { cwd: this.openApiDir });
 
     for (const file of specFiles) {
       const filePath = path.join(this.openApiDir, file);
@@ -139,21 +140,39 @@ class APIDocumentationGenerator {
       validationRules: string[];
     }> = [];
 
-    // Extract Zod schema definitions using regex patterns
-    const zodSchemaPattern = /export\s+const\s+(\w+(?:Schema|Validation))\s*=\s*z\.([\s\S]*?)(?=\n\n|\nexport|\n\/\/|\n\*|$)/g;
-    const zodObjectPattern = /z\.object\(\{([\s\S]*?)\}\)/g;
-    const zodValidationPattern = /\.(\w+)\([^)]*\)/g;
+    // Use TS AST parsing instead of regex
+    const project = new Project({ useInMemoryFileSystem: true });
+    const sourceFile = project.createSourceFile('temp.ts', content);
 
-    let match;
-    while ((match = zodSchemaPattern.exec(content)) !== null) {
-      const [, schemaName, definition] = match;
-      const validationRules = this.extractValidationRules(definition);
+    // Find exported const declarations that reference Zod
+    const exportedVariables = sourceFile.getVariableDeclarations().filter(decl => {
+      const exportSymbol = decl.getSymbolOrThrow();
+      const parent = decl.getParentOrThrow();
+      return parent.getParentOrThrow().getKind() === SyntaxKind.VariableStatement &&
+             parent.getParentOrThrow().hasModifier(SyntaxKind.ExportKeyword);
+    });
+
+    for (const variable of exportedVariables) {
+      const name = variable.getName();
       
-      schemas.push({
-        name: schemaName,
-        definition: definition.trim(),
-        validationRules,
-      });
+      // Check if the variable name suggests it's a Zod schema
+      if (name.includes('Schema') || name.includes('Validation')) {
+        const initializer = variable.getInitializer();
+        if (initializer) {
+          const definition = initializer.getText();
+          
+          // Check if it references Zod (starts with 'z.')
+          if (definition.includes('z.')) {
+            const validationRules = this.extractValidationRulesFromAST(initializer);
+            
+            schemas.push({
+              name,
+              definition: definition.trim(),
+              validationRules,
+            });
+          }
+        }
+      }
     }
 
     return {
@@ -189,6 +208,94 @@ class APIDocumentationGenerator {
       }
     }
 
+    return rules;
+  }
+
+  private extractValidationRulesFromAST(node: any): string[] {
+    const rules: string[] = [];
+    
+    // Traverse the AST to find method calls on Zod objects
+    const visitNode = (astNode: any) => {
+      if (astNode && typeof astNode === 'object') {
+        // Check if this is a call expression
+        if (astNode.kind === SyntaxKind.CallExpression) {
+          const expression = astNode.expression;
+          
+          // Check if it's a property access (e.g., z.string().min(5))
+          if (expression && expression.kind === SyntaxKind.PropertyAccessExpression) {
+            const propertyName = expression.name?.escapedText || expression.name?.text;
+            
+            // Extract validation rules based on method name
+            switch (propertyName) {
+              case 'min':
+                const minArg = astNode.arguments?.[0];
+                if (minArg && minArg.text) {
+                  rules.push(`Minimum length: ${minArg.text}`);
+                }
+                break;
+              case 'max':
+                const maxArg = astNode.arguments?.[0];
+                if (maxArg && maxArg.text) {
+                  rules.push(`Maximum length: ${maxArg.text}`);
+                }
+                break;
+              case 'email':
+                rules.push('Must be a valid email address');
+                break;
+              case 'url':
+                rules.push('Must be a valid URL');
+                break;
+              case 'uuid':
+                rules.push('Must be a valid UUID');
+                break;
+              case 'positive':
+                rules.push('Must be a positive number');
+                break;
+              case 'negative':
+                rules.push('Must be a negative number');
+                break;
+              case 'int':
+                rules.push('Must be an integer');
+                break;
+              case 'optional':
+                rules.push('Optional field');
+                break;
+              case 'nullable':
+                rules.push('Can be null');
+                break;
+              case 'regex':
+                const regexArg = astNode.arguments?.[0];
+                if (regexArg) {
+                  rules.push(`Must match pattern: ${regexArg.text || regexArg.getText()}`);
+                }
+                break;
+              case 'refine':
+                rules.push('Has custom validation');
+                break;
+            }
+          }
+        }
+        
+        // Recursively visit child nodes
+        for (const key in astNode) {
+          if (astNode[key] && typeof astNode[key] === 'object') {
+            visitNode(astNode[key]);
+          }
+        }
+      }
+    };
+    
+    // Fall back to regex-based extraction if AST parsing fails
+    try {
+      visitNode(node.compilerNode || node);
+      if (rules.length === 0) {
+        return this.extractValidationRules(node.getText());
+      }
+    } catch (error) {
+      console.warn('AST parsing failed, falling back to regex:', error);
+      return this.extractValidationRules(node.getText());
+    }
+    
     return rules;
   }
 
@@ -557,7 +664,9 @@ The following validation schemas are defined using Zod:
 }
 
 // CLI execution
-if (require.main === module) {
+import { pathToFileURL } from 'url';
+const isCli = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) {
   const generator = new APIDocumentationGenerator();
   generator.generate().catch((error) => {
     console.error('Failed to generate API documentation:', error);

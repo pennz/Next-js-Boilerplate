@@ -42,20 +42,23 @@ pre-commit:
       run: |
         echo "🔍 Validating documentation files..."
         # Check for broken internal links in modified docs
+        failed=0
         for file in {staged_files}; do
-          if [[ "$file" == docs/*.md ]]; then
+          if [[ "$file" == docs/* ]] && [[ "$file" == *.md ]]; then
             # Check for broken relative links
-            if grep -n '\]\([^)]*\.md\)' "$file" | while read -r line; do
+            while IFS= read -r line; do
               link=$(echo "$line" | sed -n 's/.*\](\([^)]*\.md\)).*/\1/p')
-              if [[ -n "$link" && ! -f "$(dirname "$file")/$link" && ! -f "$link" ]]; then
+              if [[ -n "$link" ]] && ! [[ -f "$(dirname "$file")/$link" || -f "$link" ]]; then
                 echo "❌ Broken link in $file: $link"
-                exit 1
+                failed=1
               fi
-            done; then
-              echo "✅ Documentation links validated"
-            fi
+            done < <(grep -n '\](\([^)]*\.md\))' "$file" || true)
           fi
         done
+        if [[ $failed -eq 0 ]]; then
+          echo "✅ Documentation links validated"
+        fi
+        exit $failed
       priority: 3
     api-docs-check:
       glob: '{src/app/api/**/*,openapi/**/*,src/validations/**/*}'

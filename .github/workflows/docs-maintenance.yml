@@ -92,12 +92,47 @@ jobs:
       - name: Run documentation validation
         id: validation
         run: |
-          npm run docs:validate -- --exit-on-error --save-report || echo "validation_failed=true" >> $GITHUB_OUTPUT
+          # Run validation and capture exit code
+          exit_code=0
+          npm run docs:validate -- --save-report || exit_code=$?
+          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
+          
+          # Parse the validation report to determine if there are errors
+          if [ -f "docs/validation-report.json" ]; then
+            # Check if there are errors in the report
+            has_errors=$(node -p "const report = require('./docs/validation-report.json'); report.summary.errors > 0 ? 'true' : 'false'")
+            echo "has_errors=$has_errors" >> $GITHUB_OUTPUT
+            
+            # Output summary for workflow logs
+            errors=$(node -p "require('./docs/validation-report.json').summary.errors")
+            warnings=$(node -p "require('./docs/validation-report.json').summary.warnings")
+            echo "Validation summary: $errors errors, $warnings warnings"
+          else
+            echo "has_errors=true" >> $GITHUB_OUTPUT
+            echo "No validation report found"
+          fi
         continue-on-error: true
 
       - name: Install markdown tools
         run: |
           npm install -g markdownlint-cli markdown-link-check
+
+      - name: Create markdownlint config
+        run: |
+          cat > .markdownlint.json << 'EOF'
+          {
+            "default": true,
+            "MD013": {
+              "line_length": 120,
+              "code_blocks": false,
+              "tables": false
+            },
+            "MD033": {
+              "allowed_elements": ["details", "summary", "br", "img"]
+            },
+            "MD041": false
+          }
+          EOF
 
       - name: Lint Markdown files
         run: |
@@ -111,16 +146,16 @@ jobs:
         continue-on-error: true
 
       - name: Comment validation results on PR
-        if: github.event_name == 'pull_request' && (steps.validation.outputs.validation_failed == 'true' || steps.link-check.outputs.link_check_failed == 'true')
+        if: github.event_name == 'pull_request' && (steps.validation.outputs.has_errors == 'true' || steps.link-check.outputs.link_check_failed == 'true')
         uses: actions/github-script@v7
         with:
           script: |
-            const validationFailed = '${{ steps.validation.outputs.validation_failed }}' === 'true';
+            const hasErrors = '${{ steps.validation.outputs.has_errors }}' === 'true';
             const linkCheckFailed = '${{ steps.link-check.outputs.link_check_failed }}' === 'true';
             
             let body = '## 📚 Documentation Validation Results\n\n';
             
-            if (validationFailed) {
+            if (hasErrors) {
               body += '❌ **Documentation validation failed**\n';
               body += '- Please check the workflow logs for specific validation errors\n';
               body += '- Run `npm run docs:validate` locally to debug issues\n\n';
@@ -142,7 +177,7 @@ jobs:
             });
 
       - name: Fail if critical issues found
-        if: steps.validation.outputs.validation_failed == 'true'
+        if: steps.validation.outputs.has_errors == 'true'
         run: |
           echo "Critical documentation validation issues found. Please fix before merging."
           exit 1
@@ -179,7 +214,7 @@ jobs:
           git diff --exit-code docs/api-endpoints-documentation.md || echo "api_docs_changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit API documentation changes
-        if: steps.git-check.outputs.api_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        if: steps.git-check.outputs.api_docs_changed == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -216,7 +251,7 @@ jobs:
           git diff --exit-code docs/ui-component-inventory.md docs/component-behavior-requirements.md || echo "component_docs_changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit component documentation changes
-        if: steps.git-check.outputs.component_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        if: steps.git-check.outputs.component_docs_changed == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -253,7 +288,7 @@ jobs:
           git diff --exit-code docs/database-schema-analysis.md docs/entity-relationship-diagram.md || echo "db_docs_changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit database documentation changes
-        if: steps.git-check.outputs.db_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        if: steps.git-check.outputs.db_docs_changed == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -293,7 +328,7 @@ jobs:
           git diff --exit-code docs/testing-quality-assurance-requirements.md docs/test-updates-summary.md docs/requirements-traceability-matrix-part*.md || echo "test_docs_changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit test documentation changes
-        if: steps.git-check.outputs.test_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        if: steps.git-check.outputs.test_docs_changed == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"

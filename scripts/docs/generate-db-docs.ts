@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import * as fs from 'fs';
+import * as path from 'path';
 import { join, extname } from 'path';
 import { Project, SyntaxKind, VariableDeclaration, CallExpression } from 'ts-morph';
 
@@ -241,16 +243,11 @@ class DatabaseDocumentationGenerator {
         unique: false
       };
 
-      // Parse the column definition chain
-      let current = definition;
-      while (current) {
-        if (current.getKind() === SyntaxKind.CallExpression) {
-          const callExpr = current.asKind(SyntaxKind.CallExpression);
-          const expression = callExpr?.getExpression();
-          
-          if (expression) {
-            const methodName = this.getMethodName(expression);
-            const args = callExpr?.getArguments() || [];
+      // Collect all method calls in the chain
+      const methodCalls = this.collectMethodCalls(definition);
+      
+      // Process each method call to extract column properties
+      for (const { methodName, args } of methodCalls) {
 
             switch (methodName) {
               case 'serial':
@@ -321,19 +318,47 @@ class DatabaseDocumentationGenerator {
               columnInfo.type = methodName;
             }
           }
-
-          // Move to the next call in the chain
-          current = expression;
-        } else {
-          break;
         }
-      }
 
-      return columnInfo;
+        return columnInfo.type !== 'unknown' ? columnInfo : null;
     } catch (error) {
       console.warn(`Failed to parse column ${name}:`, error);
       return null;
     }
+  }
+
+  private collectMethodCalls(definition: any): Array<{ methodName: string; args: any[] }> {
+    const methodCalls: Array<{ methodName: string; args: any[] }> = [];
+    
+    // Traverse the call chain recursively
+    const traverseNode = (node: any) => {
+      if (node && node.getKind() === SyntaxKind.CallExpression) {
+        const callExpr = node.asKind(SyntaxKind.CallExpression);
+        const expression = callExpr?.getExpression();
+        const args = callExpr?.getArguments() || [];
+        
+        if (expression) {
+          const methodName = this.getMethodName(expression);
+          if (methodName) {
+            methodCalls.push({ methodName, args });
+          }
+          
+          // Continue traversing the expression to find chained calls
+          if (expression.getKind() === SyntaxKind.PropertyAccessExpression) {
+            const propAccess = expression.asKind(SyntaxKind.PropertyAccessExpression);
+            const objectExpr = propAccess?.getExpression();
+            if (objectExpr) {
+              traverseNode(objectExpr);
+            }
+          }
+        }
+      }
+    };
+    
+    traverseNode(definition);
+    
+    // Reverse to get the correct order (base type first, then modifiers)
+    return methodCalls.reverse();
   }
 
   private getMethodName(expression: any): string {
@@ -528,6 +553,7 @@ class DatabaseDocumentationGenerator {
     const erdContent = this.buildERDContent();
     const erdPath = join(this.docsPath, 'entity-relationship-diagram.md');
     
+    await fs.promises.mkdir(path.dirname(erdPath), { recursive: true });
     writeFileSync(erdPath, erdContent, 'utf-8');
   }
 
@@ -740,6 +766,7 @@ erDiagram
     const analysisContent = this.buildSchemaAnalysisContent();
     const analysisPath = join(this.docsPath, 'database-schema-analysis.md');
     
+    await fs.promises.mkdir(path.dirname(analysisPath), { recursive: true });
     writeFileSync(analysisPath, analysisContent, 'utf-8');
   }
 
@@ -1130,7 +1157,9 @@ async function main() {
 }
 
 // Run if called directly
-if (require.main === module) {
+import { pathToFileURL } from 'url';
+const isCli = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) {
   main();
 }
 
