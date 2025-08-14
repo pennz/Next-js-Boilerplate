@@ -392,7 +392,19 @@
     "tablet": "平板设备",
     "desktop": "桌面设备",
     "historical_data": "历史数据",
-    "prediction_data": "预测数据"
+    "prediction_data": "预测数据",
+    "page_title_health_analytics_overview": "健康分析概览",
+    "page_description_health_analytics_overview": "全面查看您的健康分析，包含趋势、预测和洞察",
+    "analytics_overview_subtitle": "全面的健康分析，包含预测洞察和趋势分析",
+    "analytics_loading": "正在加载分析数据...",
+    "analytics_error": "加载分析数据时出错",
+    "analytics_retry": "重新加载",
+    "analytics_last_updated": "最后更新：{timestamp}",
+    "analytics_comprehensive_title": "全面健康分析",
+    "analytics_trends_section": "健康趋势与预测",
+    "analytics_overview_section": "健康概览",
+    "analytics_insights_section": "关键洞察",
+    "analytics_no_data": "无可用的分析数据。添加健康记录以查看洞察。"
   },
   "ExerciseManagement": {
     "meta_title": "运动与训练",

@@ -15,6 +15,8 @@ export type { HealthGoal, HealthRecord, HealthStats } from './HealthOverviewCont
 // Export new container/presentation pattern components
 export { HealthOverviewContainer } from './HealthOverviewContainer';
 export { HealthOverviewLayout } from './HealthOverviewLayout';
+export { HealthAnalyticsContainer } from './HealthAnalyticsContainer';
+export { HealthAnalyticsLayout } from './HealthAnalyticsLayout';
 
 // Export decomposed section components
 export { StatsSection } from './StatsSection';
