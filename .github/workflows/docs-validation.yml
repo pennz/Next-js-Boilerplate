@@ -177,14 +177,94 @@ jobs:
       - name: Check API documentation sync
         run: |
           echo "Checking if API documentation is in sync with OpenAPI specs..."
+          
+          # Install YAML parser
+          npm install -g js-yaml
+          
+          coverage_threshold=80
+          total_endpoints=0
+          documented_endpoints=0
+          
           if [ -f "docs/api-endpoints-documentation.md" ]; then
-            # Check if API docs mention the endpoints defined in OpenAPI specs
-            if [ -f "openapi/health.yaml" ]; then
-              # Extract paths from OpenAPI spec and check if they're documented
-              echo "Validating health API documentation coverage..."
-            fi
-            if [ -f "openapi/behavior.yaml" ]; then
-              echo "Validating behavior API documentation coverage..."
+            echo "Found API documentation file"
+            
+            # Function to extract and validate endpoints from OpenAPI spec
+            validate_spec_coverage() {
+              local spec_file="$1"
+              local spec_name="$2"
+              
+              if [ -f "$spec_file" ]; then
+                echo "Validating $spec_name API documentation coverage..."
+                
+                # Extract paths from OpenAPI spec
+                paths=$(node -e "
+                  const yaml = require('js-yaml');
+                  const fs = require('fs');
+                  try {
+                    const spec = yaml.load(fs.readFileSync('$spec_file', 'utf8'));
+                    if (spec.paths) {
+                      Object.keys(spec.paths).forEach(path => {
+                        Object.keys(spec.paths[path]).forEach(method => {
+                          console.log(method.toUpperCase() + ' ' + path);
+                        });
+                      });
+                    }
+                  } catch (e) {
+                    console.error('Error parsing YAML:', e.message);
+                  }
+                ")
+                
+                # Count total endpoints
+                local spec_endpoints=$(echo "$paths" | wc -l)
+                total_endpoints=$((total_endpoints + spec_endpoints))
+                
+                # Check documentation coverage
+                local covered=0
+                while IFS= read -r endpoint; do
+                  if [ -n "$endpoint" ]; then
+                    # Extract method and path
+                    method=$(echo "$endpoint" | cut -d' ' -f1)
+                    path=$(echo "$endpoint" | cut -d' ' -f2-)
+                    
+                    # Check if endpoint is documented (flexible matching)
+                    if grep -q "$path" docs/api-endpoints-documentation.md || \
+                       grep -q "$method.*$path" docs/api-endpoints-documentation.md || \
+                       grep -q "\`$path\`" docs/api-endpoints-documentation.md; then
+                      covered=$((covered + 1))
+                      echo "✅ Documented: $endpoint"
+                    else
+                      echo "❌ Missing: $endpoint"
+                    fi
+                  fi
+                done <<< "$paths"
+                
+                documented_endpoints=$((documented_endpoints + covered))
+                
+                if [ $spec_endpoints -gt 0 ]; then
+                  coverage=$((covered * 100 / spec_endpoints))
+                  echo "$spec_name API coverage: $covered/$spec_endpoints endpoints ($coverage%)"
+                fi
+              fi
+            }
+            
+            # Validate each OpenAPI spec
+            validate_spec_coverage "openapi/health.yaml" "Health"
+            validate_spec_coverage "openapi/behavior.yaml" "Behavior"
+            
+            # Calculate overall coverage
+            if [ $total_endpoints -gt 0 ]; then
+              overall_coverage=$((documented_endpoints * 100 / total_endpoints))
+              echo "Overall API documentation coverage: $documented_endpoints/$total_endpoints endpoints ($overall_coverage%)"
+              
+              if [ $overall_coverage -lt $coverage_threshold ]; then
+                echo "::error::API documentation coverage ($overall_coverage%) is below threshold ($coverage_threshold%)"
+                echo "Please document the missing endpoints in docs/api-endpoints-documentation.md"
+                exit 1
+              else
+                echo "✅ API documentation coverage meets threshold ($coverage_threshold%)"
+              fi
+            else
+              echo "No OpenAPI endpoints found to validate"
             fi
           else
             echo "::warning::API documentation file not found at docs/api-endpoints-documentation.md"

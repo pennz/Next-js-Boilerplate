@@ -993,6 +993,8 @@ async function main(): Promise<void> {
 export { TraceabilityMatrixUpdater };
 
 // Run if called directly
-if (require.main === module) {
+import { pathToFileURL } from 'url';
+const isCli = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) {
   main().catch(console.error);
 }

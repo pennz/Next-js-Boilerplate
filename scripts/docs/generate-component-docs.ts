@@ -1079,7 +1079,9 @@ async function main() {
 }
 
 // Run the script
-if (require.main === module) {
+import { pathToFileURL } from 'url';
+const isCli = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) {
   main().catch(console.error);
 }
 

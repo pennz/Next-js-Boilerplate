@@ -677,6 +677,8 @@ async function main() {
 export { DocumentationValidator, ValidationReport, ValidationIssue };
 
 // Run if called directly
-if (require.main === module) {
+import { pathToFileURL } from 'url';
+const isCli = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isCli) {
   main();
 }
