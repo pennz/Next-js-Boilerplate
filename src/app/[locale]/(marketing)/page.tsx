@@ -1,9 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Sponsors } from '@/components/Sponsors';
-import { Hero } from '@/components/marketing/Hero';
-import { FeatureGrid } from '@/components/marketing/FeatureGrid';
 import { CTASection } from '@/components/marketing/CTASection';
+import { FeatureGrid } from '@/components/marketing/FeatureGrid';
+import { Hero } from '@/components/marketing/Hero';
 import { TechStack } from '@/components/marketing/TechStack';
+import { Sponsors } from '@/components/Sponsors';
 
 type IIndexProps = {
   params: { locale: string };
@@ -53,9 +53,11 @@ export default async function Index(props: IIndexProps) {
             <h2 id="tech-title" className="text-2xl font-bold text-slate-900">
               {t('tech_title')}
             </h2>
-            {t('tech_subtitle') ? (
-              <p className="mt-3 text-base text-slate-600">{t('tech_subtitle')}</p>
-            ) : null}
+            {t('tech_subtitle')
+              ? (
+                  <p className="mt-3 text-base text-slate-600">{t('tech_subtitle')}</p>
+                )
+              : null}
           </div>
 
           <div className="mt-10">

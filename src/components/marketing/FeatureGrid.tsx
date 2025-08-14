@@ -1,23 +1,23 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import {
-  HeartIcon,
-  ChartBarIcon,
-  TrophyIcon,
   BellIcon,
+  ChartBarIcon,
+  HeartIcon,
   MagnifyingGlassIcon,
   PlayIcon,
+  TrophyIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
-interface Feature {
+type Feature = {
   id: string;
   icon: React.ReactNode;
   titleKey: string;
   descriptionKey: string;
   image?: string;
-}
+};
 
 const features: Feature[] = [
   {
@@ -25,28 +25,24 @@ const features: Feature[] = [
     icon: <HeartIcon className="h-8 w-8" />,
     titleKey: 'feature_health_records_title',
     descriptionKey: 'feature_health_records_desc',
-    image: '/assets/images/feature-health-records.png',
   },
   {
     id: 'analytics',
     icon: <ChartBarIcon className="h-8 w-8" />,
     titleKey: 'feature_analytics_title',
     descriptionKey: 'feature_analytics_desc',
-    image: '/assets/images/feature-analytics.png',
   },
   {
     id: 'goals',
     icon: <TrophyIcon className="h-8 w-8" />,
     titleKey: 'feature_goals_title',
     descriptionKey: 'feature_goals_desc',
-    image: '/assets/images/feature-goals.png',
   },
   {
     id: 'reminders',
     icon: <BellIcon className="h-8 w-8" />,
     titleKey: 'feature_reminders_title',
     descriptionKey: 'feature_reminders_desc',
-    image: '/assets/images/feature-reminders.png',
   },
   {
     id: 'behavior',
@@ -62,11 +58,11 @@ const features: Feature[] = [
   },
 ];
 
-interface FeatureCardProps {
+type FeatureCardProps = {
   feature: Feature;
   title: string;
   description: string;
-}
+};
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
   feature,
@@ -98,7 +94,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             height={240}
             className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
             placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
           />
         </div>
       )}
@@ -127,7 +123,7 @@ export const FeatureGrid: React.FC = () => {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
+          {features.map(feature => (
             <FeatureCard
               key={feature.id}
               feature={feature}
@@ -143,10 +139,10 @@ export const FeatureGrid: React.FC = () => {
             {t('features_bottom_cta_title')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-sm font-semibold text-white shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
+            <button type="button" className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-sm font-semibold text-white shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
               {t('features_bottom_cta_get_started')}
             </button>
-            <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 transition-all duration-300">
+            <button type="button" className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 transition-all duration-300">
               {t('features_bottom_cta_view_demo')}
             </button>
           </div>

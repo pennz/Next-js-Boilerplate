@@ -6,7 +6,10 @@
       "Bash(npx tsc:*)",
       "Bash(npx eslint:*)",
       "Bash(psql:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(node:*)",
+      "Bash(grep:*)",
+      "Bash(python3:*)"
     ],
     "deny": []
   }

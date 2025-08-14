@@ -1,9 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import Image from 'next/image';
-import { FaHeartbeat, FaChartLine, FaTarget, FaBell } from 'react-icons/fa';
+import Link from 'next/link';
+import { FaBell, FaChartLine, FaHeartbeat, FaTarget } from 'react-icons/fa';
 
 export function Hero() {
   const t = useTranslations('Index');
@@ -91,7 +91,7 @@ export function Hero() {
               {/* Background decoration for image */}
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-2xl transform rotate-3 scale-105 opacity-20" />
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl transform -rotate-3 scale-105 opacity-20" />
-              
+
               {/* Main image container */}
               <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
                 <div className="aspect-[4/3] relative">
@@ -105,7 +105,7 @@ export function Hero() {
                     blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                   />
                 </div>
-                
+
                 {/* Floating elements */}
                 <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
                   <FaHeartbeat className="inline w-3 h-3 mr-1" />
