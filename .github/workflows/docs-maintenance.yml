@@ -1,0 +1,432 @@
+name: Documentation Maintenance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'openapi/**'
+      - 'migrations/**'
+      - 'tests/**'
+      - '*.md'
+      - 'package.json'
+      - 'src/models/Schema.ts'
+      - 'src/validations/**'
+      - 'src/components/**'
+  schedule:
+    # Run weekly documentation health checks on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      force_regenerate:
+        description: 'Force regenerate all documentation'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api-changed: ${{ steps.changes.outputs.api }}
+      components-changed: ${{ steps.changes.outputs.components }}
+      database-changed: ${{ steps.changes.outputs.database }}
+      tests-changed: ${{ steps.changes.outputs.tests }}
+      docs-changed: ${{ steps.changes.outputs.docs }}
+      force-regenerate: ${{ github.event.inputs.force_regenerate == 'true' || github.event_name == 'schedule' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect file changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            api:
+              - 'openapi/**'
+              - 'src/validations/**'
+              - 'src/app/api/**'
+            components:
+              - 'src/components/**'
+              - '**/*.stories.tsx'
+            database:
+              - 'src/models/Schema.ts'
+              - 'migrations/**'
+            tests:
+              - 'tests/**'
+              - '**/*.test.ts'
+              - '**/*.test.tsx'
+              - '**/*.spec.ts'
+            docs:
+              - 'docs/**'
+              - '*.md'
+
+  validate-documentation:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-changed == 'true' || github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run documentation validation
+        id: validation
+        run: |
+          npm run docs:validate -- --exit-on-error --save-report || echo "validation_failed=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Install markdown tools
+        run: |
+          npm install -g markdownlint-cli markdown-link-check
+
+      - name: Lint Markdown files
+        run: |
+          markdownlint 'docs/**/*.md' '*.md' --config .markdownlint.json || true
+
+      - name: Check for broken links
+        id: link-check
+        run: |
+          echo "Checking links in documentation..."
+          find docs -name "*.md" -print0 | xargs -0 -I {} markdown-link-check {} --config .github/markdown-link-check-config.json || echo "link_check_failed=true" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Comment validation results on PR
+        if: github.event_name == 'pull_request' && (steps.validation.outputs.validation_failed == 'true' || steps.link-check.outputs.link_check_failed == 'true')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const validationFailed = '${{ steps.validation.outputs.validation_failed }}' === 'true';
+            const linkCheckFailed = '${{ steps.link-check.outputs.link_check_failed }}' === 'true';
+            
+            let body = '## 📚 Documentation Validation Results\n\n';
+            
+            if (validationFailed) {
+              body += '❌ **Documentation validation failed**\n';
+              body += '- Please check the workflow logs for specific validation errors\n';
+              body += '- Run `npm run docs:validate` locally to debug issues\n\n';
+            }
+            
+            if (linkCheckFailed) {
+              body += '🔗 **Broken links detected**\n';
+              body += '- Some links in the documentation are broken or unreachable\n';
+              body += '- Please review and fix broken links before merging\n\n';
+            }
+            
+            body += '> 💡 **Tip**: Run documentation validation locally with `npm run docs:validate` before pushing changes.';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      - name: Fail if critical issues found
+        if: steps.validation.outputs.validation_failed == 'true'
+        run: |
+          echo "Critical documentation validation issues found. Please fix before merging."
+          exit 1
+
+  generate-api-docs:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api-changed == 'true' || needs.detect-changes.outputs.force-regenerate == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API definitions
+        run: npm run api:generate
+
+      - name: Generate API documentation
+        run: npm run docs:generate:api
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code docs/api-endpoints-documentation.md || echo "api_docs_changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit API documentation changes
+        if: steps.git-check.outputs.api_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/api-endpoints-documentation.md
+          git commit -m "docs: auto-update API documentation [skip ci]"
+          git push
+
+  generate-component-docs:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.components-changed == 'true' || needs.detect-changes.outputs.force-regenerate == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate component documentation
+        run: npm run docs:generate:components
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code docs/ui-component-inventory.md docs/component-behavior-requirements.md || echo "component_docs_changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit component documentation changes
+        if: steps.git-check.outputs.component_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/ui-component-inventory.md docs/component-behavior-requirements.md
+          git commit -m "docs: auto-update component documentation [skip ci]"
+          git push
+
+  generate-database-docs:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.database-changed == 'true' || needs.detect-changes.outputs.force-regenerate == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate database documentation
+        run: npm run docs:generate:db
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code docs/database-schema-analysis.md docs/entity-relationship-diagram.md || echo "db_docs_changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit database documentation changes
+        if: steps.git-check.outputs.db_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/database-schema-analysis.md docs/entity-relationship-diagram.md
+          git commit -m "docs: auto-update database documentation [skip ci]"
+          git push
+
+  generate-test-docs:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tests-changed == 'true' || needs.detect-changes.outputs.force-regenerate == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate test documentation
+        run: npm run docs:generate:tests
+
+      - name: Update traceability matrix
+        run: npm run docs:update-traceability
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code docs/testing-quality-assurance-requirements.md docs/test-updates-summary.md docs/requirements-traceability-matrix-part*.md || echo "test_docs_changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit test documentation changes
+        if: steps.git-check.outputs.test_docs_changed == 'true' && github.event.pull_request.head.repo.fork == false
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add docs/testing-quality-assurance-requirements.md docs/test-updates-summary.md docs/requirements-traceability-matrix-part*.md
+          git commit -m "docs: auto-update test documentation and traceability matrix [skip ci]"
+          git push
+
+  documentation-health-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.force_regenerate == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run comprehensive documentation health check
+        run: npm run docs:health
+
+      - name: Check for outdated content
+        run: |
+          echo "Checking for documentation older than 30 days..."
+          find docs -name "*.md" -type f -mtime +30 -exec echo "Potentially outdated: {}" \;
+
+      - name: Generate health report
+        run: |
+          echo "# Documentation Health Report - $(date)" > docs-health-report.md
+          echo "" >> docs-health-report.md
+          echo "## Summary" >> docs-health-report.md
+          echo "- Total documentation files: $(find docs -name '*.md' | wc -l)" >> docs-health-report.md
+          echo "- Files modified in last 7 days: $(find docs -name '*.md' -mtime -7 | wc -l)" >> docs-health-report.md
+          echo "- Files older than 30 days: $(find docs -name '*.md' -mtime +30 | wc -l)" >> docs-health-report.md
+          echo "" >> docs-health-report.md
+          echo "## Automation Status" >> docs-health-report.md
+          echo "- Last health check: $(date)" >> docs-health-report.md
+          echo "- Workflow run: ${{ github.run_id }}" >> docs-health-report.md
+
+      - name: Create issue for health report
+        if: github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const healthReport = fs.readFileSync('docs-health-report.md', 'utf8');
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Weekly Documentation Health Report - ${new Date().toISOString().split('T')[0]}`,
+              body: healthReport + '\n\n> This is an automated weekly health check. Review and close when addressed.',
+              labels: ['documentation', 'maintenance', 'automated']
+            });
+
+  post-pr-summary:
+    runs-on: ubuntu-latest
+    needs: [detect-changes, validate-documentation, generate-api-docs, generate-component-docs, generate-database-docs, generate-test-docs]
+    if: always() && github.event_name == 'pull_request'
+    steps:
+      - name: Post PR summary comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changes = {
+              api: '${{ needs.detect-changes.outputs.api-changed }}' === 'true',
+              components: '${{ needs.detect-changes.outputs.components-changed }}' === 'true',
+              database: '${{ needs.detect-changes.outputs.database-changed }}' === 'true',
+              tests: '${{ needs.detect-changes.outputs.tests-changed }}' === 'true',
+              docs: '${{ needs.detect-changes.outputs.docs-changed }}' === 'true'
+            };
+            
+            const jobs = {
+              validation: '${{ needs.validate-documentation.result }}',
+              apiDocs: '${{ needs.generate-api-docs.result }}',
+              componentDocs: '${{ needs.generate-component-docs.result }}',
+              databaseDocs: '${{ needs.generate-database-docs.result }}',
+              testDocs: '${{ needs.generate-test-docs.result }}'
+            };
+            
+            let body = '## 📚 Documentation Maintenance Summary\n\n';
+            
+            // Changes detected
+            body += '### Changes Detected\n';
+            const changedAreas = Object.entries(changes).filter(([_, changed]) => changed).map(([area, _]) => area);
+            if (changedAreas.length > 0) {
+              body += changedAreas.map(area => `- ✅ ${area.charAt(0).toUpperCase() + area.slice(1)}`).join('\n') + '\n';
+            } else {
+              body += '- No documentation-relevant changes detected\n';
+            }
+            body += '\n';
+            
+            // Job results
+            body += '### Documentation Jobs\n';
+            Object.entries(jobs).forEach(([job, result]) => {
+              if (result && result !== 'skipped') {
+                const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⚠️';
+                body += `- ${icon} ${job}: ${result}\n`;
+              }
+            });
+            body += '\n';
+            
+            body += '> 🤖 This summary was generated automatically by the documentation maintenance workflow.';
+            
+            // Find existing comment and update or create new one
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const existingComment = comments.data.find(comment => 
+              comment.user.login === 'github-actions[bot]' && 
+              comment.body.includes('Documentation Maintenance Summary')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }

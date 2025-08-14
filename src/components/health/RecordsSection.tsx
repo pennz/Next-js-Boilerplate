@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { HealthRecord } from './HealthOverviewContainer';
 
 const RecentRecordItem = ({ record, onRecordView }: { 
   record: HealthRecord; 
   onRecordView: () => void;
 }) => {
+  const t = useTranslations('HealthManagement');
   const recordDate = new Date(record.recorded_at);
   const timeAgo = Math.floor((Date.now() - recordDate.getTime()) / (1000 * 60 * 60));
 
@@ -27,7 +29,7 @@ const RecentRecordItem = ({ record, onRecordView }: {
         <p className="font-medium text-gray-900">{record.type}</p>
         <p className="text-sm text-gray-500">
           {timeAgo}
-          h ago
+          {t('hours_ago')}
         </p>
       </div>
       <div className="text-right">
@@ -47,15 +49,17 @@ type RecordsSectionProps = {
 };
 
 export const RecordsSection = ({ recentRecords, trackRecordView }: RecordsSectionProps) => {
+  const t = useTranslations('HealthManagement');
+  
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-recent-records">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Recent Records</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('recent_records')}</h3>
         <Link
           href="/dashboard/health/records"
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
-          View All
+          {t('link_view_all')}
         </Link>
       </div>
       <div className="space-y-1">
@@ -70,7 +74,7 @@ export const RecordsSection = ({ recentRecords, trackRecordView }: RecordsSectio
               ))
             )
           : (
-              <p className="text-gray-500 text-center py-4">No recent records</p>
+              <p className="text-gray-500 text-center py-4">{t('no_recent_records')}</p>
             )}
       </div>
     </div>

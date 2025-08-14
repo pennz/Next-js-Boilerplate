@@ -1,12 +1,16 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Sponsors } from '@/components/Sponsors';
+import { Hero } from '@/components/marketing/Hero';
+import { FeatureGrid } from '@/components/marketing/FeatureGrid';
+import { CTASection } from '@/components/marketing/CTASection';
+import { TechStack } from '@/components/marketing/TechStack';
 
 type IIndexProps = {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 };
 
 export async function generateMetadata(props: IIndexProps) {
-  const { locale } = await props.params;
+  const { locale } = props.params;
   const t = await getTranslations({
     locale,
     namespace: 'Index',
@@ -19,7 +23,7 @@ export async function generateMetadata(props: IIndexProps) {
 }
 
 export default async function Index(props: IIndexProps) {
-  const { locale } = await props.params;
+  const { locale } = props.params;
   setRequestLocale(locale);
   const t = await getTranslations({
     locale,
@@ -27,114 +31,58 @@ export default async function Index(props: IIndexProps) {
   });
 
   return (
-    <>
-      <p>
-        {`Follow `}
-        <a
-          className="text-blue-700 hover:border-b-2 hover:border-blue-700"
-          href="https://twitter.com/ixartz"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          @Ixartz on Twitter
-        </a>
-        {` for updates and more information about the boilerplate.`}
-      </p>
-      <h2 className="mt-5 text-2xl font-bold">
-        Boilerplate Code for Your Next.js Project with Tailwind CSS
-      </h2>
-      <p className="text-base">
-        Next.js Boilerplate is a developer-friendly starter code for Next.js projects, built with Tailwind CSS and TypeScript.
-        {' '}
-        <span role="img" aria-label="zap">
-          ⚡️
-        </span>
-        {' '}
-        Designed with developer experience in mind, it includes:
-      </p>
-      <ul className="mt-3 text-base">
-        <li>🚀 Next.js with App Router support</li>
-        <li>🔥 TypeScript for type checking</li>
-        <li>💎 Tailwind CSS integration</li>
-        <li>
-          🔒 Authentication with
-          {' '}
-          <a
-            className="font-bold text-blue-700 hover:border-b-2 hover:border-blue-700"
-            href="https://clerk.com?utm_source=github&amp;utm_medium=sponsorship&amp;utm_campaign=nextjs-boilerplate"
-          >
-            Clerk
-          </a>
-          {' '}
-          (includes passwordless, social, and multi-factor auth)
-        </li>
-        <li>📦 ORM with DrizzleORM (PostgreSQL, SQLite, MySQL support)</li>
-        <li>
-          💽 Dev database with PGlite and production with
-          {' '}
-          <a
-            className="font-bold text-blue-700 hover:border-b-2 hover:border-blue-700"
-            href="https://www.prisma.io/?via=nextjsindex"
-          >
-            Prisma PostgreSQL
-          </a>
-        </li>
-        <li>
-          🌐 Multi-language support (i18n) with next-intl and
-          {' '}
-          <a
-            className="font-bold text-blue-700 hover:border-b-2 hover:border-blue-700"
-            href="https://l.crowdin.com/next-js"
-          >
-            Crowdin
-          </a>
-        </li>
-        <li>🔴 Form handling (React Hook Form) and validation (Zod)</li>
-        <li>📏 Linting and formatting (ESLint, Prettier)</li>
-        <li>🦊 Git hooks and commit linting (Husky, Commitlint)</li>
-        <li>🦺 Testing suite (Vitest, React Testing Library, Playwright)</li>
-        <li>🎉 Storybook for UI development</li>
-        <li>
-          🐰 AI-powered code reviews with
-          {' '}
-          <a
-            className="font-bold text-blue-700 hover:border-b-2 hover:border-blue-700"
-            href="https://www.coderabbit.ai?utm_source=next_js_starter&utm_medium=github&utm_campaign=next_js_starter_oss_2025"
-          >
-            CodeRabbit
-          </a>
-        </li>
-        <li>
-          🚨 Error monitoring (
-          <a
-            className="font-bold text-blue-700 hover:border-b-2 hover:border-blue-700"
-            href="https://sentry.io/for/nextjs/?utm_source=github&amp;utm_medium=paid-community&amp;utm_campaign=general-fy25q1-nextjs&amp;utm_content=github-banner-nextjsboilerplate-logo"
-          >
-            Sentry
-          </a>
-          ) and logging (LogTape, an alternative to Pino.js)
-        </li>
-        <li>🖥️ Monitoring as Code (Checkly)</li>
-        <li>
-          🔐 Security and bot protection (
-          <a
-            className="font-bold text-blue-700 hover:border-b-2 hover:border-blue-700"
-            href="https://launch.arcjet.com/Q6eLbRE"
-          >
-            Arcjet
-          </a>
-          )
-        </li>
-        <li>🤖 SEO optimization (metadata, JSON-LD, Open Graph tags)</li>
-        <li>⚙️ Development tools (VSCode config, bundler analyzer, changelog generation)</li>
-      </ul>
-      <p className="text-base">
-        Our sponsors&apos; exceptional support has made this project possible.
-        Their services integrate seamlessly with the boilerplate, and we
-        recommend trying them out.
-      </p>
-      <h2 className="mt-5 text-2xl font-bold">{t('sponsors_title')}</h2>
-      <Sponsors />
-    </>
+    <main className="w-full">
+      {/* Hero Section */}
+      <section aria-labelledby="hero-title" className="bg-gradient-to-b from-white to-slate-50">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-28">
+          <Hero />
+        </div>
+      </section>
+
+      {/* Feature Grid */}
+      <section aria-labelledby="features-title" className="bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+          <FeatureGrid />
+        </div>
+      </section>
+
+      {/* Tech Stack */}
+      <section aria-labelledby="tech-title" className="bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 id="tech-title" className="text-2xl font-bold text-slate-900">
+              {t('tech_title')}
+            </h2>
+            {t('tech_subtitle') ? (
+              <p className="mt-3 text-base text-slate-600">{t('tech_subtitle')}</p>
+            ) : null}
+          </div>
+
+          <div className="mt-10">
+            <TechStack />
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section aria-labelledby="cta-title" className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+        <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+          <CTASection />
+        </div>
+      </section>
+
+      {/* Sponsors */}
+      <section aria-labelledby="sponsors-title" className="bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-12 lg:py-16">
+          <h2 id="sponsors-title" className="text-xl font-semibold text-slate-900">
+            {t('sponsors_title')}
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">{t('sponsors_subtitle')}</p>
+          <div className="mt-6">
+            <Sponsors />
+          </div>
+        </div>
+      </section>
+    </main>
   );
 };

@@ -16,6 +16,14 @@ export type { HealthGoal, HealthRecord, HealthStats } from './HealthOverviewCont
 export { HealthOverviewContainer } from './HealthOverviewContainer';
 export { HealthOverviewLayout } from './HealthOverviewLayout';
 
+// Export decomposed section components
+export { StatsSection } from './StatsSection';
+export { RecordsSection } from './RecordsSection';
+export { GoalsSection } from './GoalsSection';
+
+// Export health-specific tracking hooks
+export { useHealthOverviewTracking } from './useHealthOverviewTracking';
+
 // Export the main HealthPredictiveChart component
 export { HealthPredictiveChart } from './HealthPredictiveChart';
 

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
+import { useTranslations } from 'next-intl';
 import { useHealthOverviewTracking } from './useHealthOverviewTracking';
 import { StatsSection } from './StatsSection';
 import { RecordsSection } from './RecordsSection';
@@ -35,6 +36,7 @@ type HealthOverviewLayoutProps = {
 
 export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: HealthOverviewLayoutProps) => {
   const { user } = useUser();
+  const t = useTranslations('HealthManagement');
   const {
     trackOverviewView,
     trackStatCardView,
@@ -60,14 +62,14 @@ export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: Heal
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Health Overview</h2>
-          <p className="text-gray-600">Track your health metrics and goals</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('health_overview')}</h2>
+          <p className="text-gray-600">{t('track_health_metrics')}</p>
         </div>
         <Link
           href="/dashboard/health"
           className="text-blue-700 hover:border-b-2 hover:border-blue-700 font-medium"
         >
-          View All →
+          {t('view_all')} →
         </Link>
       </div>
 
@@ -84,30 +86,30 @@ export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: Heal
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-quick-actions">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quick_actions')}</h3>
           <div className="space-y-3">
             <QuickActionButton
               href="/dashboard/health/records?action=add"
               icon="➕"
-              label="Add Record"
+              label={t('add_record')}
               onQuickActionClick={trackQuickActionClick}
             />
             <QuickActionButton
               href="/dashboard/health/goals?action=create"
               icon="🎯"
-              label="Set Goal"
+              label={t('set_goal')}
               onQuickActionClick={trackQuickActionClick}
             />
             <QuickActionButton
               href="/dashboard/health/analytics"
               icon="📊"
-              label="View Analytics"
+              label={t('view_analytics')}
               onQuickActionClick={trackQuickActionClick}
             />
             <QuickActionButton
               href="/dashboard/health/reminders"
               icon="⏰"
-              label="Set Reminder"
+              label={t('set_reminder')}
               onQuickActionClick={trackQuickActionClick}
             />
           </div>
@@ -119,12 +121,12 @@ export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: Heal
         {/* Health Trends */}
         <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-mini-charts">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Health Trends</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('health_trends')}</h3>
             <Link
               href="/dashboard/health/analytics"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              View Details
+              {t('view_details')}
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -140,7 +142,7 @@ export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: Heal
                 }
               }}
             >
-              <p className="text-sm font-medium text-gray-600 mb-2">Weight Trend</p>
+              <p className="text-sm font-medium text-gray-600 mb-2">{t('weight_trend')}</p>
               <div className="h-16 bg-gradient-to-r from-blue-200 to-blue-300 rounded flex items-end justify-center">
                 <span className="text-xs text-gray-600">📉</span>
               </div>
@@ -157,7 +159,7 @@ export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: Heal
                 }
               }}
             >
-              <p className="text-sm font-medium text-gray-600 mb-2">Daily Steps</p>
+              <p className="text-sm font-medium text-gray-600 mb-2">{t('daily_steps')}</p>
               <div className="h-16 bg-gradient-to-r from-green-200 to-green-300 rounded flex items-end justify-center">
                 <span className="text-xs text-gray-600">📊</span>
               </div>
@@ -168,37 +170,37 @@ export const HealthOverviewLayout = ({ recentRecords, activeGoals, stats }: Heal
         {/* Behavior Analytics Summary */}
         <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="health-overview-behavior-analytics">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Behavior Insights</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('behavior_insights')}</h3>
             <Link
               href="/dashboard/analytics/behavior"
               className="text-purple-600 hover:text-purple-800 text-sm font-medium"
             >
-              View Analytics
+              {t('view_analytics')}
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">85%</div>
-              <div className="text-sm text-gray-600">Habit Strength</div>
+              <div className="text-sm text-gray-600">{t('habit_strength')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">92%</div>
-              <div className="text-sm text-gray-600">Consistency</div>
+              <div className="text-sm text-gray-600">{t('consistency')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">7</div>
-              <div className="text-sm text-gray-600">Active Patterns</div>
+              <div className="text-sm text-gray-600">{t('active_patterns')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">🌅</div>
-              <div className="text-sm text-gray-600">Best Time</div>
+              <div className="text-sm text-gray-600">{t('best_time')}</div>
             </div>
           </div>
           <div className="mt-4 p-3 bg-purple-50 rounded-lg">
             <p className="text-sm text-purple-800">
-              <span className="font-medium">💡 Insight:</span>
+              <span className="font-medium">{t('insight_prefix')}</span>
               {' '}
-              Your morning workouts have a 94% success rate
+              {t('morning_workout_success_rate')}
             </p>
           </div>
         </div>

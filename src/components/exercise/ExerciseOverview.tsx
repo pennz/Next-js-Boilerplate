@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
 
 type ExerciseLog = {
@@ -215,20 +216,20 @@ const RecentLogItem = ({ log }: { log: ExerciseLog }) => {
         <p className="font-medium text-gray-900">{log.exercise}</p>
         <p className="text-sm text-gray-500">
           {timeAgo}
-          h ago
+          {t('hours_ago')}
         </p>
       </div>
       <div className="text-right">
         <p className="font-medium text-gray-900">
           {log.sets}
           {' '}
-          sets
-          {log.reps && ` × ${log.reps} reps`}
+          {t('sets')}
+          {log.reps && ` × ${log.reps} ${t('reps')}`}
         </p>
         {log.weight && (
           <p className="text-sm text-gray-500">
             {log.weight}
-            kg
+            {t('kg')}
           </p>
         )}
       </div>
@@ -279,6 +280,7 @@ const ExerciseOverviewContent = ({
   activeTrainingPlans,
   stats,
 }: ExerciseOverviewProps) => {
+  const t = useTranslations('ExerciseManagement');
   const { trackEvent } = useBehaviorTracking();
 
   // Track when the overview is viewed
@@ -330,42 +332,42 @@ const ExerciseOverviewContent = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Exercise & Training Overview</h2>
-          <p className="text-gray-600">Track your workouts and training progress</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('exercise_overview')}</h2>
+          <p className="text-gray-600">{t('track_workouts_training')}</p>
         </div>
         <Link
           href="/dashboard/exercise"
           className="text-blue-700 hover:border-b-2 hover:border-blue-700 font-medium"
         >
-          View All →
+          {t('view_all')} →
         </Link>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="exercise-overview-stats">
         <StatCard
-          title="Total Workouts"
+          title={t('total_workouts')}
           value={stats.totalExerciseLogs}
           icon="💪"
-          subtitle="All time"
+          subtitle={t('all_time')}
         />
         <StatCard
-          title="Active Plans"
+          title={t('active_plans')}
           value={stats.activePlans}
           icon="📋"
-          subtitle="In progress"
+          subtitle={t('in_progress')}
         />
         <StatCard
-          title="Completed Sessions"
+          title={t('completed_sessions')}
           value={stats.completedSessions}
           icon="✅"
-          subtitle="This year"
+          subtitle={t('this_year')}
         />
         <StatCard
-          title="Weekly Activity"
+          title={t('weekly_activity')}
           value={stats.weeklyProgress}
           icon="🔥"
-          subtitle="This week"
+          subtitle={t('this_week')}
           trend="up"
         />
       </div>
@@ -375,12 +377,12 @@ const ExerciseOverviewContent = ({
         {/* Recent Workouts */}
         <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-recent-logs">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Workouts</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('recent_workouts')}</h3>
             <Link
               href="/dashboard/exercise/logs"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              View All
+              {t('view_all')}
             </Link>
           </div>
           <div className="space-y-1">
@@ -391,7 +393,7 @@ const ExerciseOverviewContent = ({
                   ))
                 )
               : (
-                  <p className="text-gray-500 text-center py-4">No recent workouts</p>
+                  <p className="text-gray-500 text-center py-4">{t('no_recent_workouts')}</p>
                 )}
           </div>
         </div>
@@ -399,12 +401,12 @@ const ExerciseOverviewContent = ({
         {/* Active Training Plans */}
         <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-active-plans">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Training Plans</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('training_plans')}</h3>
             <Link
               href="/dashboard/exercise/plans"
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              Manage
+              {t('manage')}
             </Link>
           </div>
           <div className="space-y-4">
@@ -415,34 +417,34 @@ const ExerciseOverviewContent = ({
                   ))
                 )
               : (
-                  <p className="text-gray-500 text-center py-4">No active training plans</p>
+                  <p className="text-gray-500 text-center py-4">{t('no_active_plans')}</p>
                 )}
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-quick-actions">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quick_actions')}</h3>
           <div className="space-y-3">
             <QuickActionButton
               href="/dashboard/exercise/workout"
               icon="🏋️"
-              label="Start Workout"
+              label={t('start_workout')}
             />
             <QuickActionButton
               href="/dashboard/exercise/plans?action=create"
               icon="📋"
-              label="Create Plan"
+              label={t('create_plan')}
             />
             <QuickActionButton
               href="/dashboard/exercise/exercises"
               icon="📚"
-              label="Browse Exercises"
+              label={t('browse_exercises')}
             />
             <QuickActionButton
               href="/dashboard/exercise/analytics"
               icon="📊"
-              label="View Progress"
+              label={t('view_progress')}
             />
           </div>
         </div>
@@ -451,12 +453,12 @@ const ExerciseOverviewContent = ({
       {/* Progress Charts Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-progress-charts">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Training Progress</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('training_progress')}</h3>
           <Link
             href="/dashboard/exercise/analytics"
             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
           >
-            View Details
+            {t('view_details')}
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -472,9 +474,9 @@ const ExerciseOverviewContent = ({
               }
             }}
           >
-            <p className="text-sm font-medium text-gray-600 mb-2">Strength Progress</p>
+            <p className="text-sm font-medium text-gray-600 mb-2">{t('strength_progress')}</p>
             <div className="h-20 bg-gradient-to-r from-red-200 to-red-300 rounded flex items-end justify-center">
-              <span className="text-xs text-gray-600">📈 Chart placeholder</span>
+              <span className="text-xs text-gray-600">{t('chart_placeholder')}</span>
             </div>
           </div>
           <div
@@ -489,9 +491,9 @@ const ExerciseOverviewContent = ({
               }
             }}
           >
-            <p className="text-sm font-medium text-gray-600 mb-2">Workout Frequency</p>
+            <p className="text-sm font-medium text-gray-600 mb-2">{t('workout_frequency')}</p>
             <div className="h-20 bg-gradient-to-r from-blue-200 to-blue-300 rounded flex items-end justify-center">
-              <span className="text-xs text-gray-600">📊 Chart placeholder</span>
+              <span className="text-xs text-gray-600">{t('chart_placeholder')}</span>
             </div>
           </div>
           <div
@@ -506,9 +508,9 @@ const ExerciseOverviewContent = ({
               }
             }}
           >
-            <p className="text-sm font-medium text-gray-600 mb-2">Volume Trends</p>
+            <p className="text-sm font-medium text-gray-600 mb-2">{t('volume_trends')}</p>
             <div className="h-20 bg-gradient-to-r from-green-200 to-green-300 rounded flex items-end justify-center">
-              <span className="text-xs text-gray-600">📉 Chart placeholder</span>
+              <span className="text-xs text-gray-600">{t('chart_placeholder')}</span>
             </div>
           </div>
         </div>

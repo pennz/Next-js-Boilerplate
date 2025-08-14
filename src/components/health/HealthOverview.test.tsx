@@ -9,6 +9,18 @@ vi.mock('@clerk/nextjs', () => ({
   useUser: vi.fn(),
 }));
 
+// Mock health overview tracking hook
+vi.mock('./useHealthOverviewTracking', () => ({
+  useHealthOverviewTracking: () => ({
+    trackOverviewView: vi.fn(),
+    trackStatCardView: vi.fn(),
+    trackGoalProgressView: vi.fn(),
+    trackRecordView: vi.fn(),
+    trackQuickActionClick: vi.fn(),
+    trackMiniChartView: vi.fn(),
+  }),
+}));
+
 // Mock behavior tracking hook
 vi.mock('@/hooks/useBehaviorTracking', () => ({
   useBehaviorTracking: () => ({
@@ -188,7 +200,7 @@ describe('HealthOverviewContainer', () => {
     });
   };
 
-  it('renders all main sections with mock data', async () => {
+  it('renders all main sections with decomposed component structure', async () => {
     const { useUser } = await import('@clerk/nextjs');
     vi.mocked(useUser).mockReturnValue({
       user: mockUser,
@@ -199,20 +211,25 @@ describe('HealthOverviewContainer', () => {
     setupSuccessfulFetch();
     render(<HealthOverviewContainer />);
 
-    // Wait for loading to complete
+    // Wait for loading to complete and health overview layout to render
     await waitFor(() => {
       expect(screen.queryByTestId('health-overview')).toBeInTheDocument();
     });
 
+    // Verify all decomposed sections are rendered
     expect(screen.getByTestId('health-overview-stats')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-recent-records')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-active-goals')).toBeInTheDocument();
     expect(screen.getByTestId('health-overview-quick-actions')).toBeInTheDocument();
+    expect(screen.getByTestId('health-overview-mini-charts')).toBeInTheDocument();
+    expect(screen.getByTestId('health-overview-behavior-analytics')).toBeInTheDocument();
+    
+    // Verify data is displayed correctly in decomposed components
     expect(screen.getByText('Weight')).toBeInTheDocument();
     expect(screen.getByText('Steps')).toBeInTheDocument();
   });
 
-  it('shows loading state initially', async () => {
+  it('shows loading state from container component', async () => {
     const { useUser } = await import('@clerk/nextjs');
     vi.mocked(useUser).mockReturnValue({
       user: mockUser,
@@ -224,10 +241,11 @@ describe('HealthOverviewContainer', () => {
     mockFetch.mockImplementation(() => new Promise(() => {}));
     render(<HealthOverviewContainer />);
 
+    expect(screen.getByTestId('health-overview-loading')).toBeInTheDocument();
     expect(screen.getByText(/Loading health data/i)).toBeInTheDocument();
   });
 
-  it('shows error state when API fails', async () => {
+  it('shows error state when API fails in container component', async () => {
     const { useUser } = await import('@clerk/nextjs');
     vi.mocked(useUser).mockReturnValue({
       user: mockUser,
@@ -243,7 +261,7 @@ describe('HealthOverviewContainer', () => {
     });
   });
 
-  it('returns null if user is not loaded', async () => {
+  it('returns null if user is not loaded (container behavior)', async () => {
     const { useUser } = await import('@clerk/nextjs');
     vi.mocked(useUser).mockReturnValue({
       user: null,
@@ -253,5 +271,68 @@ describe('HealthOverviewContainer', () => {
     render(<HealthOverviewContainer />);
 
     expect(screen.queryByTestId('health-overview')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('health-overview-loading')).not.toBeInTheDocument();
+  });
+
+  it('renders stats section with correct data structure', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: mockUser,
+      isLoaded: true,
+      isSignedIn: true,
+    });
+
+    setupSuccessfulFetch();
+    render(<HealthOverviewContainer />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('health-overview-stats')).toBeInTheDocument();
+    });
+
+    // Verify stats are displayed correctly in the decomposed StatsSection
+    expect(screen.getByText('Total Records')).toBeInTheDocument();
+    expect(screen.getByText('Active Goals')).toBeInTheDocument();
+    expect(screen.getByText('Completed Goals')).toBeInTheDocument();
+    expect(screen.getByText('Weekly Progress')).toBeInTheDocument();
+  });
+
+  it('renders records section with correct data structure', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: mockUser,
+      isLoaded: true,
+      isSignedIn: true,
+    });
+
+    setupSuccessfulFetch();
+    render(<HealthOverviewContainer />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('health-overview-recent-records')).toBeInTheDocument();
+    });
+
+    // Verify records section header and content
+    expect(screen.getByText('Recent Records')).toBeInTheDocument();
+    expect(screen.getByText('View All')).toBeInTheDocument();
+  });
+
+  it('renders goals section with correct data structure', async () => {
+    const { useUser } = await import('@clerk/nextjs');
+    vi.mocked(useUser).mockReturnValue({
+      user: mockUser,
+      isLoaded: true,
+      isSignedIn: true,
+    });
+
+    setupSuccessfulFetch();
+    render(<HealthOverviewContainer />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('health-overview-active-goals')).toBeInTheDocument();
+    });
+
+    // Verify goals section header and content
+    expect(screen.getByText('Goal Progress')).toBeInTheDocument();
+    expect(screen.getByText('Manage')).toBeInTheDocument();
   });
 });

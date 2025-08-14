@@ -6,9 +6,9 @@ import { BaseTemplate } from '@/templates/BaseTemplate';
 
 export default async function Layout(props: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await props.params;
+  const { locale } = props.params;
   setRequestLocale(locale);
   const t = await getTranslations({
     locale,
@@ -35,22 +35,6 @@ export default async function Layout(props: {
                 className="border-none text-gray-700 hover:text-gray-900"
               >
                 {t('about_link')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/counter/"
-                className="border-none text-gray-700 hover:text-gray-900"
-              >
-                {t('counter_link')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/portfolio/"
-                className="border-none text-gray-700 hover:text-gray-900"
-              >
-                {t('portfolio_link')}
               </Link>
             </li>
             <li>
@@ -89,7 +73,7 @@ export default async function Layout(props: {
           </>
         )}
       >
-        <div className="py-5 text-xl [&_p]:my-6">{props.children}</div>
+        <div className="[&_p]:my-6">{props.children}</div>
       </BaseTemplate>
     </>
   );

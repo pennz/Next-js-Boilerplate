@@ -39,9 +39,113 @@
 export { BehaviorAnalyticsChart } from './BehaviorAnalyticsChart';
 
 /**
+ * Container component for behavioral analytics with data fetching and state management.
+ * This is the recommended entry point for behavioral analytics functionality.
+ * 
+ * @example
+ * ```typescript
+ * <BehaviorAnalyticsContainer
+ *   timeRange="30d"
+ *   showRealTimeUpdates={true}
+ *   refreshInterval={30000}
+ * />
+ * ```
+ */
+export { BehaviorAnalyticsContainer } from './BehaviorAnalyticsContainer';
+
+/**
+ * Layout component for behavioral analytics presentation and structure.
+ * Used internally by BehaviorAnalyticsContainer but can be used standalone.
+ * 
+ * @example
+ * ```typescript
+ * <BehaviorAnalyticsLayout
+ *   summary={summaryData}
+ *   habitStrengthData={habitData}
+ *   onTimeRangeChange={handleTimeRangeChange}
+ *   trackMetricCardView={trackMetricView}
+ *   trackPatternInsightView={trackPatternView}
+ * />
+ * ```
+ */
+export { BehaviorAnalyticsLayout } from './BehaviorAnalyticsLayout';
+
+/**
+ * Header component for behavioral analytics dashboard with real-time indicators
+ * 
+ * @example
+ * ```typescript
+ * <BehaviorAnalyticsHeader
+ *   showRealTimeUpdates={true}
+ *   loading={false}
+ *   lastUpdate={new Date()}
+ * />
+ * ```
+ */
+export { BehaviorAnalyticsHeader } from './BehaviorAnalyticsHeader';
+
+/**
+ * Metrics section component displaying key behavioral analytics metrics
+ * 
+ * @example
+ * ```typescript
+ * <MetricsSection
+ *   summary={summaryData}
+ *   trackMetricCardView={trackMetricView}
+ * />
+ * ```
+ */
+export { MetricsSection } from './MetricsSection';
+
+/**
+ * Charts section component displaying behavioral analytics visualizations
+ * 
+ * @example
+ * ```typescript
+ * <ChartsSection
+ *   habitStrengthData={habitData}
+ *   contextPatternsData={contextData}
+ *   behaviorFrequencyData={frequencyData}
+ *   selectedTimeRange="30d"
+ *   onPatternDetails={handlePatternDetails}
+ * />
+ * ```
+ */
+export { ChartsSection } from './ChartsSection';
+
+/**
+ * Patterns section component displaying behavioral pattern insights
+ * 
+ * @example
+ * ```typescript
+ * <PatternsSection
+ *   patterns={patternsData}
+ *   isAnalyzing={false}
+ *   onPatternDetails={handlePatternDetails}
+ *   trackPatternInsightView={trackPatternView}
+ * />
+ * ```
+ */
+export { PatternsSection } from './PatternsSection';
+
+/**
+ * Time range selector component for filtering analytics data
+ * 
+ * @example
+ * ```typescript
+ * <TimeRangeSelector
+ *   selectedTimeRange="30d"
+ *   onTimeRangeChange={handleTimeRangeChange}
+ * />
+ * ```
+ */
+export { TimeRangeSelector } from './TimeRangeSelector';
+
+/**
  * Comprehensive dashboard component with real-time updates, metric cards,
  * pattern insights, and multiple chart integrations
  * 
+ * @deprecated Use BehaviorAnalyticsContainer instead for new implementations
  * @example
  * ```typescript
  * <BehaviorAnalyticsDashboard
@@ -92,6 +196,30 @@ export type { BehaviorAnalyticsSummary } from './BehaviorAnalyticsDashboard';
 export type { BehaviorAnalyticsDashboardProps } from './BehaviorAnalyticsDashboard';
 
 // =============================================================================
+// TYPE EXPORTS - DECOMPOSED COMPONENTS
+// =============================================================================
+
+/**
+ * Summary metrics data structure for the behavioral analytics components
+ */
+export type { BehaviorAnalyticsSummary as BehaviorAnalyticsSummaryType } from './BehaviorAnalyticsContainer';
+
+/**
+ * Data point structure for behavior analytics
+ */
+export type { BehaviorDataPoint as BehaviorDataPointType } from './BehaviorAnalyticsContainer';
+
+/**
+ * Habit strength data structure for analytics
+ */
+export type { HabitStrengthData as HabitStrengthDataType } from './BehaviorAnalyticsContainer';
+
+/**
+ * Context pattern data structure for analytics
+ */
+export type { ContextPatternData as ContextPatternDataType } from './BehaviorAnalyticsContainer';
+
+// =============================================================================
 // UTILITY TYPE EXPORTS
 // =============================================================================
 
@@ -119,6 +247,51 @@ export type PatternStrength = 'weak' | 'moderate' | 'strong';
  * Union type for metric card color schemes
  */
 export type MetricCardColor = 'blue' | 'purple' | 'green' | 'orange' | 'red';
+
+// =============================================================================
+// HOOK EXPORTS
+// =============================================================================
+
+/**
+ * Custom hook for behavioral analytics tracking with comprehensive event tracking
+ * 
+ * @example
+ * ```typescript
+ * const {
+ *   trackDashboardView,
+ *   trackMetricCardView,
+ *   trackPatternInsightView,
+ *   trackTimeRangeChange
+ * } = useBehaviorAnalyticsTracking();
+ * 
+ * // Track dashboard view
+ * await trackDashboardView({
+ *   timeRange: '30d',
+ *   behaviorTypes: ['exercise', 'meditation'],
+ *   patternsCount: 5,
+ *   showRealTimeUpdates: true
+ * });
+ * 
+ * // Track metric interaction
+ * await trackMetricCardView({
+ *   title: 'Habit Strength',
+ *   value: 85,
+ *   trend: 'up'
+ * });
+ * ```
+ */
+export { useBehaviorAnalyticsTracking } from './useBehaviorAnalyticsTracking';
+
+/**
+ * Type exports for the behavioral analytics tracking hook
+ */
+export type {
+  MetricData,
+  PatternData,
+  DashboardViewData,
+  ChartInteractionData,
+  UseBehaviorAnalyticsTrackingReturn,
+} from './useBehaviorAnalyticsTracking';
 
 // =============================================================================
 // FIXTURE EXPORTS (Available when fixtures are created)
@@ -383,12 +556,24 @@ export const METRIC_CARD_COLORS = {
  * 2. Use the exported types for TypeScript integration
  * 3. Leverage the utility functions for consistent data formatting
  * 4. Follow the configuration constants for consistent styling
+ * 5. **NEW**: Use BehaviorAnalyticsContainer instead of BehaviorAnalyticsDashboard for new implementations
+ * 6. **NEW**: Use the decomposed components (MetricsSection, ChartsSection, etc.) for custom layouts
+ * 7. **NEW**: Implement useBehaviorAnalyticsTracking for comprehensive user behavior tracking
+ * 
+ * Component Architecture:
+ * - BehaviorAnalyticsContainer: Data fetching and state management
+ * - BehaviorAnalyticsLayout: Presentation and layout structure
+ * - Individual sections: MetricsSection, ChartsSection, PatternsSection for modular usage
+ * - TimeRangeSelector: Reusable time range filtering component
+ * - useBehaviorAnalyticsTracking: Comprehensive tracking hook
  * 
  * Breaking Changes:
- * - None currently, but future changes will be documented here
+ * - BehaviorAnalyticsDashboard is now deprecated in favor of BehaviorAnalyticsContainer
+ * - New tracking requirements: Components now expect tracking functions as props
  * 
  * Performance Considerations:
  * - Large datasets (>100 points) may impact chart rendering performance
  * - Real-time updates should be used judiciously to avoid excessive API calls
  * - Consider implementing data pagination for very large time ranges
+ * - New container/layout pattern improves performance through better separation of concerns
  */

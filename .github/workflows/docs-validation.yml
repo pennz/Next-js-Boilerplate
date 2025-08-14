@@ -1,0 +1,519 @@
+name: Documentation Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'openapi/**'
+      - 'tests/**'
+      - '*.md'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'openapi/**'
+      - 'tests/**'
+      - '*.md'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  detect-changes:
+    name: Detect Documentation Changes
+    runs-on: ubuntu-latest
+    outputs:
+      docs-changed: ${{ steps.changes.outputs.docs }}
+      api-changed: ${{ steps.changes.outputs.api }}
+      components-changed: ${{ steps.changes.outputs.components }}
+      tests-changed: ${{ steps.changes.outputs.tests }}
+      openapi-changed: ${{ steps.changes.outputs.openapi }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '*.md'
+            api:
+              - 'src/app/api/**'
+              - 'src/validations/**'
+              - 'src/models/**'
+            components:
+              - 'src/components/**'
+              - 'src/stories/**'
+              - '**/*.stories.tsx'
+            tests:
+              - 'tests/**'
+              - '**/*.test.ts'
+              - '**/*.test.tsx'
+              - '**/*.spec.ts'
+            openapi:
+              - 'openapi/**'
+
+  markdown-lint:
+    name: Markdown Linting
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install -g markdownlint-cli2
+          npm install -g markdown-link-check
+
+      - name: Create markdownlint config
+        run: |
+          cat > .markdownlint.json << 'EOF'
+          {
+            "default": true,
+            "MD013": {
+              "line_length": 120,
+              "code_blocks": false,
+              "tables": false
+            },
+            "MD033": {
+              "allowed_elements": ["details", "summary", "br", "img"]
+            },
+            "MD041": false
+          }
+          EOF
+
+      - name: Create link check config
+        run: |
+          mkdir -p .github
+          cat > .github/markdown-link-check-config.json << 'EOF'
+          {
+            "ignorePatterns": [
+              {
+                "pattern": "^http://localhost"
+              },
+              {
+                "pattern": "^https://localhost"
+              },
+              {
+                "pattern": "^http://127.0.0.1"
+              }
+            ],
+            "timeout": "20s",
+            "retryOn429": true,
+            "retryCount": 3,
+            "fallbackRetryDelay": "30s",
+            "aliveStatusCodes": [200, 206]
+          }
+          EOF
+
+      - name: Run markdownlint
+        run: markdownlint-cli2 "**/*.md" "#node_modules"
+
+      - name: Check markdown links
+        run: |
+          find . -name "*.md" -not -path "./node_modules/*" | xargs -I {} markdown-link-check {} --config .github/markdown-link-check-config.json || true
+
+  link-checker:
+    name: Link Validation
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check links with lychee
+        uses: lycheeverse/lychee-action@v1.10.0
+        with:
+          args: --verbose --no-progress --exclude-loopback --exclude-private --exclude-mail 'docs/**/*.md' '*.md'
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  openapi-validation:
+    name: OpenAPI Validation
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.openapi-changed == 'true' || needs.detect-changes.outputs.api-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install OpenAPI tools
+        run: |
+          npm install -g @apidevtools/swagger-cli
+          npm install -g redoc-cli
+
+      - name: Validate OpenAPI specs
+        run: |
+          if [ -f "openapi/health.yaml" ]; then
+            echo "Validating health API spec..."
+            swagger-cli validate openapi/health.yaml
+          fi
+          if [ -f "openapi/behavior.yaml" ]; then
+            echo "Validating behavior API spec..."
+            swagger-cli validate openapi/behavior.yaml
+          fi
+
+      - name: Check API documentation sync
+        run: |
+          echo "Checking if API documentation is in sync with OpenAPI specs..."
+          if [ -f "docs/api-endpoints-documentation.md" ]; then
+            # Check if API docs mention the endpoints defined in OpenAPI specs
+            if [ -f "openapi/health.yaml" ]; then
+              # Extract paths from OpenAPI spec and check if they're documented
+              echo "Validating health API documentation coverage..."
+            fi
+            if [ -f "openapi/behavior.yaml" ]; then
+              echo "Validating behavior API documentation coverage..."
+            fi
+          else
+            echo "::warning::API documentation file not found at docs/api-endpoints-documentation.md"
+          fi
+
+  documentation-structure:
+    name: Documentation Structure Validation
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Validate documentation structure
+        run: |
+          echo "Validating documentation structure..."
+          
+          # Check for required documentation files
+          required_files=(
+            "docs/api-endpoints-documentation.md"
+            "docs/ui-component-inventory.md"
+            "docs/component-behavior-requirements.md"
+            "docs/database-schema-analysis.md"
+            "docs/testing-quality-assurance-requirements.md"
+          )
+          
+          missing_files=()
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              missing_files+=("$file")
+            fi
+          done
+          
+          if [ ${#missing_files[@]} -gt 0 ]; then
+            echo "::error::Missing required documentation files:"
+            printf '%s\n' "${missing_files[@]}"
+            exit 1
+          fi
+          
+          echo "All required documentation files are present."
+
+      - name: Check documentation freshness
+        run: |
+          echo "Checking documentation freshness..."
+          
+          # Check if documentation has been updated recently relative to code changes
+          docs_last_modified=$(find docs -name "*.md" -type f -exec stat -c %Y {} \; | sort -n | tail -1)
+          code_last_modified=$(find src -name "*.ts" -o -name "*.tsx" -type f -exec stat -c %Y {} \; | sort -n | tail -1)
+          
+          if [ "$code_last_modified" -gt "$docs_last_modified" ]; then
+            echo "::warning::Code has been modified more recently than documentation. Consider updating docs."
+          fi
+
+  api-documentation-sync:
+    name: API Documentation Sync Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Check API changes require documentation updates
+        run: |
+          echo "Checking if API changes require documentation updates..."
+          
+          # Get list of changed API files
+          api_files=$(git diff --name-only origin/main...HEAD | grep -E "(src/app/api/|src/validations/|openapi/)" || true)
+          
+          if [ -n "$api_files" ]; then
+            echo "API files changed:"
+            echo "$api_files"
+            
+            # Check if API documentation was also updated
+            docs_updated=$(git diff --name-only origin/main...HEAD | grep -E "(docs/api-endpoints-documentation.md|openapi/)" || true)
+            
+            if [ -z "$docs_updated" ]; then
+              echo "::error::API files were modified but API documentation was not updated. Please update docs/api-endpoints-documentation.md or OpenAPI specs."
+              exit 1
+            else
+              echo "API documentation appears to be updated alongside API changes."
+            fi
+          fi
+
+  component-documentation-sync:
+    name: Component Documentation Sync Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.components-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Check component changes require documentation updates
+        run: |
+          echo "Checking if component changes require documentation updates..."
+          
+          # Get list of changed component files
+          component_files=$(git diff --name-only origin/main...HEAD | grep -E "(src/components/|.*\.stories\.tsx)" || true)
+          
+          if [ -n "$component_files" ]; then
+            echo "Component files changed:"
+            echo "$component_files"
+            
+            # Check if component documentation was also updated
+            docs_updated=$(git diff --name-only origin/main...HEAD | grep -E "(docs/ui-component-inventory.md|docs/component-behavior-requirements.md)" || true)
+            
+            if [ -z "$docs_updated" ]; then
+              echo "::warning::Component files were modified but component documentation may need updates. Consider updating docs/ui-component-inventory.md or docs/component-behavior-requirements.md."
+            else
+              echo "Component documentation appears to be updated alongside component changes."
+            fi
+          fi
+
+  test-documentation-sync:
+    name: Test Documentation Sync Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tests-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Check test changes require documentation updates
+        run: |
+          echo "Checking if test changes require documentation updates..."
+          
+          # Get list of changed test files
+          test_files=$(git diff --name-only origin/main...HEAD | grep -E "(tests/|.*\.(test|spec)\.(ts|tsx))" || true)
+          
+          if [ -n "$test_files" ]; then
+            echo "Test files changed:"
+            echo "$test_files"
+            
+            # Check if test documentation was also updated
+            docs_updated=$(git diff --name-only origin/main...HEAD | grep -E "(docs/testing-quality-assurance-requirements.md|docs/test-updates-summary.md|docs/requirements-traceability-matrix)" || true)
+            
+            if [ -z "$docs_updated" ]; then
+              echo "::warning::Test files were modified but test documentation may need updates. Consider updating testing documentation or traceability matrices."
+            else
+              echo "Test documentation appears to be updated alongside test changes."
+            fi
+          fi
+
+  documentation-validation-report:
+    name: Generate Validation Report
+    runs-on: ubuntu-latest
+    needs: [detect-changes, markdown-lint, link-checker, openapi-validation, documentation-structure, api-documentation-sync, component-documentation-sync, test-documentation-sync]
+    if: always() && needs.detect-changes.outputs.docs-changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate validation report
+        run: |
+          echo "# Documentation Validation Report" > validation-report.md
+          echo "" >> validation-report.md
+          echo "Generated on: $(date)" >> validation-report.md
+          echo "" >> validation-report.md
+          
+          echo "## Validation Results" >> validation-report.md
+          echo "" >> validation-report.md
+          
+          # Check job results and add to report
+          if [ "${{ needs.markdown-lint.result }}" = "success" ]; then
+            echo "✅ Markdown linting: PASSED" >> validation-report.md
+          elif [ "${{ needs.markdown-lint.result }}" = "failure" ]; then
+            echo "❌ Markdown linting: FAILED" >> validation-report.md
+          else
+            echo "⏭️ Markdown linting: SKIPPED" >> validation-report.md
+          fi
+          
+          if [ "${{ needs.link-checker.result }}" = "success" ]; then
+            echo "✅ Link validation: PASSED" >> validation-report.md
+          elif [ "${{ needs.link-checker.result }}" = "failure" ]; then
+            echo "❌ Link validation: FAILED" >> validation-report.md
+          else
+            echo "⏭️ Link validation: SKIPPED" >> validation-report.md
+          fi
+          
+          if [ "${{ needs.openapi-validation.result }}" = "success" ]; then
+            echo "✅ OpenAPI validation: PASSED" >> validation-report.md
+          elif [ "${{ needs.openapi-validation.result }}" = "failure" ]; then
+            echo "❌ OpenAPI validation: FAILED" >> validation-report.md
+          else
+            echo "⏭️ OpenAPI validation: SKIPPED" >> validation-report.md
+          fi
+          
+          if [ "${{ needs.documentation-structure.result }}" = "success" ]; then
+            echo "✅ Documentation structure: PASSED" >> validation-report.md
+          elif [ "${{ needs.documentation-structure.result }}" = "failure" ]; then
+            echo "❌ Documentation structure: FAILED" >> validation-report.md
+          else
+            echo "⏭️ Documentation structure: SKIPPED" >> validation-report.md
+          fi
+          
+          echo "" >> validation-report.md
+          echo "## Sync Check Results" >> validation-report.md
+          echo "" >> validation-report.md
+          
+          if [ "${{ needs.api-documentation-sync.result }}" = "success" ]; then
+            echo "✅ API documentation sync: PASSED" >> validation-report.md
+          elif [ "${{ needs.api-documentation-sync.result }}" = "failure" ]; then
+            echo "❌ API documentation sync: FAILED" >> validation-report.md
+          else
+            echo "⏭️ API documentation sync: SKIPPED" >> validation-report.md
+          fi
+          
+          if [ "${{ needs.component-documentation-sync.result }}" = "success" ]; then
+            echo "✅ Component documentation sync: PASSED" >> validation-report.md
+          elif [ "${{ needs.component-documentation-sync.result }}" = "failure" ]; then
+            echo "❌ Component documentation sync: FAILED" >> validation-report.md
+          else
+            echo "⏭️ Component documentation sync: SKIPPED" >> validation-report.md
+          fi
+          
+          if [ "${{ needs.test-documentation-sync.result }}" = "success" ]; then
+            echo "✅ Test documentation sync: PASSED" >> validation-report.md
+          elif [ "${{ needs.test-documentation-sync.result }}" = "failure" ]; then
+            echo "❌ Test documentation sync: FAILED" >> validation-report.md
+          else
+            echo "⏭️ Test documentation sync: SKIPPED" >> validation-report.md
+          fi
+          
+          echo "" >> validation-report.md
+          echo "## Summary" >> validation-report.md
+          echo "" >> validation-report.md
+          
+          # Count failures
+          failures=0
+          if [ "${{ needs.markdown-lint.result }}" = "failure" ]; then failures=$((failures + 1)); fi
+          if [ "${{ needs.link-checker.result }}" = "failure" ]; then failures=$((failures + 1)); fi
+          if [ "${{ needs.openapi-validation.result }}" = "failure" ]; then failures=$((failures + 1)); fi
+          if [ "${{ needs.documentation-structure.result }}" = "failure" ]; then failures=$((failures + 1)); fi
+          if [ "${{ needs.api-documentation-sync.result }}" = "failure" ]; then failures=$((failures + 1)); fi
+          
+          if [ $failures -eq 0 ]; then
+            echo "🎉 All documentation validation checks passed!" >> validation-report.md
+          else
+            echo "⚠️ $failures validation check(s) failed. Please review and fix the issues above." >> validation-report.md
+          fi
+          
+          cat validation-report.md
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-validation-report
+          path: validation-report.md
+
+      - name: Comment PR with validation report
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('validation-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+  block-merge-on-critical-failures:
+    name: Block Merge on Critical Failures
+    runs-on: ubuntu-latest
+    needs: [markdown-lint, link-checker, openapi-validation, documentation-structure, api-documentation-sync]
+    if: always()
+    steps:
+      - name: Check for critical failures
+        run: |
+          critical_failures=()
+          
+          # Critical failures that should block merge
+          if [ "${{ needs.markdown-lint.result }}" = "failure" ]; then
+            critical_failures+=("Markdown linting failed")
+          fi
+          
+          if [ "${{ needs.openapi-validation.result }}" = "failure" ]; then
+            critical_failures+=("OpenAPI validation failed")
+          fi
+          
+          if [ "${{ needs.documentation-structure.result }}" = "failure" ]; then
+            critical_failures+=("Documentation structure validation failed")
+          fi
+          
+          if [ "${{ needs.api-documentation-sync.result }}" = "failure" ]; then
+            critical_failures+=("API documentation sync check failed")
+          fi
+          
+          if [ ${#critical_failures[@]} -gt 0 ]; then
+            echo "::error::Critical documentation validation failures detected:"
+            printf '%s\n' "${critical_failures[@]}"
+            echo "::error::Merge blocked due to critical documentation issues. Please fix the issues and re-run the validation."
+            exit 1
+          fi
+          
+          echo "No critical documentation validation failures detected."

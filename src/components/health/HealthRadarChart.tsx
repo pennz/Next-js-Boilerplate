@@ -480,10 +480,10 @@ export const HealthRadarChart = ({
         <div className="mt-2 text-xs text-gray-500">
           {t('chart_data_points', { count: processedData.length })}
           {' '}
-          metrics
+          {t('radar_metrics_label')}
           {hoveredMetric && (
             <span className="ml-2">
-              • Hovering:
+              • {t('radar_hovering_label')}
               {' '}
               {hoveredMetric.category}
               {' '}

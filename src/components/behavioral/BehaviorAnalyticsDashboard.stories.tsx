@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { within, userEvent, expect } from '@storybook/test';
-import { BehaviorAnalyticsDashboard } from './BehaviorAnalyticsDashboard';
+import { BehaviorAnalyticsContainer } from './BehaviorAnalyticsContainer';
 import {
   createTestScenario,
   generateBehaviorAnalyticsSummary,
@@ -74,16 +74,16 @@ const mockFetch = (responses: Record<string, any>) => {
   });
 };
 
-const meta: Meta<typeof BehaviorAnalyticsDashboard> = {
-  title: 'Behavioral/BehaviorAnalyticsDashboard',
-  component: BehaviorAnalyticsDashboard,
+const meta: Meta<typeof BehaviorAnalyticsContainer> = {
+  title: 'Behavioral/BehaviorAnalyticsContainer',
+  component: BehaviorAnalyticsContainer,
   parameters: {
     docs: {
       description: {
         component: `
-# Behavior Analytics Dashboard
+# Behavior Analytics Container
 
-A comprehensive dashboard component for displaying behavioral analytics with real-time updates, pattern insights, and interactive charts.
+A comprehensive container component for displaying behavioral analytics with real-time updates, pattern insights, and interactive charts. This component handles data fetching and state management while delegating presentation to the BehaviorAnalyticsLayout component.
 
 ## Features
 
@@ -94,13 +94,14 @@ A comprehensive dashboard component for displaying behavioral analytics with rea
 - **Time Range Selection**: Flexible time range filtering (7d, 30d, 90d, 1y)
 - **Responsive Design**: Optimized for mobile, tablet, and desktop
 - **Accessibility**: Full keyboard navigation and screen reader support
+- **Container/Layout Pattern**: Separation of data logic and presentation concerns
 
 ## Usage
 
 \`\`\`tsx
-import { BehaviorAnalyticsDashboard } from '@/components/behavioral';
+import { BehaviorAnalyticsContainer } from '@/components/behavioral';
 
-<BehaviorAnalyticsDashboard
+<BehaviorAnalyticsContainer
   timeRange="30d"
   behaviorTypes={['Exercise', 'Reading']}
   refreshInterval={30000}
@@ -232,7 +233,7 @@ import { BehaviorAnalyticsDashboard } from '@/components/behavioral';
 };
 
 export default meta;
-type Story = StoryObj<typeof BehaviorAnalyticsDashboard>;
+type Story = StoryObj<typeof BehaviorAnalyticsContainer>;
 
 // Primary Dashboard Stories
 export const Default: Story = {
