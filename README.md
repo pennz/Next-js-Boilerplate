@@ -1,18 +1,18 @@
-# Boilerplate and Starter for Next.js 15+, Tailwind CSS 4, and TypeScript.
+# HealthTracker Pro - Comprehensive Health & Fitness Tracking Application
 
 <p align="center">
-  <a href="https://demo.nextjs-boilerplate.com">
+  <a href="https://demo.healthtracker-pro.com">
     <img
-      src="public/assets/images/nextjs-starter-banner.png?raw=true"
-      alt="Next js starter banner"
+      src="public/assets/images/healthtracker-banner.png?raw=true"
+      alt="HealthTracker Pro banner"
       style="max-width: 100%; height: auto;"
     />
   </a>
 </p>
 
-🚀 Boilerplate and Starter for Next.js with App Router, Tailwind CSS, and TypeScript ⚡️ Prioritizing developer experience first: Next.js, TypeScript, ESLint, Prettier, Lefthook (replacing Husky), Lint-Staged, Vitest (replacing Jest), Testing Library, Playwright, Commitlint, VSCode, Tailwind CSS, Authentication with [Clerk](https://clerk.com?utm_source=github&utm_medium=sponsorship&utm_campaign=nextjs-boilerplate), Database with DrizzleORM (PostgreSQL, SQLite, and MySQL), Local database with PGlite and production with [Prisma Postgres](https://www.prisma.io/?via=nextjs-boilerplate), Error Monitoring with [Sentry](https://sentry.io/for/nextjs/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy25q1-nextjs&utm_content=github-banner-nextjsboilerplate-logo), Logging with LogTape (replacing Pino.js) and Log Management, Monitoring as Code, Storybook, Multi-language (i18n), AI-powered code reviews with [CodeRabbit](https://www.coderabbit.ai?utm_source=next_js_starter&utm_medium=github&utm_campaign=next_js_starter_oss_2025), Secure with [Arcjet](https://launch.arcjet.com/Q6eLbRE) (Bot detection, Rate limiting, Attack protection, etc.) and more.
+🏥 **HealthTracker Pro** - A comprehensive health and fitness tracking application built with Next.js 15, TypeScript, and modern web technologies ⚡️ Track your health records, analyze trends with predictive analytics, set and monitor goals, manage exercise routines, and gain insights into your health behaviors. Built with developer experience first: Next.js, TypeScript, ESLint, Prettier, Lefthook, Lint-Staged, Vitest, Testing Library, Playwright, Commitlint, VSCode, Tailwind CSS, Authentication with [Clerk](https://clerk.com?utm_source=github&utm_medium=sponsorship&utm_campaign=nextjs-boilerplate), Database with DrizzleORM (PostgreSQL, SQLite, and MySQL), Local database with PGlite and production with [Prisma Postgres](https://www.prisma.io/?via=nextjs-boilerplate), Error Monitoring with [Sentry](https://sentry.io/for/nextjs/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy25q1-nextjs&utm_content=github-banner-nextjsboilerplate-logo), Logging with LogTape and Log Management, Monitoring as Code, Storybook, Multi-language (i18n), AI-powered code reviews with [CodeRabbit](https://www.coderabbit.ai?utm_source=next_js_starter&utm_medium=github&utm_campaign=next_js_starter_oss_2025), Secure with [Arcjet](https://launch.arcjet.com/Q6eLbRE) (Bot detection, Rate limiting, Attack protection, etc.) and more.
 
-Clone this project and use it to create your own Next.js project. You can check out the live demo at [Next.js Boilerplate](https://demo.nextjs-boilerplate.com), which includes a working authentication system.
+Start your health journey today with HealthTracker Pro. You can check out the live demo at [HealthTracker Pro](https://demo.healthtracker-pro.com), which includes a complete health tracking dashboard with authentication.
 
 ## Sponsors
 
@@ -147,16 +147,31 @@ Clone this project and use it to create your own Next.js project. You can check 
 
 ### Demo
 
-**Live demo: [Next.js Boilerplate](https://demo.nextjs-boilerplate.com)**
+**Live demo: [HealthTracker Pro](https://demo.healthtracker-pro.com)**
 
-| Sign Up | Sign In |
+| Health Dashboard | Analytics View |
 | --- | --- |
-| [![Next.js Boilerplate SaaS Sign Up](public/assets/images/nextjs-boilerplate-sign-in.png)](https://demo.nextjs-boilerplate.com/sign-up) | [![Next.js Boilerplate SaaS Sign In](public/assets/images/nextjs-boilerplate-sign-in.png)](https://demo.nextjs-boilerplate.com/sign-in) |
+| [![HealthTracker Pro Dashboard](public/assets/images/hero-health-dashboard.png)](https://demo.healthtracker-pro.com/dashboard) | [![HealthTracker Pro Analytics](public/assets/images/feature-analytics.png)](https://demo.healthtracker-pro.com/analytics) |
 
-### Features
+| Goal Tracking | Exercise Management |
+| --- | --- |
+| [![HealthTracker Pro Goals](public/assets/images/feature-goals.png)](https://demo.healthtracker-pro.com/goals) | [![HealthTracker Pro Exercise](public/assets/images/feature-exercise.png)](https://demo.healthtracker-pro.com/exercise) |
 
-Developer experience first, extremely flexible code structure and only keep what you need:
+### Health Tracking Features
 
+Comprehensive health management with modern technology stack:
+
+#### 🏥 Core Health Features
+- 📊 **Health Records Tracking**: Comprehensive health data management with secure storage
+- 📈 **Advanced Analytics & Predictions**: AI-powered insights and trend analysis with predictive charts
+- 🎯 **Goal Setting & Progress Tracking**: Set health goals and monitor your progress with visual indicators
+- ⏰ **Smart Reminders**: Intelligent reminder system for medications, appointments, and health activities
+- 🧠 **Behavior Analysis**: Track and analyze health behaviors with detailed insights
+- 💪 **Exercise Management**: Complete workout tracking and exercise routine management
+- 📱 **Responsive Dashboard**: Modern, intuitive interface optimized for all devices
+- 🔐 **HIPAA-Compliant Security**: Enterprise-grade security for sensitive health data
+
+#### 🛠️ Technical Excellence
 - ⚡ [Next.js](https://nextjs.org) with App Router support
 - 🔥 Type checking [TypeScript](https://www.typescriptlang.org)
 - 💎 Integrate with [Tailwind CSS](https://tailwindcss.com)
@@ -210,14 +225,16 @@ Built-in feature from Next.js:
 
 ### Philosophy
 
-- Nothing is hidden from you, allowing you to make any necessary adjustments to suit your requirements and preferences.
-- Dependencies are regularly updated on a monthly basis
-- Start for free without upfront costs
-- Easy to customize
-- Minimal code
-- Unstyled template
-- SEO-friendly
-- 🚀 Production-ready
+- **Privacy First**: Your health data belongs to you - complete control and transparency over your personal information
+- **Evidence-Based**: Built on proven health tracking methodologies and best practices
+- **Customizable**: Adapt the platform to your specific health needs and goals
+- **Open Source**: Full access to source code for transparency and customization
+- **Dependencies are regularly updated** on a monthly basis for security and performance
+- **Start for free** without upfront costs - your health journey shouldn't have barriers
+- **Easy to customize** for healthcare providers, fitness professionals, or personal use
+- **HIPAA-Compliant** security and data handling
+- **SEO-friendly** for health content and resources
+- 🚀 **Production-ready** for healthcare applications
 
 ### Requirements
 
@@ -228,8 +245,8 @@ Built-in feature from Next.js:
 Run the following command on your local environment:
 
 ```shell
-git clone --depth=1 https://github.com/ixartz/Next-js-Boilerplate.git my-project-name
-cd my-project-name
+git clone --depth=1 https://github.com/ixartz/Next-js-Boilerplate.git healthtracker-pro
+cd healthtracker-pro
 npm install
 ```
 
@@ -241,7 +258,7 @@ Then, you can run the project locally in development mode with live reload by ex
 npm run dev
 ```
 
-Open http://localhost:3000 with your favorite browser to see your project. For your information, the project is already pre-configured with a local database using PGlite. No extra setup is required to run the project locally.
+Open http://localhost:3000 with your favorite browser to see your HealthTracker Pro application. For your information, the project is already pre-configured with a local database using PGlite. No extra setup is required to run the health tracking application locally.
 
 ### Set up authentication
 
@@ -252,13 +269,13 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_pub_key
 CLERK_SECRET_KEY=your_clerk_secret_key
 ```
 
-Now you have a fully functional authentication system with Next.js, including features such as sign up, sign in, sign out, forgot password, reset password, update profile, update password, update email, delete account, and more.
+Now you have a fully functional authentication system for your health tracking application, including features such as sign up, sign in, sign out, forgot password, reset password, update profile, update password, update email, delete account, and secure access to health data.
 
 ### Set up remote database
 
 The project uses DrizzleORM, a type-safe ORM that is compatible with PostgreSQL, SQLite, and MySQL databases. By default, the project is configured to seamlessly work with PostgreSQL, and you have the flexibility to choose any PostgreSQL database provider of your choice.
 
-To set up a remote and production database, you need to create a PostgreSQL database and obtain the connection string. One recommended option is to use [Prisma PostgreSQL](https://www.prisma.io/?via=nextjs-boilerplate), which provides a free PostgreSQL database. This database is compatible and has been tested with Next.js Boilerplate.
+To set up a remote and production database for your health tracking application, you need to create a PostgreSQL database and obtain the connection string. One recommended option is to use [Prisma PostgreSQL](https://www.prisma.io/?via=nextjs-boilerplate), which provides a free PostgreSQL database. This database is compatible and has been tested with HealthTracker Pro and provides the security and reliability needed for health data.
 
 After creating your Prisma account, you can get the connection string in the `Connect to your database` section and select the `Any client` tab. Then, you can generate the connection string by clicking the `Generate database credentials` button. Finally, you can copy the connection string and add the `DATABASE_URL` variable to the `.env.local` file.
 
@@ -300,13 +317,13 @@ After defining the environment variables in your GitHub Actions, your localizati
 
 ### Customization
 
-You can easily configure Next js Boilerplate by searching the entire project for `FIXME:` to make quick customizations. Here are some of the most important files to customize:
+You can easily configure HealthTracker Pro by searching the entire project for `FIXME:` to make quick customizations. Here are some of the most important files to customize:
 
-- `public/apple-touch-icon.png`, `public/favicon.ico`, `public/favicon-16x16.png` and `public/favicon-32x32.png`: your website favicon
-- `src/utils/AppConfig.ts`: configuration file
-- `src/templates/BaseTemplate.tsx`: default theme
+- `public/apple-touch-icon.png`, `public/favicon.ico`, `public/favicon-16x16.png` and `public/favicon-32x32.png`: your health app favicon
+- `src/utils/AppConfig.ts`: HealthTracker Pro configuration file
+- `src/templates/BaseTemplate.tsx`: default health app theme
 - `next.config.ts`: Next.js configuration
-- `.env`: default environment variables
+- `.env`: default environment variables for health tracking features
 
 You have full access to the source code for further customization. The provided code is just an example to help you start your project. The sky's the limit 🚀.
 
@@ -365,7 +382,7 @@ Then, you can generate a production build with:
 $ npm run build
 ```
 
-It generates an optimized production build of the boilerplate. To test the generated build, run:
+It generates an optimized production build of HealthTracker Pro. To test the generated build, run:
 
 ```shell
 $ npm run start
@@ -383,7 +400,7 @@ After registration, you will be redirected to the dashboard. From there, navigat
 
 Once the database is created and ready, return to the dashboard and click `Application > Create an App`. After connecting your GitHub account, select the repository you want to deploy. Keep the default settings for the remaining options, then click `Create`.
 
-Next, connect your database to your application by going to `Networking > Connected services > Add connection` and select the database you just created. You also need to enable the `Add environment variables to the application` option, and rename `DB_URL` to `DATABASE_URL`. Then, click `Add connection`.
+Next, connect your database to your HealthTracker Pro application by going to `Networking > Connected services > Add connection` and select the database you just created. You also need to enable the `Add environment variables to the application` option, and rename `DB_URL` to `DATABASE_URL`. Then, click `Add connection`.
 
 Go to `Environment variables > Add environment variable`, and define the environment variables `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` from your Clerk account. Click `Save`.
 
@@ -393,11 +410,11 @@ Finally, initiate a new deployment by clicking `Overview > Latest deployments > 
 
 The project uses [Sentry](https://sentry.io/for/nextjs/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy25q1-nextjs&utm_content=github-banner-nextjsboilerplate-logo) to monitor errors. In the development environment, no additional setup is needed: Next.js Boilerplate is pre-configured to use Sentry and Spotlight (Sentry for Development). All errors will automatically be sent to your local Spotlight instance, allowing you to experience Sentry locally.
 
-For production environment, you'll need to create a Sentry account and a new project. Then, in `next.config.mjs`, you need to update the `org` and `project` attributes in `withSentryConfig` function. Additionally, add your Sentry DSN to `sentry.client.config.ts`, `sentry.edge.config.ts` and `sentry.server.config.ts`.
+For production environment, you'll need to create a Sentry account and a new project for HealthTracker Pro. Then, in `next.config.mjs`, you need to update the `org` and `project` attributes in `withSentryConfig` function. Additionally, add your Sentry DSN to `sentry.client.config.ts`, `sentry.edge.config.ts` and `sentry.server.config.ts`.
 
 ### Code coverage
 
-Next.js Boilerplate relies on [Codecov](https://about.codecov.io/codecov-free-trial/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy25q1-nextjs&utm_content=github-banner-nextjsboilerplate-logo) for code coverage reporting solution. To enable Codecov, create a Codecov account and connect it to your GitHub account. Your repositories should appear on your Codecov dashboard. Select the desired repository and copy the token. In GitHub Actions, define the `CODECOV_TOKEN` environment variable and paste the token.
+HealthTracker Pro relies on [Codecov](https://about.codecov.io/codecov-free-trial/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy25q1-nextjs&utm_content=github-banner-nextjsboilerplate-logo) for code coverage reporting solution. To enable Codecov, create a Codecov account and connect it to your GitHub account. Your repositories should appear on your Codecov dashboard. Select the desired repository and copy the token. In GitHub Actions, define the `CODECOV_TOKEN` environment variable and paste the token.
 
 Make sure to create `CODECOV_TOKEN` as a GitHub Actions secret, do not paste it directly into your source code.
 
@@ -434,7 +451,7 @@ Arcjet is configured with a central client at `src/libs/Arcjet.ts` that includes
 
 #### Bundle Analyzer
 
-Next.js Boilerplate includes a built-in bundle analyzer. It can be used to analyze the size of your JavaScript bundles. To begin, run the following command:
+HealthTracker Pro includes a built-in bundle analyzer. It can be used to analyze the size of your JavaScript bundles. To begin, run the following command:
 
 ```shell
 npm run build-stats
@@ -605,6 +622,6 @@ See [LICENSE](LICENSE) for more information.
 
 Made with ♥ by [CreativeDesignsGuru](https://creativedesignsguru.com) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40Ixartz)](https://twitter.com/ixartz)
 
-Looking for a custom boilerplate to kick off your project? I'd be glad to discuss how I can help you build one. Feel free to reach out anytime at contact@creativedesignsguru.com!
+Looking for a custom health tracking solution or want to contribute to HealthTracker Pro? I'd be glad to discuss how we can help you build a comprehensive health management platform. Feel free to reach out anytime at contact@creativedesignsguru.com!
 
-[![Sponsor Next JS Boilerplate](https://cdn.buymeacoffee.com/buttons/default-red.png)](https://github.com/sponsors/ixartz)
+[![Sponsor HealthTracker Pro](https://cdn.buymeacoffee.com/buttons/default-red.png)](https://github.com/sponsors/ixartz)

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useTranslations } from 'next-intl';
 import { HealthOverviewLayout } from './HealthOverviewLayout';
 // Type definitions for health data
 export type HealthRecord = {
@@ -99,6 +100,7 @@ type StatsResponse = {
 
 export const HealthOverviewContainer = () => {
   const { user, isLoaded: isUserLoaded } = useUser();
+  const t = useTranslations('HealthManagement');
   const [recentRecords, setRecentRecords] = useState<HealthRecord[]>([]);
   const [activeGoals, setActiveGoals] = useState<HealthGoal[]>([]);
   const [stats, setStats] = useState<HealthStats>({
@@ -194,7 +196,7 @@ export const HealthOverviewContainer = () => {
       <div className="space-y-6" data-testid="health-overview-loading">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading health data</p>
+          <p className="text-gray-600 text-lg">{t('loading_health_data')}</p>
         </div>
       </div>
     );
@@ -203,13 +205,13 @@ export const HealthOverviewContainer = () => {
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Health Data</h3>
+        <h3 className="text-lg font-semibold text-red-800 mb-2">{t('error_loading_health_data')}</h3>
         <p className="text-red-600 mb-4">{error}</p>
         <button
           onClick={() => window.location.reload()}
           className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
         >
-          Retry
+          {t('retry')}
         </button>
       </div>
     );

@@ -79,7 +79,7 @@ const AlgorithmToggle = ({
         } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
         aria-pressed={algorithm === 'linear-regression'}
       >
-        Linear Regression
+        {t('algorithm_linear_regression')}
       </button>
       <button
         type="button"
@@ -92,7 +92,7 @@ const AlgorithmToggle = ({
         } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
         aria-pressed={algorithm === 'moving-average'}
       >
-        Moving Average
+        {t('algorithm_moving_average')}
       </button>
     </div>
   );
@@ -334,7 +334,7 @@ export const HealthPredictiveChart = ({
         {title && (
           <h3 className="mb-4 text-lg font-semibold text-gray-900">{title}</h3>
         )}
-        <EmptyState message="Need at least 3 data points for predictions" />
+        <EmptyState message={t('insufficient_data_prediction')} />
       </div>
     );
   }
@@ -424,7 +424,7 @@ export const HealthPredictiveChart = ({
             aria-pressed={showConfidence}
           >
             <span className={`h-2 w-2 rounded-full ${showConfidence ? 'bg-blue-500' : 'bg-gray-300'}`} />
-            Confidence Interval
+            {t('chart_confidence_interval')}
           </button>
 
           {/* Algorithm toggle */}
@@ -497,7 +497,7 @@ export const HealthPredictiveChart = ({
                 return <circle {...props} fill={color} strokeWidth={2} r={4} />;
               }}
               connectNulls={false}
-              name="Historical"
+              name={t('historical_data')}
             />
 
             {/* Prediction line */}
@@ -515,7 +515,7 @@ export const HealthPredictiveChart = ({
                 return <circle {...props} fill={predictionColor} strokeWidth={2} r={4} />;
               }}
               connectNulls={true}
-              name="Prediction"
+              name={t('prediction_data')}
             />
           </ComposedChart>
         </ResponsiveContainer>
@@ -532,7 +532,7 @@ export const HealthPredictiveChart = ({
           predictions
         </div>
         <div>
-          Predictions are estimates based on historical data
+          {t('prediction_disclaimer')}
         </div>
       </div>
     </div>

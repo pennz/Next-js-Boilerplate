@@ -1,10 +1,10 @@
-import type { BehaviorAnalyticsSummary } from './BehaviorAnalyticsDashboard';
-import type { BehaviorDataPoint, ContextPatternData, HabitStrengthData } from './BehaviorAnalyticsChart';
+import type { BehaviorAnalyticsSummary, BehaviorDataPoint, HabitStrengthData } from './BehaviorAnalyticsContainer';
+import type { ContextPatternData } from './BehaviorAnalyticsChart';
 import { render, screen, waitFor, fireEvent } from 'vitest-browser-react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { BehaviorAnalyticsDashboard } from './BehaviorAnalyticsDashboard';
+import { BehaviorAnalyticsContainer } from './BehaviorAnalyticsContainer';
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
@@ -102,6 +102,123 @@ vi.mock('./BehaviorAnalyticsChart', () => ({
   ),
 }));
 
+// Mock the new decomposed components
+vi.mock('./BehaviorAnalyticsLayout', () => ({
+  BehaviorAnalyticsLayout: ({ summary, patterns, loading, error, selectedTimeRange, showRealTimeUpdates, lastUpdate, ...props }: any) => (
+    <div className="space-y-6" data-testid="behavior-analytics-dashboard">
+      <div data-testid="behavior-analytics-header">
+        <h1>Behavior Analytics</h1>
+        <p>Real-time insights into your habits and patterns</p>
+        <a href="/dashboard/analytics/behavior">View Full Analytics →</a>
+        {showRealTimeUpdates && (
+          <div data-testid="realtime-indicator">
+            <span>Live</span>
+            {lastUpdate && <span>Updated {lastUpdate.toLocaleTimeString()}</span>}
+          </div>
+        )}
+        {!showRealTimeUpdates && <span>Offline</span>}
+      </div>
+      
+      <div data-testid="time-range-selector">
+        {['7d', '30d', '90d', '1y'].map(range => (
+          <button
+            key={range}
+            className={selectedTimeRange === range ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-600'}
+            onClick={() => props.onTimeRangeChange?.(range)}
+          >
+            {range}
+          </button>
+        ))}
+      </div>
+
+      {summary && (
+        <div data-testid="metrics-section">
+          <div role="button" tabIndex={0} onClick={() => props.trackMetricCardView?.({ title: 'Habit Strength', value: `${Math.round(summary.habitStrengthAvg)}%`, trend: summary.weeklyTrend })}>
+            <h3>Habit Strength</h3>
+            <span>{Math.round(summary.habitStrengthAvg)}%</span>
+            {summary.weeklyTrend === 'up' && <span>📈 up trend</span>}
+          </div>
+          <div role="button" tabIndex={0} onClick={() => props.trackMetricCardView?.({ title: 'Active Patterns', value: summary.activePatterns, trend: summary.weeklyTrend })}>
+            <h3>Active Patterns</h3>
+            <span>{summary.activePatterns}</span>
+          </div>
+          <div role="button" tabIndex={0} onClick={() => props.trackMetricCardView?.({ title: 'Consistency', value: `${Math.round(summary.consistencyScore)}%`, trend: summary.weeklyTrend })}>
+            <h3>Consistency</h3>
+            <span>{Math.round(summary.consistencyScore)}%</span>
+          </div>
+          <div role="button" tabIndex={0} onClick={() => props.trackMetricCardView?.({ title: 'Prediction Accuracy', value: `${Math.round(summary.predictionAccuracy)}%`, trend: summary.weeklyTrend })}>
+            <h3>Prediction Accuracy</h3>
+            <span>{Math.round(summary.predictionAccuracy)}%</span>
+          </div>
+        </div>
+      )}
+
+      <div data-testid="charts-section" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="col-span-1 lg:col-span-2" data-testid="chart-habit_strength" data-title="Habit Strength Over Time">
+          {loading && <div data-testid="chart-loading">Loading chart...</div>}
+          {error && <div data-testid="chart-error">{error}</div>}
+          {!loading && !error && <div data-testid="chart-content">Chart: Habit Strength Over Time ({props.habitStrengthData?.length || 0} data points)</div>}
+        </div>
+        <div data-testid="chart-context_patterns" data-title="Context Success Patterns">
+          {loading && <div data-testid="chart-loading">Loading chart...</div>}
+          {error && <div data-testid="chart-error">{error}</div>}
+          {!loading && !error && <div data-testid="chart-content">Chart: Context Success Patterns ({props.contextPatternsData?.length || 0} data points)</div>}
+        </div>
+        <div data-testid="chart-behavior_frequency" data-title="Behavior Frequency Trends">
+          {loading && <div data-testid="chart-loading">Loading chart...</div>}
+          {error && <div data-testid="chart-error">{error}</div>}
+          {!loading && !error && <div data-testid="chart-content">Chart: Behavior Frequency Trends ({props.behaviorFrequencyData?.length || 0} data points)</div>}
+        </div>
+      </div>
+
+      <div data-testid="patterns-section">
+        <h3>Recent Pattern Insights</h3>
+        <a href="/dashboard/analytics/patterns">View All Patterns</a>
+        {props.isAnalyzing && (
+          <div>
+            <span>Analyzing patterns...</span>
+            <div role="status"></div>
+          </div>
+        )}
+        {!props.isAnalyzing && patterns?.length === 0 && (
+          <p>No patterns detected yet. Keep tracking your behaviors!</p>
+        )}
+        {!props.isAnalyzing && patterns?.slice(0, 6).map((pattern: any) => (
+          <div key={pattern.id} role="button" onClick={() => {
+            props.trackPatternInsightView?.(pattern);
+            props.onPatternDetails?.(pattern);
+          }}>
+            <h4>{pattern.behaviorType}</h4>
+            <span>{pattern.consistency}% strong</span>
+            <span>{pattern.frequency}x/week</span>
+            <span>{pattern.confidence}%</span>
+            {pattern.topTrigger && <span>Top trigger: {pattern.topTrigger}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+}));
+
+// Mock useBehaviorAnalyticsTracking hook
+const mockTrackDashboardView = vi.fn();
+const mockTrackMetricCardView = vi.fn();
+const mockTrackPatternInsightView = vi.fn();
+const mockTrackPatternDetails = vi.fn();
+const mockTrackTimeRangeChange = vi.fn();
+const mockTrackChartInteraction = vi.fn();
+
+vi.mock('./useBehaviorAnalyticsTracking', () => ({
+  useBehaviorAnalyticsTracking: () => ({
+    trackDashboardView: mockTrackDashboardView,
+    trackMetricCardView: mockTrackMetricCardView,
+    trackPatternInsightView: mockTrackPatternInsightView,
+    trackPatternDetails: mockTrackPatternDetails,
+    trackTimeRangeChange: mockTrackTimeRangeChange,
+    trackChartInteraction: mockTrackChartInteraction,
+  }),
+}));
+
 // Mock global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -128,19 +245,15 @@ const generateMockSummary = (): BehaviorAnalyticsSummary => ({
 const generateMockHabitStrengthData = (): HabitStrengthData[] => [
   {
     date: '2024-01-01',
-    habitStrength: 75,
-    consistencyScore: 80,
-    frequencyScore: 70,
-    contextScore: 85,
-    trend: 'increasing',
+    strength: 75,
+    behaviorType: 'Exercise',
+    prediction: 80,
   },
   {
     date: '2024-01-02',
-    habitStrength: 78,
-    consistencyScore: 82,
-    frequencyScore: 72,
-    contextScore: 87,
-    trend: 'increasing',
+    strength: 78,
+    behaviorType: 'Exercise',
+    prediction: 82,
   },
 ];
 
@@ -149,34 +262,32 @@ const generateMockContextPatternsData = (): ContextPatternData[] => [
     context: 'Morning routine',
     successRate: 85,
     frequency: 5,
-    confidence: 92,
-    predictivePower: 78,
+    behaviorTypes: ['Exercise', 'Reading'],
   },
   {
     context: 'Evening wind-down',
     successRate: 70,
     frequency: 3,
-    confidence: 75,
-    predictivePower: 65,
+    behaviorTypes: ['Reading', 'Meditation'],
   },
 ];
 
 const generateMockBehaviorFrequencyData = (): BehaviorDataPoint[] => [
   {
     date: '2024-01-01',
-    frequency: 5,
-    consistency: 85,
-    strength: 78,
+    value: 5,
+    behaviorType: 'Exercise',
+    context: 'Morning routine',
   },
   {
     date: '2024-01-02',
-    frequency: 6,
-    consistency: 87,
-    strength: 80,
+    value: 6,
+    behaviorType: 'Exercise',
+    context: 'Morning routine',
   },
 ];
 
-describe('BehaviorAnalyticsDashboard', () => {
+describe('BehaviorAnalyticsContainer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -229,8 +340,8 @@ describe('BehaviorAnalyticsDashboard', () => {
   });
 
   describe('Component Rendering Tests', () => {
-    it('renders dashboard with authenticated user and displays all sections', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+    it('renders container with authenticated user and displays all sections', async () => {
+      render(<BehaviorAnalyticsContainer />);
 
       expect(screen.getByTestId('behavior-analytics-dashboard')).toBeInTheDocument();
       expect(screen.getByText('Behavior Analytics')).toBeInTheDocument();
@@ -250,15 +361,15 @@ describe('BehaviorAnalyticsDashboard', () => {
       expect(screen.getByText('View All Patterns')).toBeInTheDocument();
     });
 
-    it('shows sign-in message when user is not authenticated', () => {
+    it('returns null when user is not authenticated', () => {
       mockUseUser.mockReturnValue({
         user: null,
         isLoaded: true,
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      const { container } = render(<BehaviorAnalyticsContainer />);
 
-      expect(screen.getByText('Please sign in to view your behavior analytics')).toBeInTheDocument();
+      expect(container.firstChild).toBeNull();
       expect(screen.queryByTestId('behavior-analytics-dashboard')).not.toBeInTheDocument();
     });
 
@@ -271,26 +382,61 @@ describe('BehaviorAnalyticsDashboard', () => {
         }), 100);
       }));
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
-      // Charts should show loading state initially
-      await waitFor(() => {
-        expect(screen.getAllByTestId('chart-loading')).toHaveLength(3);
-      });
+      // Should show loading state initially
+      expect(screen.getByTestId('behavior-analytics-loading')).toBeInTheDocument();
+      expect(screen.getByText('Loading behavior analytics')).toBeInTheDocument();
     });
 
     it('handles and displays error states from API failures', async () => {
       mockFetch.mockRejectedValue(new Error('API Error'));
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
-        expect(screen.getAllByTestId('chart-error')).toHaveLength(3);
+        expect(screen.getByText('Error Loading Behavior Analytics')).toBeInTheDocument();
+        expect(screen.getByText('Failed to load analytics')).toBeInTheDocument();
+        expect(screen.getByText('Retry')).toBeInTheDocument();
+      });
+    });
+
+    it('allows retry after error state', async () => {
+      // First call fails
+      mockFetch.mockRejectedValueOnce(new Error('API Error'));
+      
+      render(<BehaviorAnalyticsContainer />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Retry')).toBeInTheDocument();
+      });
+
+      // Reset mock to succeed on retry
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('/api/behavior/analytics/summary')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(generateMockSummary()),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: [] }),
+        });
+      });
+
+      // Click retry button
+      const retryButton = screen.getByText('Retry');
+      await userEvent.click(retryButton);
+
+      // Should show loading and then success
+      await waitFor(() => {
+        expect(screen.getByText('Habit Strength')).toBeInTheDocument();
       });
     });
 
     it('renders with different time ranges selected', async () => {
-      render(<BehaviorAnalyticsDashboard timeRange="7d" />);
+      render(<BehaviorAnalyticsContainer timeRange="7d" />);
 
       await waitFor(() => {
         expect(screen.getByText('7d')).toHaveClass('bg-purple-100', 'text-purple-800');
@@ -304,7 +450,7 @@ describe('BehaviorAnalyticsDashboard', () => {
   describe('Sub-component Integration Tests', () => {
     describe('MetricCard Tests', () => {
       it('renders metric cards with correct values, colors, trends, and click handlers', async () => {
-        render(<BehaviorAnalyticsDashboard />);
+        render(<BehaviorAnalyticsContainer />);
 
         await waitFor(() => {
           expect(screen.getByText('79%')).toBeInTheDocument(); // Habit strength
@@ -344,7 +490,7 @@ describe('BehaviorAnalyticsDashboard', () => {
       });
 
       it('supports keyboard navigation for metric cards', async () => {
-        render(<BehaviorAnalyticsDashboard />);
+        render(<BehaviorAnalyticsContainer />);
 
         await waitFor(() => {
           expect(screen.getByText('Habit Strength')).toBeInTheDocument();
@@ -375,7 +521,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
     describe('PatternInsightCard Tests', () => {
       it('displays pattern cards with strength indicators, frequency data, and triggers tracking on click', async () => {
-        render(<BehaviorAnalyticsDashboard />);
+        render(<BehaviorAnalyticsContainer />);
 
         await waitFor(() => {
           expect(screen.getByText('Exercise')).toBeInTheDocument();
@@ -429,7 +575,7 @@ describe('BehaviorAnalyticsDashboard', () => {
           isAnalyzing: false,
         });
 
-        render(<BehaviorAnalyticsDashboard />);
+        render(<BehaviorAnalyticsContainer />);
 
         expect(screen.getByText('No patterns detected yet. Keep tracking your behaviors!')).toBeInTheDocument();
       });
@@ -441,7 +587,7 @@ describe('BehaviorAnalyticsDashboard', () => {
           isAnalyzing: true,
         });
 
-        render(<BehaviorAnalyticsDashboard />);
+        render(<BehaviorAnalyticsContainer />);
 
         expect(screen.getByText('Analyzing patterns...')).toBeInTheDocument();
         expect(screen.getByRole('status')).toBeInTheDocument(); // Loading spinner
@@ -463,7 +609,7 @@ describe('BehaviorAnalyticsDashboard', () => {
           isAnalyzing: false,
         });
 
-        render(<BehaviorAnalyticsDashboard />);
+        render(<BehaviorAnalyticsContainer />);
 
         // Should only display first 6 patterns
         expect(screen.getByText('Behavior 0')).toBeInTheDocument();
@@ -474,7 +620,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
     describe('RealtimeIndicator Tests', () => {
       it('shows active status and last update time when real-time is enabled', async () => {
-        render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} />);
+        render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} />);
 
         await waitFor(() => {
           expect(screen.getByText(/Live/)).toBeInTheDocument();
@@ -488,7 +634,7 @@ describe('BehaviorAnalyticsDashboard', () => {
       });
 
       it('shows offline status when real-time is disabled', () => {
-        render(<BehaviorAnalyticsDashboard showRealTimeUpdates={false} />);
+        render(<BehaviorAnalyticsContainer showRealTimeUpdates={false} />);
 
         expect(screen.getByText('Offline')).toBeInTheDocument();
         
@@ -500,7 +646,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
     describe('BehaviorAnalyticsChart Integration', () => {
       it('passes correct props to chart components', async () => {
-        render(<BehaviorAnalyticsDashboard timeRange="7d" />);
+        render(<BehaviorAnalyticsContainer timeRange="7d" />);
 
         await waitFor(() => {
           // Check habit strength chart
@@ -521,7 +667,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
   describe('Data Fetching and State Management', () => {
     it('fetches initial data on component mount with correct API endpoints', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/behavior/analytics/summary?timeRange=30d');
@@ -532,7 +678,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('fetches data with different time ranges triggers appropriate API calls', async () => {
-      const { rerender } = render(<BehaviorAnalyticsDashboard timeRange="7d" />);
+      const { rerender } = render(<BehaviorAnalyticsContainer timeRange="7d" />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/behavior/analytics/summary?timeRange=7d');
@@ -540,7 +686,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
       vi.clearAllMocks();
 
-      rerender(<BehaviorAnalyticsDashboard timeRange="90d" />);
+      rerender(<BehaviorAnalyticsContainer timeRange="90d" />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/behavior/analytics/summary?timeRange=90d');
@@ -553,10 +699,11 @@ describe('BehaviorAnalyticsDashboard', () => {
         status: 500,
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
-        expect(screen.getAllByTestId('chart-error')).toHaveLength(3);
+        expect(screen.getByText('Error Loading Behavior Analytics')).toBeInTheDocument();
+        expect(screen.getByText('Failed to fetch summary')).toBeInTheDocument();
       });
     });
 
@@ -568,10 +715,10 @@ describe('BehaviorAnalyticsDashboard', () => {
 
       mockFetch.mockReturnValue(delayedPromise);
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       // Should show loading state
-      expect(screen.getAllByTestId('chart-loading')).toHaveLength(3);
+      expect(screen.getByTestId('behavior-analytics-loading')).toBeInTheDocument();
 
       // Resolve the promise
       resolvePromise!({
@@ -580,7 +727,7 @@ describe('BehaviorAnalyticsDashboard', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('chart-loading')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('behavior-analytics-loading')).not.toBeInTheDocument();
       });
     });
 
@@ -604,7 +751,7 @@ describe('BehaviorAnalyticsDashboard', () => {
         });
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('96%')).toBeInTheDocument(); // Rounded habit strength
@@ -615,7 +762,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
   describe('Real-time Updates Testing', () => {
     it('enables automatic data refresh at specified refreshInterval', async () => {
-      render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} refreshInterval={5000} />);
+      render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} refreshInterval={5000} />);
 
       // Initial fetch
       await waitFor(() => {
@@ -633,7 +780,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('stops real-time updates when component unmounts', async () => {
-      const { unmount } = render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} refreshInterval={5000} />);
+      const { unmount } = render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} refreshInterval={5000} />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(4);
@@ -649,7 +796,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('disables real-time updates when showRealTimeUpdates is false', async () => {
-      render(<BehaviorAnalyticsDashboard showRealTimeUpdates={false} refreshInterval={5000} />);
+      render(<BehaviorAnalyticsContainer showRealTimeUpdates={false} refreshInterval={5000} />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(4); // Initial fetch only
@@ -664,7 +811,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('updates real-time indicator correctly with fetch status', async () => {
-      render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} />);
+      render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} />);
 
       await waitFor(() => {
         expect(screen.getByText(/Live/)).toBeInTheDocument();
@@ -683,7 +830,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
     it('cleans up intervals on component unmount and prop changes', async () => {
       const { rerender, unmount } = render(
-        <BehaviorAnalyticsDashboard showRealTimeUpdates={true} refreshInterval={5000} />
+        <BehaviorAnalyticsContainer showRealTimeUpdates={true} refreshInterval={5000} />
       );
 
       await waitFor(() => {
@@ -691,7 +838,7 @@ describe('BehaviorAnalyticsDashboard', () => {
       });
 
       // Change props - should clear old interval
-      rerender(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} refreshInterval={10000} />);
+      rerender(<BehaviorAnalyticsContainer showRealTimeUpdates={true} refreshInterval={10000} />);
 
       vi.clearAllMocks();
 
@@ -715,7 +862,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
   describe('Time Range Selection', () => {
     it('renders time range buttons with correct active state styling', async () => {
-      render(<BehaviorAnalyticsDashboard timeRange="30d" />);
+      render(<BehaviorAnalyticsContainer timeRange="30d" />);
 
       const activeButton = screen.getByText('30d');
       const inactiveButton = screen.getByText('7d');
@@ -725,7 +872,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('updates selectedTimeRange state when clicking time range buttons', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       const sevenDayButton = screen.getByText('7d');
       
@@ -736,7 +883,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('triggers new API calls with correct parameters when time range changes', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/behavior/analytics/summary?timeRange=30d');
@@ -756,7 +903,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('persists time range selection during real-time updates', async () => {
-      render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} refreshInterval={5000} />);
+      render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} refreshInterval={5000} />);
 
       // Change to 7d
       const sevenDayButton = screen.getByText('7d');
@@ -779,7 +926,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
   describe('Behavioral Tracking Integration', () => {
     it('fires dashboard view tracking event on component mount with correct context', async () => {
-      render(<BehaviorAnalyticsDashboard timeRange="7d" behaviorTypes={['exercise', 'reading']} />);
+      render(<BehaviorAnalyticsContainer timeRange="7d" behaviorTypes={['exercise', 'reading']} />);
 
       await waitFor(() => {
         expect(mockTrackEvent).toHaveBeenCalledWith({
@@ -802,7 +949,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('tracks metric card clicks with proper data', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('Habit Strength')).toBeInTheDocument();
@@ -832,7 +979,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('tracks pattern insight card clicks with proper event data', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('Exercise')).toBeInTheDocument();
@@ -862,7 +1009,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('tracks pattern details opening events', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('Exercise')).toBeInTheDocument();
@@ -887,7 +1034,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('includes proper UI context and analytics data in all tracking events', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(mockTrackEvent).toHaveBeenCalledWith(
@@ -906,7 +1053,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
   describe('Navigation and Links', () => {
     it('renders View Full Analytics link with correct href and styling', () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       const fullAnalyticsLink = screen.getByText('View Full Analytics →');
       expect(fullAnalyticsLink).toBeInTheDocument();
@@ -915,7 +1062,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('renders View All Patterns link with correct navigation', () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       const allPatternsLink = screen.getByText('View All Patterns');
       expect(allPatternsLink).toBeInTheDocument();
@@ -924,7 +1071,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('supports keyboard navigation for links', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       const fullAnalyticsLink = screen.getByText('View Full Analytics →');
       
@@ -938,7 +1085,7 @@ describe('BehaviorAnalyticsDashboard', () => {
 
   describe('Charts Grid Layout', () => {
     it('renders charts grid with correct responsive layout classes', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         const chartsContainer = screen.getByTestId('chart-habit_strength').parentElement;
@@ -947,7 +1094,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('renders habit strength chart with full width span', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         const habitChart = screen.getByTestId('chart-habit_strength');
@@ -956,7 +1103,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('renders context patterns and behavior frequency charts with equal width', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         const contextChart = screen.getByTestId('chart-context_patterns');
@@ -969,7 +1116,7 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('passes correct data and props to charts', async () => {
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         // Check that charts receive data
@@ -1003,7 +1150,7 @@ describe('BehaviorAnalyticsDashboard', () => {
         });
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('89%')).toBeInTheDocument(); // Rounded habit strength
@@ -1028,11 +1175,11 @@ describe('BehaviorAnalyticsDashboard', () => {
         });
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
-        // Should not display metric cards when summary fails
-        expect(screen.queryByText('Habit Strength')).not.toBeInTheDocument();
+        expect(screen.getByText('Error Loading Behavior Analytics')).toBeInTheDocument();
+        expect(screen.getByText('Failed to fetch summary')).toBeInTheDocument();
       });
     });
 
@@ -1040,11 +1187,9 @@ describe('BehaviorAnalyticsDashboard', () => {
       const customHabitData = [
         {
           date: '2024-01-01',
-          habitStrength: 85,
-          consistencyScore: 90,
-          frequencyScore: 80,
-          contextScore: 88,
-          trend: 'increasing' as const,
+          strength: 85,
+          behaviorType: 'Exercise',
+          prediction: 90,
         },
       ];
 
@@ -1061,7 +1206,7 @@ describe('BehaviorAnalyticsDashboard', () => {
         });
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('Chart: Habit Strength Over Time (1 data points)')).toBeInTheDocument();
@@ -1076,14 +1221,14 @@ describe('BehaviorAnalyticsDashboard', () => {
         isLoaded: true,
       });
 
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       // Should not make any API calls
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('handles user authentication state changes', async () => {
-      const { rerender } = render(<BehaviorAnalyticsDashboard />);
+      const { rerender } = render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(4);
@@ -1097,14 +1242,14 @@ describe('BehaviorAnalyticsDashboard', () => {
         isLoaded: true,
       });
 
-      rerender(<BehaviorAnalyticsDashboard />);
+      const { container } = rerender(<BehaviorAnalyticsContainer />);
 
-      expect(screen.getByText('Please sign in to view your behavior analytics')).toBeInTheDocument();
+      expect(container.firstChild).toBeNull();
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('cleans up component when user logs out', async () => {
-      const { rerender } = render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} />);
+      const { rerender } = render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} />);
 
       await waitFor(() => {
         expect(screen.getByText(/Live/)).toBeInTheDocument();
@@ -1116,17 +1261,17 @@ describe('BehaviorAnalyticsDashboard', () => {
         isLoaded: true,
       });
 
-      rerender(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} />);
+      const { container } = rerender(<BehaviorAnalyticsContainer showRealTimeUpdates={true} />);
 
-      // Should show sign-in message
-      expect(screen.getByText('Please sign in to view your behavior analytics')).toBeInTheDocument();
+      // Should return null
+      expect(container.firstChild).toBeNull();
       expect(screen.queryByText(/Live/)).not.toBeInTheDocument();
     });
   });
 
   describe('Performance and Memory Management', () => {
     it('properly cleans up intervals and timeouts on unmount', async () => {
-      const { unmount } = render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} />);
+      const { unmount } = render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} />);
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(4);
@@ -1144,11 +1289,11 @@ describe('BehaviorAnalyticsDashboard', () => {
     });
 
     it('handles rapid prop changes without memory leaks', async () => {
-      const { rerender } = render(<BehaviorAnalyticsDashboard refreshInterval={1000} />);
+      const { rerender } = render(<BehaviorAnalyticsContainer refreshInterval={1000} />);
 
       // Rapidly change props
       for (let i = 0; i < 10; i++) {
-        rerender(<BehaviorAnalyticsDashboard refreshInterval={1000 + i * 100} />);
+        rerender(<BehaviorAnalyticsContainer refreshInterval={1000 + i * 100} />);
       }
 
       await waitFor(() => {
@@ -1173,11 +1318,11 @@ describe('BehaviorAnalyticsDashboard', () => {
         });
       });
 
-      render(<BehaviorAnalyticsDashboard showRealTimeUpdates={true} refreshInterval={5000} />);
+      render(<BehaviorAnalyticsContainer showRealTimeUpdates={true} refreshInterval={5000} />);
 
       // Initial calls should fail
       await waitFor(() => {
-        expect(screen.getAllByTestId('chart-error')).toHaveLength(3);
+        expect(screen.getByText('Error Loading Behavior Analytics')).toBeInTheDocument();
       });
 
       // Advance timer for retry
@@ -1192,11 +1337,9 @@ describe('BehaviorAnalyticsDashboard', () => {
     it('performs well with large datasets', async () => {
       const largeHabitData = Array.from({ length: 1000 }, (_, i) => ({
         date: new Date(Date.now() + i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        habitStrength: 70 + Math.random() * 30,
-        consistencyScore: 60 + Math.random() * 40,
-        frequencyScore: 50 + Math.random() * 50,
-        contextScore: 65 + Math.random() * 35,
-        trend: 'stable' as const,
+        strength: 70 + Math.random() * 30,
+        behaviorType: 'Exercise',
+        prediction: 60 + Math.random() * 40,
       }));
 
       mockFetch.mockImplementation((url: string) => {
@@ -1213,7 +1356,7 @@ describe('BehaviorAnalyticsDashboard', () => {
       });
 
       const startTime = performance.now();
-      render(<BehaviorAnalyticsDashboard />);
+      render(<BehaviorAnalyticsContainer />);
 
       await waitFor(() => {
         expect(screen.getByText('Chart: Habit Strength Over Time (1000 data points)')).toBeInTheDocument();

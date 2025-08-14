@@ -35,7 +35,7 @@ Object.defineProperty(window, 'performance', {
 });
 
 // Performance measurement utility
-const measurePerformance = async <T>(
+const measurePerformance = async <T,>(
   operation: () => Promise<T> | T,
   label: string
 ): Promise<{ result: T; duration: number; memoryUsed: number }> => {

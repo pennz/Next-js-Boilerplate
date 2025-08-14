@@ -3,6 +3,27 @@ commit-msg:
   commands:
     commitlint:
       run: npx --no -- commitlint --edit {1}
+    docs-commit-validation:
+      run: |
+        # Check for breaking changes that require documentation updates
+        if grep -qE "^(feat|fix|refactor|perf)(\(.+\))?!:" {1} || grep -qE "BREAKING CHANGE:" {1}; then
+          echo "Breaking change detected. Checking for documentation updates..."
+          if ! git diff --cached --name-only | grep -qE "(docs/|README\.md|\.stories\.|openapi/)"; then
+            echo "❌ Breaking changes require documentation updates"
+            echo "Please update relevant documentation files:"
+            echo "  - API docs for API changes"
+            echo "  - Component docs for UI changes"
+            echo "  - README for major feature changes"
+            exit 1
+          fi
+        fi
+        # Check for API changes that should include documentation
+        if git diff --cached --name-only | grep -qE "(src/app/api/|openapi/|src/validations/)"; then
+          if ! git diff --cached --name-only | grep -qE "(docs/api-|openapi/)"; then
+            echo "⚠️  API changes detected without documentation updates"
+            echo "Consider updating API documentation"
+          fi
+        fi
 
 # Validate content before committing
 pre-commit:
@@ -16,3 +37,106 @@ pre-commit:
       glob: '*.{ts,tsx}'
       run: npm run check:types
       priority: 2
+    docs-validation:
+      glob: 'docs/**/*.md'
+      run: |
+        echo "🔍 Validating documentation files..."
+        # Check for broken internal links in modified docs
+        for file in {staged_files}; do
+          if [[ "$file" == docs/*.md ]]; then
+            # Check for broken relative links
+            if grep -n '\]\([^)]*\.md\)' "$file" | while read -r line; do
+              link=$(echo "$line" | sed -n 's/.*\](\([^)]*\.md\)).*/\1/p')
+              if [[ -n "$link" && ! -f "$(dirname "$file")/$link" && ! -f "$link" ]]; then
+                echo "❌ Broken link in $file: $link"
+                exit 1
+              fi
+            done; then
+              echo "✅ Documentation links validated"
+            fi
+          fi
+        done
+      priority: 3
+    api-docs-check:
+      glob: '{src/app/api/**/*,openapi/**/*,src/validations/**/*}'
+      run: |
+        echo "🔍 Checking API changes for documentation updates..."
+        api_files=$(echo {staged_files} | tr ' ' '\n' | grep -E "(src/app/api/|openapi/|src/validations/)" || true)
+        if [[ -n "$api_files" ]]; then
+          doc_files=$(git diff --cached --name-only | grep -E "(docs/api-|openapi/)" || true)
+          if [[ -z "$doc_files" ]]; then
+            echo "⚠️  API files modified without documentation updates:"
+            echo "$api_files"
+            echo "Consider running: npm run docs:generate:api"
+          else
+            echo "✅ API documentation updates detected"
+          fi
+        fi
+      priority: 4
+    component-docs-check:
+      glob: 'src/components/**/*.{ts,tsx}'
+      run: |
+        echo "🔍 Checking component changes for Storybook updates..."
+        component_files=$(echo {staged_files} | tr ' ' '\n' | grep "src/components/" || true)
+        if [[ -n "$component_files" ]]; then
+          for comp_file in $component_files; do
+            if [[ "$comp_file" == *.tsx && "$comp_file" != *.stories.tsx ]]; then
+              story_file="${comp_file%.tsx}.stories.tsx"
+              if [[ ! -f "$story_file" ]]; then
+                echo "⚠️  Component without Storybook story: $comp_file"
+                echo "Consider creating: $story_file"
+              fi
+            fi
+          done
+          # Check if component docs need updating
+          if ! git diff --cached --name-only | grep -qE "(docs/ui-component|docs/component-behavior|\.stories\.)"; then
+            echo "⚠️  Component changes without documentation updates"
+            echo "Consider running: npm run docs:generate:components"
+          fi
+        fi
+      priority: 5
+    test-traceability-check:
+      glob: 'tests/**/*'
+      run: |
+        echo "🔍 Checking test changes for traceability updates..."
+        test_files=$(echo {staged_files} | tr ' ' '\n' | grep "tests/" || true)
+        if [[ -n "$test_files" ]]; then
+          if ! git diff --cached --name-only | grep -qE "docs/requirements-traceability-matrix"; then
+            echo "⚠️  Test changes without traceability matrix updates"
+            echo "Consider running: npm run docs:update-traceability"
+          else
+            echo "✅ Traceability matrix updates detected"
+          fi
+        fi
+      priority: 6
+    docs-health-check:
+      glob: '{docs/**/*,src/**/*,tests/**/*,openapi/**/*}'
+      run: |
+        echo "🔍 Running quick documentation health check..."
+        # Check for common documentation issues
+        issues=0
+        
+        # Check for TODO/FIXME in documentation
+        if git diff --cached | grep -E "^\+.*TODO|^\+.*FIXME" | grep -E "\.md:" >/dev/null 2>&1; then
+          echo "⚠️  TODO/FIXME found in documentation changes"
+          ((issues++))
+        fi
+        
+        # Check for placeholder content
+        if git diff --cached | grep -E "^\+.*\[TODO\]|^\+.*\[PLACEHOLDER\]" >/dev/null 2>&1; then
+          echo "⚠️  Placeholder content found in documentation"
+          ((issues++))
+        fi
+        
+        # Check for very old timestamps (if any exist)
+        if git diff --cached | grep -E "^\+.*Last updated:.*202[0-2]" >/dev/null 2>&1; then
+          echo "⚠️  Very old timestamps detected in documentation"
+          ((issues++))
+        fi
+        
+        if [[ $issues -eq 0 ]]; then
+          echo "✅ Documentation health check passed"
+        else
+          echo "⚠️  $issues documentation health issues detected"
+        fi
+      priority: 7
