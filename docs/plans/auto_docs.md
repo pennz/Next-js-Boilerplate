@@ -1,85 +1,113 @@
 I have the following verification comments after thorough review and exploration of the codebase. Implement the comments by following the instructions in the comments verbatim:
 
 ---
-## Comment 2: docs-validation workflow creates link-check config after running link check, rendering config unused.
+## Comment 1: Doc generation scripts import packages not listed in devDependencies causing runtime failures.
 
-Reorder steps in `.github/workflows/docs-validation.yml` so that `Create link check config` occurs before `Check markdown links`. Ensure `markdown-link-check` references `.github/markdown-link-check-config.json`.
-
-### Referred Files
-- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-validation.yml
----
-## Comment 3: docs-maintenance workflow references non-existent .markdown-link-check.json, causing false failures.
-
-Update `.github/workflows/docs-maintenance.yml` to use `--config .github/markdown-link-check-config.json`, or add a root `.markdown-link-check.json` with the same contents. Prefer reusing the `.github` config for consistency.
-
-### Referred Files
-- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
-- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-validation.yml
----
-## Comment 4: docs:validate exits with code 2 on warnings, breaking docs:health and CI gating unexpectedly.
-
-Change the validation step in `.github/workflows/docs-maintenance.yml` to `npm run docs:validate -- --exit-on-error --save-report`. Update the `docs:health` script in `package.json` to run validation in non-blocking mode (e.g., `"docs:health": "npm run docs:validate || true && npm run docs:generate --silent"`).
+Update `package.json` devDependencies to include `glob`, `yaml`, `marked`, `chalk`, and `ts-morph`. Then run `npm i -D glob yaml marked chalk ts-morph` and commit changes.
 
 ### Referred Files
 - /Users/v/works/Next-js-Boilerplate/package.json
-- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-api-docs.ts
 - /Users/v/works/Next-js-Boilerplate/scripts/docs/validate-docs.ts
----
-## Comment 5: Test docs updater fails when testing-quality-assurance-requirements.md does not exist initially.
-
-Modify `scripts/docs/generate-test-docs.ts` to create `docs/testing-quality-assurance-requirements.md` if it does not exist. Add a baseline skeleton including headers: `## Updates`, `## Test Metrics and Coverage`, and `## Test Inventory` before performing section updates.
-
-### Referred Files
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-db-docs.ts
 - /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-test-docs.ts
 ---
-## Comment 6: OpenAPISpec interface omits security property while code references spec.security during generation.
+## Comment 2: CLI entrypoint uses require.main in ESM/tsx context which can throw ReferenceError.
 
-In `scripts/docs/generate-api-docs.ts`, update `interface OpenAPISpec` to include `security?: Array<Record<string, any>>;`. Re-run type checks with `npm run check:types`.
+Replace `if (require.main === module)` guards with ESM-safe checks using `import.meta.url` across all scripts in `scripts/docs/**`. Example: `const isCli = import.meta.url === pathToFileURL(process.argv[1]).href; if (isCli) main();`
 
 ### Referred Files
 - /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-api-docs.ts
----
-## Comment 7: Generation pipeline does not invoke api:generate before API docs, risking stale OpenAPI docs.
-
-Update `package.json` so that `docs:generate` runs `api:generate` before `docs:generate:api` (e.g., `"docs:generate": "run-s api:generate docs:generate:api docs:generate:components docs:generate:db docs:generate:tests docs:update-traceability"`). Also update the API docs job in `.github/workflows/docs-maintenance.yml` to run `npm run api:generate` before `docs:generate:api`.
-
-### Referred Files
-- /Users/v/works/Next-js-Boilerplate/package.json
-- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
----
-## Comment 8: CI attempts to push commits from workflow to PR branches, which fails for forks.
-
-In `.github/workflows/docs-maintenance.yml`, replace direct `git push` steps with `peter-evans/create-pull-request@v6`, or add a conditional to skip commits when `github.event.pull_request.head.repo.fork` is true.
-
-### Referred Files
-- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
----
-## Comment 9: validate-docs includes unused imports and might be heavier than needed for current checks.
-
-Remove the unused `JSDOM` import from `scripts/docs/validate-docs.ts`. Where possible, defer style rules to markdownlint rather than custom regex to reduce false positives.
-
-### Referred Files
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-component-docs.ts
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-db-docs.ts
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-test-docs.ts
 - /Users/v/works/Next-js-Boilerplate/scripts/docs/validate-docs.ts
 ---
-## Comment 10: Component story args extraction is stubbed, reducing usefulness of generated usage documentation.
+## Comment 3: DB docs parser fails to walk Drizzle call chains, producing incorrect types/constraints.
 
-Enhance `extractStoryArgs` in `scripts/docs/generate-component-docs.ts` to parse story files for `args` objects (variable declarations with exported `const` assigned object literals). Populate props usage in the generated docs.
-
-### Referred Files
-- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-component-docs.ts
----
-## Comment 11: Database docs generation assumes `src/models/Schema.ts` exists; add graceful fallback or configuration.
-
-In `scripts/docs/generate-db-docs.ts`, check for the presence of `src/models/Schema.ts` (or configurable path via env `DB_SCHEMA_PATH`). If missing, warn and skip rather than throwing. Optionally add a README note about index extraction limitations.
+In `scripts/docs/generate-db-docs.ts`, implement a robust call-chain traversal for column definitions to collect all method calls (e.g., `varchar` -> `notNull` -> `unique`). Use this to set `type`, `nullable`, `unique`, `primaryKey`, and numeric options. Add tests against sample Drizzle column definitions.
 
 ### Referred Files
 - /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-db-docs.ts
 ---
-## Comment 12: API doc generator metadata omits lastModified per source file, reducing freshness visibility.
+## Comment 4: Validation workflow treats warnings as failures, blocking merges unnecessarily.
 
-Update `generateMetadata` in `scripts/docs/generate-api-docs.ts` to compute `lastModified` for OpenAPI and validation files via `fs.stat` and include it in generated header.
+Update `.github/workflows/docs-maintenance.yml` to set separate outputs for `exit_code` and `has_errors` by parsing `docs/validation-report.json`, and change the blocking step to check `has_errors` only.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/validate-docs.ts
+---
+## Comment 5: Commit steps in workflows reference pull_request context without guarding event type.
+
+In `.github/workflows/docs-maintenance.yml`, add `github.event_name == 'pull_request'` to each commit step's `if:` to avoid referencing `github.event.pull_request` on non-PR events.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
+---
+## Comment 6: Markdown linter config used in maintenance workflow may be missing, causing inconsistent results.
+
+Either commit a `.markdownlint.json` at repo root or add a step in `.github/workflows/docs-maintenance.yml` to generate it before the lint step (copy from `docs-validation.yml`).
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-maintenance.yml
+- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-validation.yml
+---
+## Comment 7: Pre-commit docs link check only matches top-level files, missing nested docs.
+
+Update the `docs-validation` command in `lefthook.yml` to match nested Markdown files (e.g., use `[[ "$file" == docs/* ]] && [[ "$file" == *.md ]]`).
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/lefthook.yml
+---
+## Comment 8: Shell pipeline in docs link check uses if/while incorrectly; may mask failures.
+
+Rewrite the `docs-validation` hook to collect link paths and verify existence in a for-loop, setting a `failed=1` flag if any are broken, and `exit $failed` at the end.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/lefthook.yml
+---
+## Comment 9: API docs generator hardcodes two OpenAPI files; consider globbing for scalability.
+
+Modify `loadOpenAPISpecs()` in `scripts/docs/generate-api-docs.ts` to use `glob('openapi/*.{yml,yaml}')` and iterate over all specs instead of a fixed list.
 
 ### Referred Files
 - /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-api-docs.ts
+---
+## Comment 10: Zod schema extraction via regex is fragile; misses many common patterns.
+
+Refactor Zod parsing in `generate-api-docs.ts` to use TS AST (ts-morph) to find exported consts referencing Zod, or use `zod-to-openapi` metadata to pull validation rules.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-api-docs.ts
+---
+## Comment 11: Test parser only matches describe/it/test identifiers; misses .each/.concurrent/property calls.
+
+Update `extractTestCases()` to detect `PropertyAccessExpression` with base identifier `describe|it|test` (e.g., `it.each`, `describe.concurrent`) and extract the first string literal arg.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-test-docs.ts
+---
+## Comment 12: Docs health script always runs docs:generate, which may be surprising and expensive.
+
+Change the `docs:health` script to run only validation by default. Add `docs:health:fix` (or `--generate`) to run generation. Example: `"docs:health": "npm run docs:validate"` and `"docs:health:generate": "npm run docs:validate && npm run docs:generate --silent"`.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/package.json
+---
+## Comment 13: Docs-validation workflow’s “API documentation sync” step is a stub; add actual checks.
+
+Enhance `openapi-validation` job to parse `openapi/*.yml|yaml` paths and ensure each appears in `docs/api-endpoints-documentation.md`. Use `node` to parse YAML and output a coverage summary; fail if coverage < threshold.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/.github/workflows/docs-validation.yml
+---
+## Comment 14: Docs generator doesn’t ensure docs directory exists in all paths.
+
+Before writing to `docs/*.md` in `generate-db-docs.ts` and `generate-test-docs.ts`, ensure `docs` directory exists: `await fs.promises.mkdir(path.join(process.cwd(), 'docs'), { recursive: true })`.
+
+### Referred Files
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-db-docs.ts
+- /Users/v/works/Next-js-Boilerplate/scripts/docs/generate-test-docs.ts
 ---
 

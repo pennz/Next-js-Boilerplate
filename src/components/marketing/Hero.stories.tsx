@@ -235,9 +235,6 @@ export const ChineseTablet: Story = {
 
 // Accessibility focused story
 export const AccessibilityFocus: Story = {
-  args: {
-    locale: 'en',
-  },
   parameters: {
     a11y: {
       config: {
@@ -263,9 +260,6 @@ export const AccessibilityFocus: Story = {
 
 // Performance testing story
 export const PerformanceTest: Story = {
-  args: {
-    locale: 'en',
-  },
   parameters: {
     docs: {
       description: {
@@ -293,9 +287,6 @@ export const PerformanceTest: Story = {
 
 // Interactive story with play function
 export const Interactive: Story = {
-  args: {
-    locale: 'en',
-  },
   parameters: {
     docs: {
       description: {

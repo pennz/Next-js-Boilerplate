@@ -394,6 +394,7 @@
     "historical_data": "历史数据",
     "prediction_data": "预测数据"
   },
+  "ExerciseManagement": {
     "meta_title": "运动与训练",
     "meta_description": "跟踪您的锻炼、训练计划和健身进度",
     "page_title_dashboard": "运动与训练",
