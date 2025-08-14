@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaBell, FaChartLine, FaHeartbeat, FaTarget } from 'react-icons/fa';
+import { FaBell, FaChartLine, FaHeartbeat, FaBullseye } from 'react-icons/fa';
 
 export function Hero() {
   const t = useTranslations('Index');
@@ -30,7 +30,7 @@ export function Hero() {
                 <span>{t('hero_badge_analytics')}</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
-                <FaTarget className="w-4 h-4" />
+                <FaBullseye className="w-4 h-4" />
                 <span>{t('hero_badge_goals')}</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full text-sm font-medium">
@@ -112,7 +112,7 @@ export function Hero() {
                   72 BPM
                 </div>
                 <div className="absolute bottom-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
-                  <FaTarget className="inline w-3 h-3 mr-1" />
+                  <FaBullseye className="inline w-3 h-3 mr-1" />
                   Goal: 85%
                 </div>
               </div>
