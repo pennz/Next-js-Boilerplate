@@ -440,7 +440,19 @@
     "pagination_showing": "Showing",
     "pagination_to": "to",
     "pagination_of": "of",
-    "pagination_results": "results"
+    "pagination_results": "results",
+    "page_title_health_analytics_overview": "Health Analytics Overview",
+    "page_description_health_analytics_overview": "Comprehensive view of your health analytics with trends, predictions, and insights",
+    "analytics_overview_subtitle": "Comprehensive health analytics with predictive insights and trend analysis",
+    "analytics_loading": "Loading analytics data...",
+    "analytics_error": "Error loading analytics data",
+    "analytics_retry": "Retry Loading",
+    "analytics_last_updated": "Last updated: {timestamp}",
+    "analytics_comprehensive_title": "Comprehensive Health Analytics",
+    "analytics_trends_section": "Health Trends & Predictions",
+    "analytics_overview_section": "Health Overview",
+    "analytics_insights_section": "Key Insights",
+    "analytics_no_data": "No analytics data available. Add health records to see insights."
   },
   "ExerciseManagement": {
     "meta_title": "Exercise & Training",
