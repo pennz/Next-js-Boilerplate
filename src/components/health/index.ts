@@ -32,6 +32,10 @@ export { HealthPredictiveChart } from './HealthPredictiveChart';
 // Export the main HealthRadarChart component
 export { HealthRadarChart } from './HealthRadarChart';
 
+// Export unified analytics components
+export { UnifiedAnalyticsInsights } from './UnifiedAnalyticsInsights';
+export { ExerciseAnalyticsSection } from './ExerciseAnalyticsSection';
+
 // Export the main HealthSummaryCards component
 export { HealthSummaryCards } from './HealthSummaryCards';
 // Export helper functions for external use
@@ -61,4 +65,11 @@ export type {
   ScoringSystem,
   TrendData,
   TrendDirection,
+  // Unified analytics types
+  UnifiedAnalyticsInsightsProps,
+  ExerciseAnalyticsSectionProps,
+  CrossDomainInsight,
+  CorrelationData,
+  InsightCategory,
+  ExerciseAnalyticsData,
 } from './types';
