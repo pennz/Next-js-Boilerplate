@@ -1,520 +1,471 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useBehaviorTracking } from '@/hooks/useBehaviorTracking';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { formatDistanceToNow } from 'date-fns';
+import type { ExerciseLog, TrainingPlan, ExerciseStats } from '@/types/exercise';
 
-type ExerciseLog = {
-  id: number;
-  exercise: string;
-  sets: number;
-  reps: number | null;
-  weight: number | null;
-  logged_at: string;
-};
-
-type TrainingPlan = {
-  id: number;
-  name: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  sessions_per_week: number;
-  is_active: boolean;
-  start_date: string | null;
-};
-
-type Stats = {
-  totalExerciseLogs: number;
-  activePlans: number;
-  completedSessions: number;
-  weeklyProgress: number;
-};
-
-type ExerciseOverviewProps = {
+interface ExerciseOverviewProps {
   recentLogs: ExerciseLog[];
   activeTrainingPlans: TrainingPlan[];
-  stats: Stats;
-};
+  stats: ExerciseStats;
+  onAction?: (action: string) => void;
+}
 
-const StatCard = ({ title, value, subtitle, icon, trend }: {
-  title: string;
-  value: string | number;
-  subtitle?: string;
+const StatCard = ({ 
+  title, 
+  value, 
+  trend, 
+  icon, 
+  onClick 
+}: { 
+  title: string; 
+  value: string | number; 
+  trend?: 'up' | 'down' | 'stable'; 
   icon: string;
-  trend?: 'up' | 'down' | 'neutral';
+  onClick?: () => void;
 }) => {
   const { trackEvent } = useBehaviorTracking();
-  const trendColor = trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-gray-500';
-  const trendIcon = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
-
-  const handleStatCardClick = async () => {
-    await trackEvent({
-      eventName: 'exercise_stat_card_clicked',
-      entityType: 'ui_interaction',
-      context: {
+  
+  const handleClick = async () => {
+    await trackEvent(
+      'exercise_stat_card_clicked',
+      'ui_interaction',
+      undefined,
+      {
         ui: {
-          component: 'ExerciseOverview',
-          element: 'StatCard',
-          statType: title.toLowerCase().replace(/\s+/g, '_'),
-          statValue: value.toString(),
-          trend: trend || 'neutral',
+          componentName: 'ExerciseOverview',
+          action: 'click_stat_card',
+          elementId: title.toLowerCase().replace(/\s+/g, '_'),
         },
-      },
-    });
+        custom: {
+          statTitle: title,
+          statValue: value,
+          trend,
+        },
+      }
+    );
+    onClick?.();
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-      onClick={handleStatCardClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleStatCardClick();
-        }
-      }}
+    <Card 
+      className="cursor-pointer hover:shadow-md transition-shadow"
+      onClick={handleClick}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-          {subtitle && (
-            <p className={`text-sm ${trendColor} flex items-center gap-1`}>
-              {trend && <span>{trendIcon}</span>}
-              {subtitle}
-            </p>
-          )}
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">{title}</p>
+            <p className="text-2xl font-bold">{value}</p>
+            {trend && (
+              <div className="flex items-center mt-1">
+                <span className={`text-xs ${
+                  trend === 'up' ? 'text-green-600' : 
+                  trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                }`}>
+                  {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trend}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="text-3xl">{icon}</div>
         </div>
-        <div className="text-2xl">{icon}</div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
-export const ExerciseOverview = ({ recentLogs, activeTrainingPlans, stats }: ExerciseOverviewProps) => {
-  return (
-    <ExerciseOverviewContent
-      recentLogs={recentLogs}
-      activeTrainingPlans={activeTrainingPlans}
-      stats={stats}
-    />
-  );
-};
-
-const TrainingPlanCard = ({ plan }: { plan: TrainingPlan }) => {
+const TrainingPlanCard = ({ 
+  plan, 
+  onClick 
+}: { 
+  plan: TrainingPlan; 
+  onClick?: () => void;
+}) => {
   const { trackEvent } = useBehaviorTracking();
-  const difficultyColor = plan.difficulty === 'beginner'
-    ? 'bg-green-100 text-green-800'
-    : plan.difficulty === 'intermediate'
-      ? 'bg-yellow-100 text-yellow-800'
-      : 'bg-red-100 text-red-800';
-
-  const handlePlanCardClick = async () => {
-    await trackEvent({
-      eventName: 'training_plan_card_viewed',
-      entityType: 'training_session',
-      entityId: plan.id,
-      context: {
+  const t = useTranslations('ExerciseManagement');
+  
+  const handleClick = async () => {
+    await trackEvent(
+      'training_plan_card_viewed',
+      'exercise_plan',
+      plan.id,
+      {
         ui: {
-          component: 'ExerciseOverview',
-          element: 'TrainingPlanCard',
+          componentName: 'ExerciseOverview',
+          action: 'view_plan',
         },
-        exercise: {
-          planName: plan.name,
+        exerciseData: {
+          planId: plan.id,
           difficulty: plan.difficulty,
-          sessionsPerWeek: plan.sessions_per_week,
-          isActive: plan.is_active,
-          startDate: plan.start_date,
         },
-      },
-    });
+      }
+    );
+    onClick?.();
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-sm transition-shadow"
-      onClick={handlePlanCardClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handlePlanCardClick();
-        }
-      }}
+    <Card 
+      className="cursor-pointer hover:shadow-md transition-shadow"
+      onClick={handleClick}
     >
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="font-medium text-gray-900">{plan.name}</h4>
-        {plan.is_active && <span className="text-green-500 text-sm">🟢 Active</span>}
-      </div>
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${difficultyColor}`}>
-            {plan.difficulty}
-          </span>
-          <span className="text-sm text-gray-600">
-            {plan.sessions_per_week}
-            {' '}
-            sessions/week
-          </span>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">{plan.name}</CardTitle>
+          <Badge className={getDifficultyColor(plan.difficulty)}>
+            {t(`difficulty_${plan.difficulty}`)}
+          </Badge>
         </div>
-        {plan.start_date && (
-          <p className="text-xs text-gray-500">
-            Started:
-            {' '}
-            {new Date(plan.start_date).toLocaleDateString()}
-          </p>
-        )}
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>{t('sessions_per_week')}</span>
+            <span>{plan.sessions_per_week}</span>
+          </div>
+          {plan.start_date && (
+            <div className="flex justify-between text-sm">
+              <span>{t('started')}</span>
+              <span>{new Date(plan.start_date).toLocaleDateString()}</span>
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">{t('progress')}</span>
+            <Progress value={plan.is_active ? 75 : 100} className="flex-1" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
-const RecentLogItem = ({ log }: { log: ExerciseLog }) => {
+const RecentLogItem = ({ 
+  log, 
+  onClick 
+}: { 
+  log: ExerciseLog; 
+  onClick?: () => void;
+}) => {
   const { trackEvent } = useBehaviorTracking();
-  const logDate = new Date(log.logged_at);
-  const timeAgo = Math.floor((Date.now() - logDate.getTime()) / (1000 * 60 * 60));
-
-  const handleLogItemClick = async () => {
-    await trackEvent({
-      eventName: 'recent_workout_log_viewed',
-      entityType: 'exercise_log',
-      entityId: log.id,
-      context: {
+  const t = useTranslations('ExerciseManagement');
+  
+  const handleClick = async () => {
+    await trackEvent(
+      'recent_workout_log_viewed',
+      'exercise_log',
+      log.id,
+      {
         ui: {
-          component: 'ExerciseOverview',
-          element: 'RecentLogItem',
+          componentName: 'ExerciseOverview',
+          action: 'view_log',
         },
-        exercise: {
-          exerciseName: log.exercise,
+        exerciseData: {
+          exerciseId: log.id,
           sets: log.sets,
-          reps: log.reps,
-          weight: log.weight,
-          timeAgo,
-          loggedAt: log.logged_at,
+          reps: log.reps || 0,
+          weight: log.weight || 0,
         },
-      },
-    });
+      }
+    );
+    onClick?.();
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
-      onClick={handleLogItemClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleLogItemClick();
-        }
-      }}
+    <div 
+      className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+      onClick={handleClick}
     >
       <div>
-        <p className="font-medium text-gray-900">{log.exercise}</p>
-        <p className="text-sm text-gray-500">
-          {timeAgo}
-          {t('hours_ago')}
+        <p className="font-medium">{log.exercise}</p>
+        <p className="text-sm text-gray-600">
+          {log.sets} sets × {log.reps || 0} reps @ {log.weight || 0}kg
         </p>
       </div>
       <div className="text-right">
-        <p className="font-medium text-gray-900">
-          {log.sets}
-          {' '}
-          {t('sets')}
-          {log.reps && ` × ${log.reps} ${t('reps')}`}
+        <p className="text-sm text-gray-500">
+          {formatDistanceToNow(new Date(log.logged_at), { addSuffix: true })}
         </p>
-        {log.weight && (
-          <p className="text-sm text-gray-500">
-            {log.weight}
-            {t('kg')}
-          </p>
-        )}
       </div>
     </div>
   );
 };
 
-const QuickActionButton = ({ href, icon, label }: {
-  href: string;
-  icon: string;
-  label: string;
+const QuickActionButton = ({ 
+  action, 
+  icon, 
+  label, 
+  onClick 
+}: { 
+  action: string; 
+  icon: string; 
+  label: string; 
+  onClick?: () => void;
 }) => {
   const { trackEvent } = useBehaviorTracking();
-
-  const handleQuickActionClick = async () => {
-    await trackEvent({
-      eventName: 'ui_click',
-      entityType: 'ui_interaction',
-      context: {
+  
+  const handleClick = async () => {
+    await trackEvent(
+      'ui_click',
+      'ui_interaction',
+      undefined,
+      {
         ui: {
-          component: 'ExerciseOverview',
-          element: 'QuickActionButton',
-          action: label.toLowerCase().replace(/\s+/g, '_'),
-          destination: href,
+          componentName: 'ExerciseOverview',
+          action: 'click_quick_action',
+          elementId: action,
         },
-        exercise: {
-          actionType: label,
+        custom: {
+          actionType: action,
         },
-      },
-    });
+      }
+    );
+    onClick?.();
   };
 
   return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
-      onClick={handleQuickActionClick}
+    <Button 
+      variant="outline" 
+      className="flex-1 h-20 flex flex-col items-center justify-center space-y-1"
+      onClick={handleClick}
     >
-      <span className="text-lg">{icon}</span>
-      <span className="font-medium">{label}</span>
-    </Link>
+      <span className="text-2xl">{icon}</span>
+      <span className="text-xs">{label}</span>
+    </Button>
   );
 };
 
-// Create a wrapper component to handle the async data fetching
-const ExerciseOverviewContent = ({
-  recentLogs,
-  activeTrainingPlans,
-  stats,
+export const ExerciseOverviewContent = ({ 
+  recentLogs, 
+  activeTrainingPlans, 
+  stats, 
+  onAction 
 }: ExerciseOverviewProps) => {
-  const t = useTranslations('ExerciseManagement');
   const { trackEvent } = useBehaviorTracking();
+  const t = useTranslations('ExerciseManagement');
 
-  // Track when the overview is viewed
+  // Track overview view
   useEffect(() => {
-    const trackOverviewView = async () => {
-      await trackEvent({
-        eventName: 'exercise_overview_viewed',
-        entityType: 'ui_interaction',
-        context: {
+    const trackView = async () => {
+      await trackEvent(
+        'exercise_overview_viewed',
+        'ui_interaction',
+        undefined,
+        {
           ui: {
-            component: 'ExerciseOverview',
-            element: 'OverviewPage',
+            componentName: 'ExerciseOverview',
+            action: 'view',
           },
-          exercise: {
-            totalWorkouts: stats.totalExerciseLogs,
-            activePlans: stats.activePlans,
-            completedSessions: stats.completedSessions,
-            weeklyProgress: stats.weeklyProgress,
-            hasRecentLogs: recentLogs.length > 0,
-            hasActivePlans: activeTrainingPlans.length > 0,
+          custom: {
+            totalLogs: recentLogs.length,
+            activePlans: activeTrainingPlans.length,
+            stats,
           },
-        },
-      });
+        }
+      );
     };
 
-    trackOverviewView();
-  }, [trackEvent, stats, recentLogs.length, activeTrainingPlans.length]);
+    trackView();
+  }, [trackEvent, recentLogs.length, activeTrainingPlans.length, stats]);
 
   const handleProgressChartView = async (chartType: string) => {
-    await trackEvent({
-      eventName: 'progress_chart_viewed',
-      entityType: 'ui_interaction',
-      context: {
+    await trackEvent(
+      'progress_chart_viewed',
+      'ui_interaction',
+      undefined,
+      {
         ui: {
-          component: 'ExerciseOverview',
-          element: 'ProgressChart',
+          componentName: 'ExerciseOverview',
+          action: 'view_chart',
+          elementId: chartType,
+        },
+        custom: {
           chartType,
         },
-        exercise: {
-          chartType,
-          totalWorkouts: stats.totalExerciseLogs,
-        },
-      },
-    });
+      }
+    );
   };
 
   return (
-    <div className="space-y-6" data-testid="exercise-overview">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{t('exercise_overview')}</h2>
-          <p className="text-gray-600">{t('track_workouts_training')}</p>
-        </div>
-        <Link
-          href="/dashboard/exercise"
-          className="text-blue-700 hover:border-b-2 hover:border-blue-700 font-medium"
-        >
-          {t('view_all')} →
-        </Link>
-      </div>
-
+    <div className="space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="exercise-overview-stats">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           title={t('total_workouts')}
           value={stats.totalExerciseLogs}
           icon="💪"
-          subtitle={t('all_time')}
+          onClick={() => onAction?.('view_workouts')}
         />
         <StatCard
           title={t('active_plans')}
           value={stats.activePlans}
           icon="📋"
-          subtitle={t('in_progress')}
+          onClick={() => onAction?.('view_plans')}
         />
         <StatCard
           title={t('completed_sessions')}
           value={stats.completedSessions}
           icon="✅"
-          subtitle={t('this_year')}
+          onClick={() => onAction?.('view_sessions')}
         />
         <StatCard
           title={t('weekly_activity')}
-          value={stats.weeklyProgress}
-          icon="🔥"
-          subtitle={t('this_week')}
-          trend="up"
+          value={`${stats.weeklyProgress}%`}
+          trend={stats.weeklyProgress > 70 ? 'up' : stats.weeklyProgress > 40 ? 'stable' : 'down'}
+          icon="📈"
+          onClick={() => onAction?.('view_activity')}
         />
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Workouts */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-recent-logs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">{t('recent_workouts')}</h3>
-            <Link
-              href="/dashboard/exercise/logs"
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              {t('view_all')}
-            </Link>
-          </div>
-          <div className="space-y-1">
-            {recentLogs.length > 0
-              ? (
-                  recentLogs.map(log => (
-                    <RecentLogItem key={log.id} log={log} />
-                  ))
-                )
-              : (
-                  <p className="text-gray-500 text-center py-4">{t('no_recent_workouts')}</p>
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('recent_workouts')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {recentLogs.slice(0, 5).map((log) => (
+                  <RecentLogItem 
+                    key={log.id} 
+                    log={log} 
+                    onClick={() => onAction?.('view_log', log.id)}
+                  />
+                ))}
+                {recentLogs.length === 0 && (
+                  <p className="text-center text-gray-500 py-4">
+                    {t('no_recent_workouts')}
+                  </p>
                 )}
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Active Training Plans */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-active-plans">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">{t('training_plans')}</h3>
-            <Link
-              href="/dashboard/exercise/plans"
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              {t('manage')}
-            </Link>
-          </div>
-          <div className="space-y-4">
-            {activeTrainingPlans.length > 0
-              ? (
-                  activeTrainingPlans.map(plan => (
-                    <TrainingPlanCard key={plan.id} plan={plan} />
-                  ))
-                )
-              : (
-                  <p className="text-gray-500 text-center py-4">{t('no_active_plans')}</p>
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('active_training_plans')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {activeTrainingPlans.slice(0, 3).map((plan) => (
+                  <TrainingPlanCard 
+                    key={plan.id} 
+                    plan={plan} 
+                    onClick={() => onAction?.('view_plan', plan.id)}
+                  />
+                ))}
+                {activeTrainingPlans.length === 0 && (
+                  <p className="text-center text-gray-500 py-4">
+                    {t('no_active_plans')}
+                  </p>
                 )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-quick-actions">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('quick_actions')}</h3>
-          <div className="space-y-3">
-            <QuickActionButton
-              href="/dashboard/exercise/workout"
-              icon="🏋️"
-              label={t('start_workout')}
-            />
-            <QuickActionButton
-              href="/dashboard/exercise/plans?action=create"
-              icon="📋"
-              label={t('create_plan')}
-            />
-            <QuickActionButton
-              href="/dashboard/exercise/exercises"
-              icon="📚"
-              label={t('browse_exercises')}
-            />
-            <QuickActionButton
-              href="/dashboard/exercise/analytics"
-              icon="📊"
-              label={t('view_progress')}
-            />
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      {/* Progress Charts Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6" data-testid="exercise-overview-progress-charts">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{t('training_progress')}</h3>
-          <Link
-            href="/dashboard/exercise/analytics"
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            {t('view_details')}
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div
-            role="button"
-            tabIndex={0}
-            className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-            onClick={() => handleProgressChartView('strength_progress')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleProgressChartView('strength_progress');
-              }
-            }}
-          >
-            <p className="text-sm font-medium text-gray-600 mb-2">{t('strength_progress')}</p>
-            <div className="h-20 bg-gradient-to-r from-red-200 to-red-300 rounded flex items-end justify-center">
-              <span className="text-xs text-gray-600">{t('chart_placeholder')}</span>
-            </div>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('quick_actions')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <QuickActionButton
+              action="start_workout"
+              icon="🏃"
+              label={t('start_workout')}
+              onClick={() => onAction?.('start_workout')}
+            />
+            <QuickActionButton
+              action="create_plan"
+              icon="📝"
+              label={t('create_plan')}
+              onClick={() => onAction?.('create_plan')}
+            />
+            <QuickActionButton
+              action="browse_exercises"
+              icon="🔍"
+              label={t('browse_exercises')}
+              onClick={() => onAction?.('browse_exercises')}
+            />
+            <QuickActionButton
+              action="view_progress"
+              icon="📊"
+              label={t('view_progress')}
+              onClick={() => onAction?.('view_progress')}
+            />
           </div>
-          <div
-            role="button"
-            tabIndex={0}
-            className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-            onClick={() => handleProgressChartView('workout_frequency')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleProgressChartView('workout_frequency');
-              }
-            }}
-          >
-            <p className="text-sm font-medium text-gray-600 mb-2">{t('workout_frequency')}</p>
-            <div className="h-20 bg-gradient-to-r from-blue-200 to-blue-300 rounded flex items-end justify-center">
-              <span className="text-xs text-gray-600">{t('chart_placeholder')}</span>
+        </CardContent>
+      </Card>
+
+      {/* Progress Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('strength_progress')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="h-40 bg-gray-100 rounded flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+              onClick={() => handleProgressChartView('strength_progress')}
+            >
+              <span className="text-gray-500">{t('chart_placeholder')}</span>
             </div>
-          </div>
-          <div
-            role="button"
-            tabIndex={0}
-            className="bg-gray-50 rounded-lg p-4 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-            onClick={() => handleProgressChartView('volume_trends')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleProgressChartView('volume_trends');
-              }
-            }}
-          >
-            <p className="text-sm font-medium text-gray-600 mb-2">{t('volume_trends')}</p>
-            <div className="h-20 bg-gradient-to-r from-green-200 to-green-300 rounded flex items-end justify-center">
-              <span className="text-xs text-gray-600">{t('chart_placeholder')}</span>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('workout_frequency')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="h-40 bg-gray-100 rounded flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+              onClick={() => handleProgressChartView('workout_frequency')}
+            >
+              <span className="text-gray-500">{t('chart_placeholder')}</span>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('volume_trends')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="h-40 bg-gray-100 rounded flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+              onClick={() => handleProgressChartView('volume_trends')}
+            >
+              <span className="text-gray-500">{t('chart_placeholder')}</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
+};
+
+export const ExerciseOverview = (props: ExerciseOverviewProps) => {
+  return <ExerciseOverviewContent {...props} />;
 };

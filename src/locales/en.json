@@ -481,7 +481,18 @@
     "meta_title": "Exercise & Training",
     "meta_description": "Track your workouts, training plans, and fitness progress",
     "page_title_dashboard": "Exercise & Training",
-    "dashboard_subtitle": "Manage your workouts and training plans"
+    "dashboard_subtitle": "Manage your workouts and training plans",
+    "exercise_habit_title": "Exercise Habits",
+    "exercise_habit_description": "Track your exercise habits and consistency over time",
+    "exercise_goal_created": "Exercise Goal Created",
+    "exercise_goal_achieved": "Exercise Goal Achieved",
+    "exercise_stats_viewed": "Exercise Statistics Viewed",
+    "exercise_progress_viewed": "Exercise Progress Viewed",
+    "workout_completed": "Workout Completed",
+    "exercise_consistency_rate": "Exercise Consistency Rate",
+    "exercise_frequency_analysis": "Exercise Frequency Analysis",
+    "exercise_volume_tracking": "Exercise Volume Tracking",
+    "exercise_strength_progression": "Exercise Strength Progression"
   },
   "BehaviorAnalytics": {
     "meta_title": "Behavior Analytics",

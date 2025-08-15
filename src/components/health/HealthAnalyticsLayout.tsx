@@ -10,6 +10,10 @@ import { HealthRadarChart } from './HealthRadarChart';
 
 // Import behavior analytics components
 import { BehaviorAnalyticsChart } from '../behavioral/BehaviorAnalyticsChart';
+
+// Import extracted section components
+import { UnifiedInsightsSection } from './UnifiedInsightsSection';
+import { ExerciseAnalyticsSection } from './ExerciseAnalyticsSection';
 import type { BehaviorDataPoint, ContextPatternData, HabitStrengthData, BehaviorAnalyticsSummary } from '../behavioral/BehaviorAnalyticsLayout';
 
 export type HealthAnalyticsSummary = {
@@ -838,42 +842,42 @@ const InsightsSection = ({
   );
 };
 
-export const HealthAnalyticsLayout = ({
-  // Health data
+const HealthAnalyticsLayout = ({
+  // Health data props
   summaryMetrics,
   predictiveData,
   radarData,
-  insights,
+  insights = [],
   loading,
   error,
   lastUpdate,
   selectedMetric,
   
-  // Behavior data
+  // Behavior analytics data props
   behaviorSummary,
-  habitStrengthData = [],
-  contextPatternsData = [],
-  behaviorFrequencyData = [],
+  habitStrengthData,
+  contextPatternsData,
+  behaviorFrequencyData,
   behaviorPatterns = [],
   behaviorInsights = [],
   
-  // Exercise data
+  // Exercise data props
   exerciseStats,
-  recentExerciseLogs = [],
-  activeTrainingPlans = [],
-  exerciseProgressData = [],
+  recentExerciseLogs,
+  activeTrainingPlans,
+  exerciseProgressData,
   
-  // Navigation
+  // Navigation props
   activeView = 'unified',
   onViewChange,
   
-  // Callbacks
+  // Callback props
   onMetricSelect,
   onRetry,
   onInsightView,
   onPatternDetails,
   
-  // Tracking
+  // Tracking functions
   trackMetricCardView,
   trackChartView,
   trackInsightView,
@@ -882,226 +886,119 @@ export const HealthAnalyticsLayout = ({
 }: HealthAnalyticsLayoutProps) => {
   const t = useTranslations('HealthManagement');
 
-  // Default view change handler if not provided
-  const handleViewChange = onViewChange || (() => {});
+  const handleViewChange = async (view: AnalyticsView) => {
+    onViewChange?.(view);
+    await trackViewChange?.(view);
+  };
 
-  // Check if we have any data at all
-  const hasHealthData = summaryMetrics.length > 0 || predictiveData.length > 0 || radarData.length > 0;
-  const hasBehaviorData = behaviorSummary || habitStrengthData.length > 0 || behaviorFrequencyData.length > 0;
-  const hasExerciseData = exerciseStats || recentExerciseLogs.length > 0 || activeTrainingPlans.length > 0;
-  const hasAnyData = hasHealthData || hasBehaviorData || hasExerciseData;
-
-  // Show error state if there's an error and no data
-  if (error && !hasAnyData) {
-    return (
-      <div className="space-y-6" data-testid="health-analytics-layout">
-        <AnalyticsHeader lastUpdate={lastUpdate} loading={loading} activeView={activeView} />
-        <ErrorMessage error={error} onRetry={onRetry} />
-      </div>
-    );
-  }
-
-  // Show no data state if not loading and no data available
-  if (!loading && !hasAnyData) {
-    return (
-      <div className="space-y-6" data-testid="health-analytics-layout">
-        <AnalyticsHeader lastUpdate={lastUpdate} loading={loading} activeView={activeView} />
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <div className="text-6xl mb-4">📊</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {t('analytics_no_data')}
-          </h3>
-          <p className="text-gray-600">
-            {t('analytics_no_data')}
-          </p>
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="space-y-6">
+          <LoadingSkeleton />
+          <LoadingSkeleton />
+          <LoadingSkeleton />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  const renderViewContent = () => {
+    if (error) {
+      return <ErrorMessage error={error} onRetry={onRetry} />;
+    }
+
     switch (activeView) {
       case 'health':
         return (
           <div className="space-y-6">
-            {/* Health Summary Metrics */}
-            {summaryMetrics.length > 0 && (
-              <HealthSummaryCards
-                metrics={summaryMetrics}
-                loading={loading}
-                onCardView={trackMetricCardView}
-              />
-            )}
-
-            {/* Health Charts Section */}
-            <ChartsSection
-              predictiveData={predictiveData}
-              radarData={radarData}
-              selectedMetric={selectedMetric}
-              loading={loading}
-              error={error}
+            <HealthSummaryCards
+              metrics={summaryMetrics}
               onMetricSelect={onMetricSelect}
-              trackChartView={trackChartView}
+              trackMetricCardView={trackMetricCardView}
             />
-
-            {/* Health Insights */}
-            <InsightsSection
-              insights={insights}
-              onInsightView={onInsightView}
-              trackInsightView={trackInsightView}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <HealthPredictiveChart
+                data={predictiveData}
+                selectedMetric={selectedMetric}
+                onMetricSelect={onMetricSelect}
+                trackChartView={trackChartView}
+              />
+              <HealthRadarChart
+                data={radarData}
+                trackChartView={trackChartView}
+              />
+            </div>
           </div>
         );
 
       case 'behavior':
         return (
-          <BehaviorAnalyticsSection
-            behaviorSummary={behaviorSummary}
-            habitStrengthData={habitStrengthData}
-            contextPatternsData={contextPatternsData}
-            behaviorFrequencyData={behaviorFrequencyData}
-            behaviorPatterns={behaviorPatterns}
-            behaviorInsights={behaviorInsights}
-            loading={loading}
-            error={error}
-            onPatternDetails={onPatternDetails}
-            trackPatternInsightView={trackPatternInsightView}
-          />
+          <div className="space-y-6">
+            {behaviorSummary && (
+              <BehaviorAnalyticsChart
+                summary={behaviorSummary}
+                habitStrengthData={habitStrengthData}
+                contextPatternsData={contextPatternsData}
+                behaviorFrequencyData={behaviorFrequencyData}
+                behaviorPatterns={behaviorPatterns}
+                behaviorInsights={behaviorInsights}
+                trackChartView={trackChartView}
+                trackInsightView={trackInsightView}
+                trackPatternInsightView={trackPatternInsightView}
+              />
+            )}
+          </div>
         );
 
       case 'exercise':
         return (
-          <ExerciseAnalyticsSection
-            exerciseStats={exerciseStats}
-            recentExerciseLogs={recentExerciseLogs}
-            activeTrainingPlans={activeTrainingPlans}
-            exerciseProgressData={exerciseProgressData}
-            loading={loading}
-            error={error}
-          />
+          <div className="space-y-6">
+            {exerciseStats && (
+              <ExerciseAnalyticsSection
+                stats={exerciseStats}
+                recentLogs={recentExerciseLogs || []}
+                activePlans={activeTrainingPlans || []}
+                progressData={exerciseProgressData || []}
+                trackChartView={trackChartView}
+                trackInsightView={trackInsightView}
+                onAction={(action, ...args) => {
+                  // Handle exercise-specific actions
+                  console.log('Exercise action:', action, args);
+                }}
+              />
+            )}
+          </div>
         );
 
       case 'unified':
       default:
         return (
           <div className="space-y-6">
-            {/* Unified Summary - Show key metrics from all domains */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Health Summary */}
-              {hasHealthData && summaryMetrics.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span>🏥</span>
-                    Health Overview
-                  </h3>
-                  <div className="space-y-3">
-                    {summaryMetrics.slice(0, 3).map((metric, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">{metric.title}</span>
-                        <span className="font-medium text-gray-900">{metric.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Behavior Summary */}
-              {hasBehaviorData && behaviorSummary && (
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span>🧠</span>
-                    Behavior Overview
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Habit Strength</span>
-                      <span className="font-medium text-gray-900">{Math.round(behaviorSummary.habitStrengthAvg)}%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Consistency</span>
-                      <span className="font-medium text-gray-900">{Math.round(behaviorSummary.consistencyScore)}%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Active Patterns</span>
-                      <span className="font-medium text-gray-900">{behaviorSummary.activePatterns}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Exercise Summary */}
-              {hasExerciseData && exerciseStats && (
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span>💪</span>
-                    Exercise Overview
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Workouts</span>
-                      <span className="font-medium text-gray-900">{exerciseStats.totalExerciseLogs}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Active Plans</span>
-                      <span className="font-medium text-gray-900">{exerciseStats.activePlans}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Weekly Progress</span>
-                      <span className="font-medium text-gray-900">{exerciseStats.weeklyProgress}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Unified Charts - Show key charts from each domain */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {/* Health Chart */}
-              {hasHealthData && predictiveData.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Health Trends</h3>
-                  <HealthPredictiveChart
-                    data={predictiveData}
-                    metric={selectedMetric || 'weight'}
-                    onChartInteraction={() => trackChartView?.('predictive', selectedMetric)}
-                  />
-                </div>
-              )}
-
-              {/* Behavior Chart */}
-              {hasBehaviorData && habitStrengthData.length > 0 && (
-                <BehaviorAnalyticsChart
-                  data={habitStrengthData}
-                  chartType="habit_strength"
-                  title="Habit Strength"
-                  loading={loading}
-                  error={error}
-                />
-              )}
-
-              {/* Exercise Progress Placeholder */}
-              {hasExerciseData && (
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Exercise Progress</h3>
-                  <div className="h-64 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-4xl mb-2">📈</div>
-                      <p className="text-gray-600">Exercise progress visualization</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Unified Insights */}
             <UnifiedInsightsSection
-              healthInsights={insights}
-              behaviorInsights={behaviorInsights}
-              exerciseStats={exerciseStats}
-              behaviorSummary={behaviorSummary}
-              summaryMetrics={summaryMetrics}
+              healthData={{
+                summaryMetrics,
+                predictiveData,
+                radarData,
+                insights,
+              }}
+              behaviorData={{
+                summary: behaviorSummary,
+                habitStrengthData,
+                contextPatternsData,
+                behaviorFrequencyData,
+                patterns: behaviorPatterns,
+                insights: behaviorInsights,
+              }}
+              exerciseData={{
+                stats: exerciseStats,
+                recentLogs: recentExerciseLogs || [],
+                activePlans: activeTrainingPlans || [],
+                progressData: exerciseProgressData || [],
+              }}
               onInsightView={onInsightView}
+              onPatternDetails={onPatternDetails}
               trackInsightView={trackInsightView}
+              trackPatternInsightView={trackPatternInsightView}
+              trackChartView={trackChartView}
             />
           </div>
         );
@@ -1109,27 +1006,22 @@ export const HealthAnalyticsLayout = ({
   };
 
   return (
-    <div className="space-y-6" data-testid="health-analytics-layout">
-      {/* Header */}
-      <AnalyticsHeader lastUpdate={lastUpdate} loading={loading} activeView={activeView} />
-
-      {/* Navigation */}
-      {onViewChange && (
-        <AnalyticsNavigation
-          activeView={activeView}
-          onViewChange={handleViewChange}
-          trackViewChange={trackViewChange}
-        />
-      )}
-
-      {/* View Content */}
-      <div
-        role="tabpanel"
-        id={`${activeView}-panel`}
-        aria-labelledby={`${activeView}-tab`}
-      >
-        {renderViewContent()}
-      </div>
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <AnalyticsHeader 
+        lastUpdate={lastUpdate} 
+        loading={loading} 
+        activeView={activeView} 
+      />
+      
+      <AnalyticsNavigation 
+        activeView={activeView} 
+        onViewChange={handleViewChange}
+        trackViewChange={trackViewChange}
+      />
+      
+      {renderContent()}
     </div>
   );
 };
+
+export { HealthAnalyticsLayout };

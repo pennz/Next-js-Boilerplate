@@ -7,6 +7,8 @@ export const EntityTypeEnum = z.enum([
   'exercise_log',
   'health_goal',
   'ui_interaction',
+  'exercise_plan',
+  'exercise_goal',
 ]);
 
 // Event name validation with predefined common events
@@ -43,6 +45,18 @@ const eventNameValidation = z.string().min(1).max(100).refine((eventName) => {
     'exercise_overview_viewed',
     'stats_viewed',
     'quick_action_clicked',
+    'exercise_workout_completed',
+    'exercise_habit_tracked',
+    'exercise_consistency_measured',
+    'exercise_goal_created',
+    'exercise_goal_updated',
+    'exercise_goal_achieved',
+    'exercise_plan_created',
+    'exercise_plan_started',
+    'exercise_plan_completed',
+    'exercise_stats_viewed',
+    'exercise_progress_viewed',
+    'exercise_pattern_analyzed',
   ];
 
   // Allow custom events but they should follow naming convention
@@ -90,6 +104,26 @@ const EnvironmentalDataValidation = z.object({
   referrer: z.string().max(500).optional(),
 }).optional();
 
+// Exercise-specific context
+const ExerciseDataValidation = z.object({
+  exerciseType: z.string().max(100).optional(),
+  duration: z.number().min(0).optional(),
+  intensity: z.enum(['low', 'moderate', 'high']).optional(),
+  planId: z.number().int().positive().optional(),
+  sessionId: z.number().int().positive().optional(),
+  exerciseId: z.number().int().positive().optional(),
+  goalId: z.number().int().positive().optional(),
+  sets: z.number().int().min(1).optional(),
+  reps: z.number().int().min(1).optional(),
+  weight: z.number().min(0).optional(),
+  volume: z.number().min(0).optional(),
+  consistency: z.number().min(0).max(1).optional(),
+  frequency: z.number().min(0).optional(),
+  pattern: z.string().max(50).optional(),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  completionRate: z.number().min(0).max(1).optional(),
+});
+
 // Context data validation with nested validations
 export const ContextDataValidation = z.object({
   // Device information
@@ -113,13 +147,7 @@ export const ContextDataValidation = z.object({
   }).optional(),
 
   // Exercise-specific context
-  exerciseData: z.object({
-    exerciseType: z.string().max(100).optional(),
-    duration: z.number().min(0).optional(),
-    intensity: z.enum(['low', 'moderate', 'high']).optional(),
-    planId: z.number().int().positive().optional(),
-    sessionId: z.number().int().positive().optional(),
-  }).optional(),
+  exerciseData: ExerciseDataValidation,
 
   // Performance metrics
   performance: z.object({
@@ -173,6 +201,16 @@ export const BehaviorEventValidation = z.object({
   return true;
 }, {
   message: 'Health-related events should include health context data when available',
+}).refine((data) => {
+  // Business logic: Exercise-related events should have exercise context when available
+  if ((data.entityType === 'exercise_log' || data.entityType === 'exercise_plan' || data.entityType === 'exercise_goal' || data.entityType === 'training_session')
+    && data.context && !data.context.exerciseData && (data.eventName.includes('exercise') || data.eventName.includes('workout') || data.eventName.includes('training'))) {
+    // This is a warning rather than an error, so we'll allow it
+    return true;
+  }
+  return true;
+}, {
+  message: 'Exercise-related events should include exercise context data when available',
 });
 
 // Validation for bulk behavioral event operations
