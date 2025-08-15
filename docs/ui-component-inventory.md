@@ -4,7 +4,7 @@
 
 This document provides a comprehensive catalog of all React components in the Next.js health management application. The components are classified by type, functionality, and usage patterns to help developers understand the architecture and reusability patterns.
 
-*Last updated: 2025-08-14T13:39:41.874Z*
+*Last updated: 2025-08-15T01:21:37.555Z*
 *Generated automatically from source code analysis*
 
 ## Component Classification
@@ -22,6 +22,10 @@ Components that render on the server and handle data fetching:
 Interactive components marked with `'use client'`:
 
 - **LocaleSwitcher** - Interactive component
+- **TechStack** - Interactive component
+- **Hero** - Interactive component
+- **FeatureGrid** - Interactive component
+- **CTASection** - Interactive component
 - **UseBehaviorAnalyticsTrackingReturn** - Interactive component
 - **TimeRangeSelector** - Interactive component
 - **PatternsSection** - Interactive component
@@ -35,6 +39,7 @@ Interactive components marked with `'use client'`:
 - **Sponsors** - Component description not available
 - **DemoBanner** - Component description not available
 - **DemoBadge** - Component description not available
+- **TechStack** - Component description not available
 - **MockApiResponse** - Component description not available
 
 ### Form Components
@@ -54,6 +59,8 @@ Components that render on the server and handle data fetching:
 #### Client Components
 Interactive components marked with `'use client'`:
 
+- **UnifiedInsightsSection** - Interactive component
+- **UnifiedAnalyticsInsights** - Interactive component
 - **StatsSection** - Interactive component
 - **ReminderList** - Interactive component
 - **RecordsSection** - Interactive component
@@ -65,18 +72,21 @@ Interactive components marked with `'use client'`:
 - **HealthOverviewLayout** - Interactive component
 - **HealthOverviewContainer** - Interactive component
 - **HealthChart** - Interactive component
+- **HealthAnalyticsLayout** - Interactive component
+- **HealthAnalyticsContainer** - Interactive component
 - **GoalsSection** - Interactive component
 - **GoalCard** - Interactive component
+- **ExerciseAnalyticsSection** - Interactive component
 - **AddHealthRecordModal** - Interactive component
 
-- **TrendDirection** - Component description not available
+- **ExerciseAnalyticsData** - Component description not available
 
 ### Exercise Management
 
 #### Client Components
 Interactive components marked with `'use client'`:
 
-- **ExerciseOverviewContent** - Interactive component
+- **ExerciseOverview** - Interactive component
 
 - **ExerciseOverviewProps** - Component description not available
 
@@ -99,7 +109,7 @@ Interactive components marked with `'use client'`:
 
 ### Sponsors
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/Sponsors.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/Sponsors.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -110,7 +120,7 @@ Interactive components marked with `'use client'`:
 
 ### LocaleSwitcher (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/LocaleSwitcher.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/LocaleSwitcher.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -129,7 +139,7 @@ Interactive components marked with `'use client'`:
 
 ### Hello (Server Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/Hello.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/Hello.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -142,7 +152,7 @@ Interactive components marked with `'use client'`:
 
 ### DemoBanner
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/DemoBanner.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/DemoBanner.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -153,7 +163,7 @@ Interactive components marked with `'use client'`:
 
 ### DemoBadge
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/DemoBadge.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/DemoBadge.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -161,7 +171,7 @@ Interactive components marked with `'use client'`:
 
 ### CurrentCount (Server Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/CurrentCount.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/CurrentCount.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -177,7 +187,7 @@ Interactive components marked with `'use client'`:
 
 ### CounterForm (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/CounterForm.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/CounterForm.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -194,17 +204,175 @@ Interactive components marked with `'use client'`:
 
 ---
 
-### TrendDirection
+### TechStack
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/index.ts`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/marketing/index.ts`
 
 **Props Interface**: None (no props or props not detected)
 
 ---
 
+### TechStack (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/marketing/TechStack.tsx`
+
+**Props Interface**: None (no props or props not detected)
+
+**Dependencies**:
+- next-intl
+
+---
+
+### Hero (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/marketing/Hero.tsx`
+
+**Props Interface**: None (no props or props not detected)
+
+**Dependencies**:
+- next-intl
+- next/image
+- next/link
+- react-icons/fa
+
+**Storybook Stories**:
+- **Default** (src/components/marketing/Hero.stories.tsx)
+- **English** (src/components/marketing/Hero.stories.tsx)
+- **French** (src/components/marketing/Hero.stories.tsx)
+- **Chinese** (src/components/marketing/Hero.stories.tsx)
+- **Mobile** (src/components/marketing/Hero.stories.tsx)
+- **Tablet** (src/components/marketing/Hero.stories.tsx)
+- **Desktop** (src/components/marketing/Hero.stories.tsx)
+- **WideDesktop** (src/components/marketing/Hero.stories.tsx)
+- **DarkMode** (src/components/marketing/Hero.stories.tsx)
+- **FrenchMobile** (src/components/marketing/Hero.stories.tsx)
+- **ChineseTablet** (src/components/marketing/Hero.stories.tsx)
+- **AccessibilityFocus** (src/components/marketing/Hero.stories.tsx)
+- **PerformanceTest** (src/components/marketing/Hero.stories.tsx)
+- **Interactive** (src/components/marketing/Hero.stories.tsx)
+- **LocaleComparison** (src/components/marketing/Hero.stories.tsx)
+
+**Test Coverage**:
+- Test file: `src/components/marketing/Hero.test.tsx`
+- Test cases: 13
+
+---
+
+### FeatureGrid (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/marketing/FeatureGrid.tsx`
+
+**Props Interface**: None (no props or props not detected)
+
+**Dependencies**:
+- @heroicons/react/24/outline
+- next-intl
+- next/image
+
+**Storybook Stories**:
+- **Default** (src/components/marketing/FeatureGrid.stories.tsx)
+- **English** (src/components/marketing/FeatureGrid.stories.tsx)
+- **French** (src/components/marketing/FeatureGrid.stories.tsx)
+- **Chinese** (src/components/marketing/FeatureGrid.stories.tsx)
+- **Mobile** (src/components/marketing/FeatureGrid.stories.tsx)
+- **Tablet** (src/components/marketing/FeatureGrid.stories.tsx)
+- **Desktop** (src/components/marketing/FeatureGrid.stories.tsx)
+- **DarkBackground** (src/components/marketing/FeatureGrid.stories.tsx)
+- **CompactSpacing** (src/components/marketing/FeatureGrid.stories.tsx)
+- **FeatureShowcase** (src/components/marketing/FeatureGrid.stories.tsx)
+- **AccessibilityFocus** (src/components/marketing/FeatureGrid.stories.tsx)
+- **LoadingState** (src/components/marketing/FeatureGrid.stories.tsx)
+- **InteractiveStates** (src/components/marketing/FeatureGrid.stories.tsx)
+
+**Test Coverage**:
+- Test file: `src/components/marketing/FeatureGrid.test.tsx`
+- Test cases: 24
+
+---
+
+### CTASection (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/marketing/CTASection.tsx`
+
+**Props Interface**: None (no props or props not detected)
+
+**Dependencies**:
+- next-intl
+- next/link
+
+---
+
+### ExerciseAnalyticsData
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/index.ts`
+
+**Props Interface**: None (no props or props not detected)
+
+---
+
+### UnifiedInsightsSection (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/UnifiedInsightsSection.tsx`
+
+**Props Interface**:
+```typescript
+type UnifiedInsightsSectionProps = {
+  healthData: { summaryMetrics: HealthSummaryMetric[]; predictiveData: PredictedDataPoint[]; radarData: RadarChartData[]; insights: any[]; };
+  behaviorData: { summary: any; habitStrengthData: HabitStrengthData[]; contextPatternsData: ContextPatternData[]; behaviorFrequencyData: BehaviorDataPoint[]; patterns: any[]; insights: any[]; };
+  exerciseData: { stats: any; recentLogs: ExerciseLog[]; activePlans: TrainingPlan[]; progressData: ExerciseProgressData[]; };
+  onInsightView?: (insight: any) => void;
+  onPatternDetails?: (pattern: any) => void;
+  trackInsightView?: (insight: any) => Promise<void>;
+  trackPatternInsightView?: (pattern: any) => Promise<void>;
+  trackChartView?: (chartType: string, metric?: string | undefined) => Promise<void>;
+};
+```
+
+**Dependencies**:
+- next-intl
+- @/components/ui/card
+- @/components/ui/badge
+- @/components/ui/button
+- @/components/ui/progress
+- @/types/health
+
+---
+
+### UnifiedAnalyticsInsights (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/UnifiedAnalyticsInsights.tsx`
+
+**Props Interface**:
+```typescript
+type UnifiedAnalyticsInsightsProps = {
+  healthMetrics: HealthSummaryMetric[];
+  healthRadarData: RadarChartData[];
+  behaviorSummary: BehaviorAnalyticsSummary | null;
+  habitStrengthData: HabitStrengthData[];
+  contextPatternsData: ContextPatternData[];
+  exerciseStats: ExerciseStats;
+  recentExerciseLogs: ExerciseLog[];
+  loading?: boolean;
+  error?: string | null;
+  onInsightClick?: (insight: CrossDomainInsight) => void;
+  onCategorySelect?: (category: string) => void;
+  trackInsightView?: (insight: CrossDomainInsight) => Promise<void>;
+  trackCorrelationAnalysis?: (correlation: any) => Promise<void>;
+};
+```
+
+**Dependencies**:
+- next-intl
+- react
+- @/hooks/useBehaviorTracking
+- @/types/health
+- ../behavioral/BehaviorAnalyticsLayout
+
+---
+
 ### StatsSection (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/StatsSection.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/StatsSection.tsx`
 
 **Props Interface**:
 ```typescript
@@ -222,7 +390,7 @@ type StatsSectionProps = {
 
 ### ReminderList (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/ReminderList.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/ReminderList.tsx`
 
 **Props Interface**:
 ```typescript
@@ -247,7 +415,7 @@ type ReminderListProps = {
 
 ### RecordsSection (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/RecordsSection.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/RecordsSection.tsx`
 
 **Props Interface**:
 ```typescript
@@ -266,7 +434,7 @@ type RecordsSectionProps = {
 
 ### HealthSummaryCardsWrapper (Server Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthSummaryCardsWrapper.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthSummaryCardsWrapper.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -284,7 +452,7 @@ type RecordsSectionProps = {
 
 ### HealthSummaryCards (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthSummaryCards.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthSummaryCards.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -321,7 +489,7 @@ type RecordsSectionProps = {
 
 ### HealthRecordsFilters (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthRecordsFilters.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthRecordsFilters.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -336,7 +504,7 @@ type RecordsSectionProps = {
 
 ### HealthRecordForm (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthRecordForm.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthRecordForm.tsx`
 
 **Props Interface**:
 ```typescript
@@ -365,7 +533,7 @@ type HealthRecordFormProps = {
 
 ### HealthRadarChart (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthRadarChart.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthRadarChart.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -413,7 +581,7 @@ type HealthRecordFormProps = {
 
 ### CustomTooltip (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthPredictiveChart.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthPredictiveChart.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -429,7 +597,7 @@ type HealthRecordFormProps = {
 
 ### HealthOverviewLayout (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthOverviewLayout.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthOverviewLayout.tsx`
 
 **Props Interface**:
 ```typescript
@@ -455,7 +623,7 @@ type HealthOverviewLayoutProps = {
 
 ### HealthOverviewContainer (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthOverviewContainer.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthOverviewContainer.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -469,7 +637,7 @@ type HealthOverviewLayoutProps = {
 
 ### HealthChart (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/HealthChart.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthChart.tsx`
 
 **Props Interface**:
 ```typescript
@@ -525,9 +693,89 @@ type HealthChartProps = {
 
 ---
 
+### HealthAnalyticsLayout (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthAnalyticsLayout.tsx`
+
+**Props Interface**:
+```typescript
+type HealthAnalyticsLayoutProps = {
+  summaryMetrics: HealthSummaryMetric[];
+  predictiveData: PredictedDataPoint[];
+  radarData: RadarChartData[];
+  insights?: any[];
+  loading: boolean;
+  error: string | null;
+  lastUpdate: Date | null;
+  selectedMetric?: string;
+  behaviorSummary?: BehaviorAnalyticsSummary | null;
+  habitStrengthData?: HabitStrengthData[];
+  contextPatternsData?: ContextPatternData[];
+  behaviorFrequencyData?: BehaviorDataPoint[];
+  behaviorPatterns?: any[];
+  behaviorInsights?: any[];
+  exerciseStats?: ExerciseStats;
+  recentExerciseLogs?: ExerciseLog[];
+  activeTrainingPlans?: TrainingPlan[];
+  exerciseProgressData?: ExerciseProgressData[];
+  activeView?: AnalyticsView;
+  onViewChange?: (view: AnalyticsView) => void;
+  onMetricSelect?: (metric: string) => void;
+  onRetry?: () => void;
+  onInsightView?: (insight: any) => void;
+  onPatternDetails?: (pattern: any) => void;
+  trackMetricCardView?: (title: string, value: string | number, trend?: "up" | "down" | "stable" | undefined) => Promise<void>;
+  trackChartView?: (chartType: string, metric?: string | undefined) => Promise<void>;
+  trackInsightView?: (insight: any) => Promise<void>;
+  trackPatternInsightView?: (pattern: any) => Promise<void>;
+  trackViewChange?: (view: AnalyticsView) => Promise<void>;
+};
+```
+
+**Dependencies**:
+- next-intl
+- @/types/health
+- ./HealthSummaryCards
+- ./HealthPredictiveChart
+- ./HealthRadarChart
+- ../behavioral/BehaviorAnalyticsChart
+- ./UnifiedInsightsSection
+- ./ExerciseAnalyticsSection
+- ../behavioral/BehaviorAnalyticsLayout
+
+---
+
+### HealthAnalyticsContainer (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/HealthAnalyticsContainer.tsx`
+
+**Props Interface**:
+```typescript
+type HealthAnalyticsContainerProps = {
+  timeRange?: "7d" | "30d" | "90d" | "1y";
+  refreshInterval?: number;
+  showRealTimeUpdates?: boolean;
+  defaultView?: AnalyticsView;
+};
+```
+
+**Dependencies**:
+- react
+- @clerk/nextjs
+- next-intl
+- next/navigation
+- @/hooks/useBehaviorTracking
+- ./HealthAnalyticsLayout
+- @/utils/healthDataTransformers
+- @/components/health/types
+- ./HealthOverviewContainer
+- @/components/behavioral/BehaviorAnalyticsContainer
+
+---
+
 ### GoalsSection (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/GoalsSection.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/GoalsSection.tsx`
 
 **Props Interface**:
 ```typescript
@@ -546,7 +794,7 @@ type GoalsSectionProps = {
 
 ### GoalCard (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/GoalCard.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/GoalCard.tsx`
 
 **Props Interface**:
 ```typescript
@@ -565,9 +813,45 @@ type GoalCardProps = {
 
 ---
 
+### ExerciseAnalyticsSection (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/ExerciseAnalyticsSection.tsx`
+
+**Props Interface**:
+```typescript
+type ExerciseAnalyticsSectionProps = {
+  exerciseStats: ExerciseStats;
+  recentLogs: ExerciseLog[];
+  activeTrainingPlans: TrainingPlan[];
+  progressData: ExerciseProgressData;
+  goals?: ExerciseGoal[];
+  loading?: boolean;
+  error?: string | null;
+  onNavigateToDetails?: (section: string) => void;
+  onGoalClick?: (goal: ExerciseGoal) => void;
+  onLogClick?: (log: ExerciseLog) => void;
+  onPlanClick?: (plan: TrainingPlan) => void;
+  stats: ExerciseStats;
+  recentLogs: ExerciseLog[];
+  activePlans: TrainingPlan[];
+  progressData: ExerciseProgressData[];
+  trackChartView?: (chartType: string, metric?: string | undefined) => Promise<void>;
+  trackInsightView?: (insight: any) => Promise<void>;
+  onAction?: (action: string, ...args: any[]) => void;
+};
+```
+
+**Dependencies**:
+- next-intl
+- react
+- @/hooks/useBehaviorTracking
+- ./HealthChart
+
+---
+
 ### AddHealthRecordModal (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/health/AddHealthRecordModal.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/health/AddHealthRecordModal.tsx`
 
 **Props Interface**:
 ```typescript
@@ -591,29 +875,74 @@ type AddHealthRecordModalProps = {
 
 ### ExerciseOverviewProps
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/exercise/index.ts`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/exercise/index.ts`
 
 **Props Interface**: None (no props or props not detected)
 
 ---
 
-### ExerciseOverviewContent (Client Component)
+### ExerciseOverview (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/exercise/ExerciseOverview.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/exercise/ExerciseOverview.tsx`
 
-**Props Interface**: None (no props or props not detected)
+**Props Interface**:
+```typescript
+type ExerciseOverviewProps = {
+  recentLogs: ExerciseLog[];
+  activeTrainingPlans: TrainingPlan[];
+  stats: ExerciseStats;
+  onAction?: (action: string) => void;
+};
+```
 
 **Dependencies**:
-- next/link
-- react
 - next-intl
 - @/hooks/useBehaviorTracking
+- @/components/ui/card
+- @/components/ui/button
+- @/components/ui/badge
+- @/components/ui/progress
+- date-fns
+- @/types/exercise
+
+**Storybook Stories**:
+- **Default** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **EmptyState** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **SingleItems** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **RichData** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **DifferentDifficultyLevels** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **VariousTrends** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **TimeVariations** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ClickableElements** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **KeyboardNavigation** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ResponsiveLayout** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **LongTextContent** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **LargeNumbers** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **MissingData** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ErrorStates** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **HighContrast** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ScreenReader** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **KeyboardOnly** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **LoadingState** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **MixedActiveInactivePlans** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **RecentWorkoutsOnly** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **PlansOnlyNoWorkouts** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **InteractiveDemo** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **PerformanceTest** (src/components/exercise/ExerciseOverview.stories.tsx)
+
+**Test Coverage**:
+- Test file: `tests/visual/ExerciseOverview.visual.test.ts`
+- Test cases: 63
+- Test file: `src/components/exercise/ExerciseOverview.test.tsx`
+- Test cases: 61
+- Test file: `src/components/exercise/ExerciseOverview.integration.test.tsx`
+- Test cases: 45
 
 ---
 
 ### UseBehaviorAnalyticsTrackingReturn (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/useBehaviorAnalyticsTracking.ts`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/useBehaviorAnalyticsTracking.ts`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -625,7 +954,7 @@ type AddHealthRecordModalProps = {
 
 ### UseBehaviorAnalyticsTrackingReturn (Server Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/index.ts`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/index.ts`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -633,7 +962,7 @@ type AddHealthRecordModalProps = {
 
 ### TimeRangeSelector (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/TimeRangeSelector.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/TimeRangeSelector.tsx`
 
 **Props Interface**:
 ```typescript
@@ -647,7 +976,7 @@ type TimeRangeSelectorProps = {
 
 ### PatternsSection (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/PatternsSection.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/PatternsSection.tsx`
 
 **Props Interface**:
 ```typescript
@@ -666,7 +995,7 @@ type PatternsSectionProps = {
 
 ### MetricsSection (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/MetricsSection.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/MetricsSection.tsx`
 
 **Props Interface**:
 ```typescript
@@ -683,7 +1012,7 @@ type MetricsSectionProps = {
 
 ### ChartsSection (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/ChartsSection.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/ChartsSection.tsx`
 
 **Props Interface**:
 ```typescript
@@ -706,7 +1035,7 @@ type ChartsSectionProps = {
 
 ### BehaviorAnalyticsLayout (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsLayout.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsLayout.tsx`
 
 **Props Interface**:
 ```typescript
@@ -742,7 +1071,7 @@ type BehaviorAnalyticsLayoutProps = {
 
 ### BehaviorAnalyticsHeader (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsHeader.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsHeader.tsx`
 
 **Props Interface**:
 ```typescript
@@ -760,7 +1089,7 @@ type BehaviorAnalyticsHeaderProps = {
 
 ### BehaviorAnalyticsDashboard (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsDashboard.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsDashboard.tsx`
 
 **Props Interface**:
 ```typescript
@@ -845,7 +1174,7 @@ type BehaviorAnalyticsDashboardProps = {
 
 ### BehaviorAnalyticsContainer (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsContainer.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsContainer.tsx`
 
 **Props Interface**:
 ```typescript
@@ -867,7 +1196,7 @@ type BehaviorAnalyticsContainerProps = {
 
 ### BehaviorAnalyticsChart (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsChart.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsChart.tsx`
 
 **Props Interface**:
 ```typescript
@@ -948,7 +1277,7 @@ type BehaviorAnalyticsChartProps = {
 
 ### MockApiResponse
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsChart.fixtures.ts`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/behavioral/BehaviorAnalyticsChart.fixtures.ts`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -956,7 +1285,7 @@ type BehaviorAnalyticsChartProps = {
 
 ### PostHogProvider (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/analytics/PostHogProvider.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/analytics/PostHogProvider.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -975,7 +1304,7 @@ type BehaviorAnalyticsChartProps = {
 
 ### SuspendedPostHogPageView (Client Component)
 
-**File**: `/Users/v/works/Next-js-Boilerplate/src/components/analytics/PostHogPageView.tsx`
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/analytics/PostHogPageView.tsx`
 
 **Props Interface**: None (no props or props not detected)
 
@@ -988,43 +1317,65 @@ type BehaviorAnalyticsChartProps = {
 
 ## Component Statistics
 
-- **Total Components**: 39
+- **Total Components**: 49
 - **Server Components**: 4
-- **Client Components**: 29
-- **Components with Props**: 18
-- **Components with Stories**: 5
-- **Components with Tests**: 12
+- **Client Components**: 38
+- **Components with Props**: 24
+- **Components with Stories**: 8
+- **Components with Tests**: 15
 
 ## Props Analysis
 
 ### Common Prop Types
-- `"7d" | "30d" | "90d" | "1y"`: 5 occurrences
+- `"7d" | "30d" | "90d" | "1y"`: 6 occurrences
 - `"behavior_frequency" | "habit_strength" | "context_patterns" | "consistency_trends"`: 1 occurrences
 - `"create" | "edit"`: 1 occurrences
 - `"line" | "bar" | "area"`: 1 occurrences
-- `() => void`: 3 occurrences
+- `() => void`: 4 occurrences
+- `(action: string) => void`: 1 occurrences
+- `(action: string, ...args: any[]) => void`: 1 occurrences
+- `(category: string) => void`: 1 occurrences
+- `(chartType: string, metric?: string | undefined) => Promise<void>`: 3 occurrences
+- `(correlation: any) => Promise<void>`: 1 occurrences
 - `(data: any) => void`: 1 occurrences
+- `(goal: ExerciseGoal) => void`: 1 occurrences
 - `(goal: HealthGoal) => void`: 2 occurrences
 - `(goalId: number) => void`: 1 occurrences
 - `(goalId: number, status: "active" | "completed" | "paused") => void`: 1 occurrences
 - `(id: number) => Promise<void>`: 1 occurrences
 - `(id: number, active: boolean) => Promise<void>`: 1 occurrences
-- `(pattern: any) => Promise<void>`: 2 occurrences
-- `(pattern: any) => void`: 3 occurrences
+- `(insight: CrossDomainInsight) => Promise<void>`: 1 occurrences
+- `(insight: CrossDomainInsight) => void`: 1 occurrences
+- `(insight: any) => Promise<void>`: 3 occurrences
+- `(insight: any) => void`: 2 occurrences
+- `(log: ExerciseLog) => void`: 1 occurrences
+- `(metric: string) => void`: 1 occurrences
+- `(pattern: any) => Promise<void>`: 4 occurrences
+- `(pattern: any) => void`: 5 occurrences
+- `(plan: TrainingPlan) => void`: 1 occurrences
 - `(range: "7d" | "30d" | "90d" | "1y") => void`: 1 occurrences
 - `(range: TimeRange) => void`: 1 occurrences
 - `(record: HealthRecord) => void`: 1 occurrences
 - `(reminder: HealthReminder) => void`: 1 occurrences
+- `(section: string) => void`: 1 occurrences
 - `(statType: string, value: string | number) => void`: 1 occurrences
-- `(title: string, value: string | number, trend?: "up" | "down" | "stable" | undefined) => Promise<void>`: 2 occurrences
+- `(title: string, value: string | number, trend?: "up" | "down" | "stable" | undefined) => Promise<void>`: 3 occurrences
 - `(value: number) => string`: 1 occurrences
 - `(value: number, name: string) => [string, string]`: 1 occurrences
 - `(value: string) => string`: 1 occurrences
-- `BehaviorAnalyticsSummary | null`: 2 occurrences
-- `BehaviorDataPoint[]`: 2 occurrences
-- `ContextPatternData[]`: 2 occurrences
-- `Date | null`: 2 occurrences
-- `HabitStrengthData[]`: 2 occurrences
+- `(view: AnalyticsView) => Promise<void>`: 1 occurrences
+- `(view: AnalyticsView) => void`: 1 occurrences
+- `AnalyticsView`: 2 occurrences
+- `BehaviorAnalyticsSummary | null`: 4 occurrences
+- `BehaviorDataPoint[]`: 3 occurrences
+- `ContextPatternData[]`: 4 occurrences
+- `Date | null`: 3 occurrences
+- `ExerciseGoal[]`: 1 occurrences
+- `ExerciseLog[]`: 5 occurrences
+- `ExerciseProgressData`: 1 occurrences
+- `ExerciseProgressData[]`: 2 occurrences
+- `ExerciseStats`: 5 occurrences
+- `HabitStrengthData[]`: 4 occurrences
 - `HabitStrengthData[] | ContextPatternData[] | BehaviorDataPoint[]`: 1 occurrences
 - `HealthDataPoint[]`: 1 occurrences
 - `HealthGoal`: 1 occurrences
@@ -1032,20 +1383,33 @@ type BehaviorAnalyticsChartProps = {
 - `HealthRecord[]`: 2 occurrences
 - `HealthReminder[]`: 1 occurrences
 - `HealthStats`: 2 occurrences
+- `HealthSummaryMetric[]`: 2 occurrences
 - `HealthType[]`: 1 occurrences
 - `Partial<{ type_id: number; value: number; unit: string; recorded_at: string; }>`: 1 occurrences
+- `PredictedDataPoint[]`: 1 occurrences
+- `RadarChartData[]`: 2 occurrences
 - `TimeRange`: 1 occurrences
-- `any[]`: 3 occurrences
-- `boolean`: 19 occurrences
-- `number`: 6 occurrences
-- `string`: 15 occurrences
-- `string | null`: 2 occurrences
+- `TrainingPlan[]`: 4 occurrences
+- `any[]`: 6 occurrences
+- `boolean`: 23 occurrences
+- `number`: 7 occurrences
+- `string`: 16 occurrences
+- `string | null`: 5 occurrences
 - `string[]`: 2 occurrences
+- `{ stats: any; recentLogs: ExerciseLog[]; activePlans: TrainingPlan[]; progressData: ExerciseProgressData[]; }`: 1 occurrences
+- `{ summary: any; habitStrengthData: HabitStrengthData[]; contextPatternsData: ContextPatternData[]; behaviorFrequencyData: BehaviorDataPoint[]; patterns: any[]; insights: any[]; }`: 1 occurrences
+- `{ summaryMetrics: HealthSummaryMetric[]; predictiveData: PredictedDataPoint[]; radarData: RadarChartData[]; insights: any[]; }`: 1 occurrences
 
 ## Dependency Analysis
 
 ### External Dependencies
-- `@/hooks/useBehaviorTracking`: used by 6 components
+- `@/components/behavioral/BehaviorAnalyticsContainer`: used by 1 components
+- `@/components/health/types`: used by 1 components
+- `@/components/ui/badge`: used by 2 components
+- `@/components/ui/button`: used by 2 components
+- `@/components/ui/card`: used by 2 components
+- `@/components/ui/progress`: used by 2 components
+- `@/hooks/useBehaviorTracking`: used by 9 components
 - `@/hooks/useMicroBehavior`: used by 2 components
 - `@/libs/DB`: used by 2 components
 - `@/libs/Env`: used by 1 components
@@ -1053,37 +1417,49 @@ type BehaviorAnalyticsChartProps = {
 - `@/libs/I18nRouting`: used by 1 components
 - `@/libs/Logger`: used by 1 components
 - `@/models/Schema`: used by 2 components
-- `@/utils/healthDataTransformers`: used by 1 components
+- `@/types/exercise`: used by 1 components
+- `@/types/health`: used by 3 components
+- `@/utils/healthDataTransformers`: used by 2 components
 - `@/utils/healthScoring`: used by 1 components
 - `@/utils/statistics`: used by 1 components
 - `@/validations/CounterValidation`: used by 1 components
-- `@clerk/nextjs`: used by 4 components
+- `@clerk/nextjs`: used by 5 components
 - `@clerk/nextjs/server`: used by 2 components
+- `@heroicons/react/24/outline`: used by 1 components
 - `@hookform/resolvers/zod`: used by 2 components
+- `date-fns`: used by 1 components
 - `drizzle-orm`: used by 2 components
-- `next-intl`: used by 16 components
+- `next-intl`: used by 25 components
 - `next-intl/server`: used by 3 components
 - `next/headers`: used by 1 components
-- `next/image`: used by 1 components
-- `next/link`: used by 8 components
-- `next/navigation`: used by 4 components
+- `next/image`: used by 3 components
+- `next/link`: used by 9 components
+- `next/navigation`: used by 5 components
 - `posthog-js`: used by 1 components
 - `posthog-js/react`: used by 2 components
-- `react`: used by 18 components
+- `react`: used by 20 components
 - `react-hook-form`: used by 2 components
+- `react-icons/fa`: used by 1 components
 - `recharts`: used by 4 components
 - `zod`: used by 1 components
 
 ### Internal Dependencies
+- `../behavioral/BehaviorAnalyticsChart`: used by 1 components
+- `../behavioral/BehaviorAnalyticsLayout`: used by 2 components
 - `./BehaviorAnalyticsChart`: used by 5 components
 - `./BehaviorAnalyticsHeader`: used by 1 components
 - `./BehaviorAnalyticsLayout`: used by 2 components
 - `./ChartsSection`: used by 1 components
+- `./ExerciseAnalyticsSection`: used by 1 components
 - `./GoalsSection`: used by 1 components
-- `./HealthOverviewContainer`: used by 5 components
+- `./HealthAnalyticsLayout`: used by 1 components
+- `./HealthChart`: used by 1 components
+- `./HealthOverviewContainer`: used by 6 components
 - `./HealthOverviewLayout`: used by 1 components
+- `./HealthPredictiveChart`: used by 1 components
+- `./HealthRadarChart`: used by 1 components
 - `./HealthRecordForm`: used by 1 components
-- `./HealthSummaryCards`: used by 1 components
+- `./HealthSummaryCards`: used by 2 components
 - `./MetricsSection`: used by 1 components
 - `./PatternsSection`: used by 1 components
 - `./PostHogPageView`: used by 1 components
@@ -1091,6 +1467,7 @@ type BehaviorAnalyticsChartProps = {
 - `./Sponsors`: used by 1 components
 - `./StatsSection`: used by 1 components
 - `./TimeRangeSelector`: used by 1 components
+- `./UnifiedInsightsSection`: used by 1 components
 - `./types`: used by 3 components
 - `./useHealthOverviewTracking`: used by 1 components
 
