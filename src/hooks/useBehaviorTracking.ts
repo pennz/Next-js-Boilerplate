@@ -326,3 +326,289 @@ export const useBehaviorTracking = (): UseBehaviorTrackingReturn => {
 
 // Export types for external use
 export type { TrackEventParams, UseBehaviorTrackingReturn };
+
+export type EntityType = z.infer<typeof EntityTypeEnum>;
+
+// Exercise-specific event types
+export type ExerciseEventType = 
+  | 'exercise_workout_completed'
+  | 'exercise_habit_tracked'
+  | 'exercise_consistency_measured'
+  | 'exercise_goal_created'
+  | 'exercise_goal_updated'
+  | 'exercise_goal_achieved'
+  | 'exercise_plan_created'
+  | 'exercise_plan_started'
+  | 'exercise_plan_completed'
+  | 'exercise_stats_viewed'
+  | 'exercise_progress_viewed'
+  | 'exercise_pattern_analyzed';
+
+// Exercise-specific context data
+export interface ExerciseContextData {
+  exerciseType?: string;
+  duration?: number;
+  intensity?: 'low' | 'moderate' | 'high';
+  planId?: number;
+  sessionId?: number;
+  exerciseId?: number;
+  goalId?: number;
+  sets?: number;
+  reps?: number;
+  weight?: number;
+  volume?: number;
+  consistency?: number;
+  frequency?: number;
+  pattern?: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  completionRate?: number;
+}
+
+  /**
+   * Track exercise-specific events
+   */
+  const trackExerciseEvent = useCallback(
+    async (
+      eventName: ExerciseEventType,
+      entityType: 'exercise_log' | 'exercise_plan' | 'exercise_goal' | 'training_session',
+      entityId: number,
+      exerciseData: ExerciseContextData,
+      additionalContext?: Partial<ContextData>
+    ) => {
+      const context: ContextData = {
+        ...additionalContext,
+        exerciseData,
+        ui: {
+          ...additionalContext?.ui,
+          route: window.location.pathname,
+        },
+        environment: {
+          ...additionalContext?.environment,
+          timestamp: new Date(),
+        },
+      };
+
+      await trackEvent(eventName, entityType, entityId, context);
+    },
+    [trackEvent]
+  );
+
+  /**
+   * Track workout completion
+   */
+  const trackWorkoutCompleted = useCallback(
+    async (
+      sessionId: number,
+      duration: number,
+      exercises: Array<{
+        exerciseId: number;
+        sets: number;
+        reps: number;
+        weight: number;
+        volume: number;
+      }>,
+      intensity: 'low' | 'moderate' | 'high' = 'moderate'
+    ) => {
+      const totalVolume = exercises.reduce((sum, ex) => sum + ex.volume, 0);
+      const avgWeight = exercises.reduce((sum, ex) => sum + ex.weight, 0) / exercises.length;
+      
+      await trackExerciseEvent(
+        'exercise_workout_completed',
+        'training_session',
+        sessionId,
+        {
+          duration,
+          intensity,
+          sessionId,
+          volume: totalVolume,
+          weight: avgWeight,
+          sets: exercises.reduce((sum, ex) => sum + ex.sets, 0),
+          reps: exercises.reduce((sum, ex) => sum + ex.reps, 0),
+        }
+      );
+    },
+    [trackExerciseEvent]
+  );
+
+  /**
+   * Track exercise habit
+   */
+  const trackExerciseHabit = useCallback(
+    async (
+      goalId: number,
+      completed: boolean,
+      consistency: number,
+      pattern: string,
+      exerciseType: string
+    ) => {
+      await trackExerciseEvent(
+        'exercise_habit_tracked',
+        'exercise_goal',
+        goalId,
+        {
+          goalId,
+          consistency,
+          pattern,
+          exerciseType,
+          completionRate: completed ? 1 : 0,
+        }
+      );
+    },
+    [trackExerciseEvent]
+  );
+
+  /**
+   * Track exercise consistency measurement
+   */
+  const trackExerciseConsistency = useCallback(
+    async (
+      planId: number,
+      frequency: number,
+      completionRate: number,
+      difficulty: 'beginner' | 'intermediate' | 'advanced'
+    ) => {
+      await trackExerciseEvent(
+        'exercise_consistency_measured',
+        'exercise_plan',
+        planId,
+        {
+          planId,
+          frequency,
+          completionRate,
+          difficulty,
+        }
+      );
+    },
+    [trackExerciseEvent]
+  );
+
+  /**
+   * Track exercise goal creation
+   */
+  const trackExerciseGoalCreated = useCallback(
+    async (
+      goalId: number,
+      exerciseType: string,
+      targetValue: number,
+      unit: string
+    ) => {
+      await trackExerciseEvent(
+        'exercise_goal_created',
+        'exercise_goal',
+        goalId,
+        {
+          goalId,
+          exerciseType,
+        },
+        {
+          custom: {
+            targetValue,
+            unit,
+          },
+        }
+      );
+    },
+    [trackExerciseEvent]
+  );
+
+  /**
+   * Track exercise goal achievement
+   */
+  const trackExerciseGoalAchieved = useCallback(
+    async (
+      goalId: number,
+      exerciseType: string,
+      actualValue: number,
+      targetValue: number
+    ) => {
+      await trackExerciseEvent(
+        'exercise_goal_achieved',
+        'exercise_goal',
+        goalId,
+        {
+          goalId,
+          exerciseType,
+          completionRate: 1,
+        },
+        {
+          custom: {
+            actualValue,
+            targetValue,
+            achievementRate: actualValue / targetValue,
+          },
+        }
+      );
+    },
+    [trackExerciseEvent]
+  );
+
+  /**
+   * Track exercise stats viewing
+   */
+  const trackExerciseStatsViewed = useCallback(
+    async (
+      statsType: 'workout_frequency' | 'strength_progress' | 'volume_trends' | 'consistency',
+      timeRange: 'week' | 'month' | 'quarter' | 'year'
+    ) => {
+      await trackEvent(
+        'exercise_stats_viewed',
+        'ui_interaction',
+        undefined,
+        {
+          ui: {
+            componentName: 'ExerciseAnalytics',
+            action: 'view_stats',
+          },
+          exerciseData: {
+            pattern: statsType,
+          },
+          custom: {
+            statsType,
+            timeRange,
+          },
+        }
+      );
+    },
+    [trackEvent]
+  );
+
+  /**
+   * Track exercise progress viewing
+   */
+  const trackExerciseProgressViewed = useCallback(
+    async (
+      exerciseId: number,
+      progressType: 'strength' | 'volume' | 'frequency' | 'consistency'
+    ) => {
+      await trackEvent(
+        'exercise_progress_viewed',
+        'exercise_log',
+        exerciseId,
+        {
+          ui: {
+            componentName: 'ExerciseAnalytics',
+            action: 'view_progress',
+          },
+          exerciseData: {
+            exerciseId,
+          },
+          custom: {
+            progressType,
+          },
+        }
+      );
+    },
+    [trackEvent]
+  );
+
+  return {
+    trackExerciseEvent,
+    trackWorkoutCompleted,
+    trackExerciseHabit,
+    trackExerciseConsistency,
+    trackExerciseGoalCreated,
+    trackExerciseGoalAchieved,
+    trackExerciseStatsViewed,
+    trackExerciseProgressViewed,
+  };
+};

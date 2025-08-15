@@ -665,3 +665,227 @@ export const ExerciseAnalyticsSection = ({
     </div>
   );
 };
+
+
+interface ExerciseAnalyticsSectionProps {
+  stats: ExerciseStats;
+  recentLogs: ExerciseLog[];
+  activePlans: TrainingPlan[];
+  progressData: ExerciseProgressData[];
+  trackChartView?: (chartType: string, metric?: string) => Promise<void>;
+  trackInsightView?: (insight: any) => Promise<void>;
+  onAction?: (action: string, ...args: any[]) => void;
+}
+
+interface ExerciseInsight {
+  id: string;
+  type: 'consistency' | 'progress' | 'pattern' | 'achievement';
+  title: string;
+  description: string;
+  value: number;
+  trend: 'up' | 'down' | 'stable';
+  recommendation: string;
+}
+
+const ExerciseAnalyticsSection = ({
+  stats,
+  recentLogs,
+  activePlans,
+  progressData,
+  trackChartView,
+  trackInsightView,
+  onAction,
+}: ExerciseAnalyticsSectionProps) => {
+  const t = useTranslations('HealthManagement');
+
+  // Generate exercise insights based on the data
+  const generateExerciseInsights = (): ExerciseInsight[] => {
+    const insights: ExerciseInsight[] = [];
+
+    // Consistency insight
+    const consistencyScore = stats.weeklyProgress / 100;
+    if (consistencyScore > 0.8) {
+      insights.push({
+        id: 'consistency_excellent',
+        type: 'consistency',
+        title: t('exercise_consistency_excellent'),
+        description: t('exercise_consistency_excellent_desc'),
+        value: consistencyScore,
+        trend: 'up',
+        recommendation: t('exercise_consistency_maintain'),
+      });
+    } else if (consistencyScore < 0.4) {
+      insights.push({
+        id: 'consistency_needs_improvement',
+        type: 'consistency',
+        title: t('exercise_consistency_needs_improvement'),
+        description: t('exercise_consistency_needs_improvement_desc'),
+        value: consistencyScore,
+        trend: 'down',
+        recommendation: t('exercise_consistency_improve'),
+      });
+    }
+
+    // Progress insight
+    if (progressData.length > 1) {
+      const latestProgress = progressData[progressData.length - 1];
+      const earliestProgress = progressData[0];
+      const strengthProgress = ((latestProgress.strength - earliestProgress.strength) / earliestProgress.strength) * 100;
+      
+      if (strengthProgress > 10) {
+        insights.push({
+          id: 'strength_progress_positive',
+          type: 'progress',
+          title: t('exercise_strength_progress_positive'),
+          description: t('exercise_strength_progress_positive_desc'),
+          value: strengthProgress,
+          trend: 'up',
+          recommendation: t('exercise_strength_progress_continue'),
+        });
+      }
+    }
+
+    // Pattern insight
+    const workoutFrequency = stats.totalExerciseLogs / Math.max(1, stats.weeklyProgress / 100 * 4);
+    if (workoutFrequency > 3) {
+      insights.push({
+        id: 'frequency_high',
+        type: 'pattern',
+        title: t('exercise_frequency_high'),
+        description: t('exercise_frequency_high_desc'),
+        value: workoutFrequency,
+        trend: 'up',
+        recommendation: t('exercise_frequency_maintain'),
+      });
+    }
+
+    // Achievement insight
+    if (stats.completedSessions > 10) {
+      insights.push({
+        id: 'sessions_milestone',
+        type: 'achievement',
+        title: t('exercise_sessions_milestone'),
+        description: t('exercise_sessions_milestone_desc', { count: stats.completedSessions }),
+        value: stats.completedSessions,
+        trend: 'up',
+        recommendation: t('exercise_sessions_celebrate'),
+      });
+    }
+
+    return insights;
+  };
+
+  const exerciseInsights = generateExerciseInsights();
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case 'up': return '📈';
+      case 'down': return '📉';
+      case 'stable': return '➡️';
+      default: return '📊';
+    }
+  };
+
+  const getTrendColor = (trend: string) => {
+    switch (trend) {
+      case 'up': return 'text-green-600';
+      case 'down': return 'text-red-600';
+      case 'stable': return 'text-gray-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'consistency': return '🎯';
+      case 'progress': return '📈';
+      case 'pattern': return '🔄';
+      case 'achievement': return '🏆';
+      default: return '💡';
+    }
+  };
+
+  const handleChartClick = async (chartType: string) => {
+    await trackChartView?.(chartType);
+  };
+
+  const handleInsightClick = async (insight: ExerciseInsight) => {
+    await trackInsightView?.(insight);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Exercise Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">{t('total_workouts')}</p>
+                <p className="text-2xl font-bold">{stats.totalExerciseLogs}</p>
+              </div>
+              <div className="text-3xl">💪</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">{t('active_plans')}</p>
+                <p className="text-2xl font-bold">{stats.activePlans}</p>
+              </div>
+              <div className="text-3xl">📋</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">{t('completed_sessions')}</p>
+                <p className="text-2xl font-bold">{stats.completedSessions}</p>
+              </div>
+              <div className="text-3xl">✅</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">{t('weekly_progress')}</p>
+                <p className="text-2xl font-bold">{stats.weeklyProgress}%</p>
+              </div>
+              <div className="text-3xl">📈</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Exercise Insights */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            💡 {t('exercise_insights')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {exerciseInsights.length > 0 ? (
+              exerciseInsights.map((insight) => (
+                <div 
+                  key={insight.id}
+                  className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => handleInsightClick(insight)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getTypeIcon(insight.type)}</span>
+                      <h3 className="font-medium">{insight.title}</h3>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className={`text-lg ${getT

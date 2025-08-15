@@ -464,7 +464,18 @@
     "hours_ago": "小时前",
     "sets": "组",
     "reps": "次",
-    "kg": "公斤"
+    "kg": "公斤",
+    "exercise_habit_title": "运动习惯",
+    "exercise_habit_description": "跟踪您的运动习惯和长期一致性",
+    "exercise_goal_created": "运动目标已创建",
+    "exercise_goal_achieved": "运动目标已达成",
+    "exercise_stats_viewed": "运动统计已查看",
+    "exercise_progress_viewed": "运动进度已查看",
+    "workout_completed": "锻炼已完成",
+    "exercise_consistency_rate": "运动一致性率",
+    "exercise_frequency_analysis": "运动频率分析",
+    "exercise_volume_tracking": "运动量跟踪",
+    "exercise_strength_progression": "运动力量进步"
   },
   "BehaviorAnalytics": {
     "meta_title": "行为分析",

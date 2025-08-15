@@ -220,6 +220,18 @@ export class BehaviorEventService {
           });
           break;
 
+        case 'exercise_plan':
+          entity = await db.query.exercisePlanSchema.findFirst({
+            where: eq(exercisePlanSchema.id, entityId),
+          });
+          break;
+
+        case 'exercise_goal':
+          entity = await db.query.exerciseGoalSchema.findFirst({
+            where: eq(exerciseGoalSchema.id, entityId),
+          });
+          break;
+
         case 'ui_interaction':
           // UI interactions don't require entity validation
           return true;
@@ -243,6 +255,111 @@ export class BehaviorEventService {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
       return false;
+    }
+  }
+
+  /**
+   * Get exercise-specific event statistics
+   */
+  static async getExerciseEventStats(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
+    totalWorkouts: number;
+    averageWorkoutDuration: number;
+    workoutConsistency: number;
+    strengthProgress: number;
+    volumeTrends: number;
+    habitCompletionRate: number;
+    exercisePatterns: Record<string, number>;
+  }> {
+    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+      throw new Error('Invalid user ID');
+    }
+
+    try {
+      const whereConditions = [eq(behavioralEventSchema.userId, userId)];
+      
+      // Filter for exercise-related events
+      const exerciseEvents = ['exercise_workout_completed', 'exercise_habit_tracked', 'exercise_consistency_measured'];
+      whereConditions.push(inArray(behavioralEventSchema.eventName, exerciseEvents));
+
+      if (startDate) {
+        whereConditions.push(gte(behavioralEventSchema.createdAt, startDate));
+      }
+
+      if (endDate) {
+        whereConditions.push(lte(behavioralEventSchema.createdAt, endDate));
+      }
+
+      const events = await db
+        .select({
+          eventName: behavioralEventSchema.eventName,
+          context: behavioralEventSchema.context,
+          createdAt: behavioralEventSchema.createdAt,
+        })
+        .from(behavioralEventSchema)
+        .where(and(...whereConditions));
+
+      const workoutEvents = events.filter(e => e.eventName === 'exercise_workout_completed');
+      const totalWorkouts = workoutEvents.length;
+      
+      // Calculate average workout duration
+      const totalDuration = workoutEvents.reduce((sum, event) => {
+        return sum + (event.context?.exerciseData?.duration || 0);
+      }, 0);
+      const averageWorkoutDuration = totalWorkouts > 0 ? totalDuration / totalWorkouts : 0;
+      
+      // Calculate workout consistency (based on regular workout patterns)
+      const workoutDates = workoutEvents.map(e => new Date(e.createdAt).toDateString());
+      const uniqueWorkoutDates = new Set(workoutDates);
+      const consistencyPeriod = Math.max(1, Math.ceil((endDate?.getTime() || Date.now()) - (startDate?.getTime() || Date.now() - 30 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
+      const workoutConsistency = uniqueWorkoutDates.size / consistencyPeriod;
+      
+      // Calculate strength progress (from exercise context data)
+      const strengthValues = workoutEvents
+        .map(e => e.context?.exerciseData?.weight || 0)
+        .filter(v => v > 0);
+      const strengthProgress = strengthValues.length > 1 
+        ? (strengthValues[strengthValues.length - 1] - strengthValues[0]) / strengthValues[0] 
+        : 0;
+      
+      // Calculate volume trends
+      const volumeValues = workoutEvents
+        .map(e => e.context?.exerciseData?.volume || 0)
+        .filter(v => v > 0);
+      const volumeTrends = volumeValues.length > 1 
+        ? (volumeValues[volumeValues.length - 1] - volumeValues[0]) / volumeValues[0] 
+        : 0;
+      
+      // Calculate habit completion rate
+      const habitEvents = events.filter(e => e.eventName === 'exercise_habit_tracked');
+      const completedHabits = habitEvents.filter(e => e.context?.exerciseData?.completionRate === 1).length;
+      const habitCompletionRate = habitEvents.length > 0 ? completedHabits / habitEvents.length : 0;
+      
+      // Analyze exercise patterns
+      const exercisePatterns = events.reduce((acc, event) => {
+        const pattern = event.context?.exerciseData?.pattern || 'unknown';
+        acc[pattern] = (acc[pattern] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      return {
+        totalWorkouts,
+        averageWorkoutDuration,
+        workoutConsistency,
+        strengthProgress,
+        volumeTrends,
+        habitCompletionRate,
+        exercisePatterns,
+      };
+    } catch (error) {
+      logger.error('Failed to get exercise event statistics', {
+        userId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
     }
   }
 
