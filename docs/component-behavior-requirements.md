@@ -2,7 +2,7 @@
 
 This document extracts comprehensive component behavior requirements from unit tests, Storybook stories, and TypeScript interfaces, providing detailed specifications for component implementation, validation, and integration patterns.
 
-*Last updated: 2025-09-14T03:00:14.181Z*
+*Last updated: 2025-09-21T03:05:24.339Z*
 *Generated automatically from source code analysis*
 
 ## 1. LocaleSwitcher Component Requirements
