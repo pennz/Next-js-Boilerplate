@@ -1,5 +1,5 @@
 {
-  description = "Next.js 15 Full-Stack Development Environment - macOS Intel Optimized";
+  description = "Next.js 15 Full-Stack Development Environment - Debian 12 x86_64";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -14,44 +14,68 @@
         # Node.js version (LTS recommended for Next.js 15)
         nodejs = pkgs.nodejs_20;
         
-        # macOS-specific configurations
-        isDarwin = pkgs.stdenv.isDarwin;
-        
-        # macOS-specific packages
-        darwinDeps = with pkgs; pkgs.lib.optionals isDarwin [
-          # macOS development tools
-          darwin.apple_sdk.frameworks.Security
-          darwin.apple_sdk.frameworks.CoreFoundation
-          darwin.apple_sdk.frameworks.SystemConfiguration
-          
-          # macOS command line tools
-          coreutils  # GNU coreutils for consistent behavior
-          gnused    # GNU sed instead of BSD sed
-          gnutar    # GNU tar instead of BSD tar
-          findutils  # GNU find instead of BSD find
-          
-          # macOS-specific utilities
-          terminal-notifier  # Desktop notifications
-          trash-cli         # Better rm alternative for macOS
-        ];
-        
-        # System dependencies needed for the project
-        systemDeps = with pkgs; [
-          # Core development tools
-          nodejs
-          nodePackages.npm
-          nodePackages.pnpm    # Alternative package manager
-          yarn                 # Alternative package manager
-          
-          # Database - PostgreSQL optimized for macOS
-          postgresql_15
+        # Linux-specific packages for Debian 12
+        linuxDeps = with pkgs; [
+          # System utilities
+          coreutils
+          util-linux
+          procps
+          psmisc
           
           # Development tools
+          gcc
+          glibc
+          
+          # File system and process monitoring
+          inotify-tools
+          
+          # Desktop notifications
+          libnotify
+          
+          # Network tools
+          nettools
+          
+          # Archive tools
+          gnutar
+          gzip
+          unzip
+          
+          # Text processing
+          gnused
+          gnugrep
+          gawk
+          
+          # File management
+          findutils
+          which
+          file
+          
+          # System monitoring
+          lsof
+          strace
+        ];
+        
+        # Core development dependencies
+        systemDeps = with pkgs; [
+          # Essential system tools
+          bash
+          
+          # Node.js ecosystem
+          nodejs
+          nodePackages.npm
+          nodePackages.pnpm
+          gemini-cli
+          yarn
+          
+          # Database - PostgreSQL 15 (good for Debian 12)
+          postgresql_15
+          
+          # Version control and networking
           git
           curl
           wget
           
-          # Build tools that might be needed by native modules
+          # Build essentials for native modules
           gcc
           gnumake
           python3
@@ -60,444 +84,556 @@
           automake
           libtool
           
-          # Image processing (for Next.js image optimization)
+          # Image processing (Next.js optimization)
           vips
           imagemagick
           
-          # Playwright dependencies for E2E testing
+          # Playwright for E2E testing
           playwright-driver.browsers
           
-          # Additional development tools
+          # Development utilities
           jq                 # JSON processing
-          tree               # Directory structure viewing
-          fd                 # File finding (faster than find)
-          ripgrep           # Fast grep replacement
-          bat               # Better cat with syntax highlighting
+          tree               # Directory visualization
+          fd                 # Modern find
+          ripgrep           # Fast grep
+          bat               # Enhanced cat
           
-          # SSL/TLS for HTTPS development
+          # SSL/TLS support
           openssl
           
-          # Development servers and tools
-          httpie            # Better curl for API testing
-          watchman          # File watching (used by React Native, Metro)
+          # API development
+          httpie
+          
+          # File watching (Linux-optimized)
+          watchman
+          inotify-tools
           
           # Process management
-          tmux              # Terminal multiplexer
-          htop              # Process viewer
+          tmux
+          htop
           
-          # macOS-specific tools
-          fswatch           # File system watching (macOS optimized)
-          
-          # Docker support (if needed)
+          # Container support
           docker-compose
-        ] ++ darwinDeps;
+          
+          # Editor support
+          vim
+          nano
+        ] ++ linuxDeps;
 
-        # Environment variables for development
+        # Environment variables optimized for Debian 12
         shellEnvVars = {
           # Node.js configuration
           NODE_ENV = "development";
           
-          # PostgreSQL configuration for local development (macOS paths)
+          # PostgreSQL configuration for Debian
           PGDATA = "$PWD/.postgres";
           PGHOST = "localhost";
           PGPORT = "5432";
           PGDATABASE = "development";
           PGUSER = "development";
           
-          # Development database URL
+          # Database connection
           DATABASE_URL = "postgresql://development:development@localhost:5432/development";
           
-          # Enable Turbopack for faster builds
+          # Next.js optimizations
           TURBOPACK = "1";
           
           # Playwright configuration
           PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
           
-          # macOS-specific optimizations
-          OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES";  # Fix for some Node.js native modules
+          # Linux/Debian optimizations
+          FORCE_COLOR = "1";
+          TERM = "xterm-256color";
           
-          # Development optimizations
-          FORCE_COLOR = "1";           # Enable colors in terminal
-          TERM = "xterm-256color";     # Better terminal support
+          # Memory settings for x86_64
+          NODE_OPTIONS = "--max-old-space-size=8192";  # More memory for x86_64 systems
           
-          # Memory and performance tuning for macOS
-          NODE_OPTIONS = "--max-old-space-size=4096";  # Increase Node.js memory limit
-          
-          # Path additions for GNU tools on macOS
-          PATH = pkgs.lib.optionalString isDarwin "${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.gnutar}/bin:${pkgs.findutils}/bin:$PATH";
+          # Locale settings for Debian
+          LANG = "en_US.UTF-8";
+          LC_ALL = "en_US.UTF-8";
         };
 
-        # macOS-specific development scripts
+        # Debian-optimized setup script
         devScripts = pkgs.writeShellScriptBin "dev-setup" ''
-          echo "🍎 Setting up macOS development environment..."
+          #!/bin/bash
+          set -e
           
-          # Temporarily unset PGUSER to avoid confusion during setup
+          echo "🐧 Setting up Debian 12 development environment..."
+          echo "🏗️  Architecture: x86_64"
+          echo "📦 Distribution: $(lsb_release -d 2>/dev/null | cut -f2 || echo "Debian-based")"
+          
+          # Temporarily unset PGUSER to avoid confusion
           unset PGUSER
           
-          # Check for Xcode Command Line Tools on macOS
-          if [[ "$OSTYPE" == "darwin"* ]] && ! xcode-select -p &> /dev/null; then
-            echo "⚠️  Xcode Command Line Tools not found. Installing..."
-            xcode-select --install
-            echo "Please complete the Xcode installation and re-run this script."
-            exit 1
+          # Check for required system packages
+          echo "🔍 Checking system dependencies..."
+          
+          # Check if we have the basic build tools
+          if ! command -v gcc &> /dev/null; then
+            echo "⚠️  GCC not found. Make sure build-essential is installed:"
+            echo "   sudo apt update && sudo apt install build-essential"
           fi
           
           # Initialize PostgreSQL if not exists
           if [ ! -d "$PGDATA" ]; then
-            echo "📦 Initializing PostgreSQL database..."
-            initdb --auth-local=trust --auth-host=md5 --encoding=UTF8 --locale=C --username=$(whoami)
+            echo "🐘 Initializing PostgreSQL database..."
             
-            # macOS-specific PostgreSQL configuration
-            echo "port = 5432" >> "$PGDATA/postgresql.conf"
-            echo "unix_socket_directories = '$PWD/.postgres'" >> "$PGDATA/postgresql.conf"
-            echo "max_connections = 100" >> "$PGDATA/postgresql.conf"
-            echo "shared_buffers = 128MB" >> "$PGDATA/postgresql.conf"
-            echo "dynamic_shared_memory_type = posix" >> "$PGDATA/postgresql.conf"
-            echo "log_statement = 'none'" >> "$PGDATA/postgresql.conf"
-            echo "log_min_duration_statement = -1" >> "$PGDATA/postgresql.conf"
+            # Create .postgres directory with proper permissions
+            mkdir -p "$PGDATA"
+            chmod 700 "$PGDATA"
             
-            # Allow local connections without password
-            echo "host all all 127.0.0.1/32 trust" >> "$PGDATA/pg_hba.conf"
-            echo "host all all ::1/128 trust" >> "$PGDATA/pg_hba.conf"
+            # Initialize database cluster
+            initdb \
+              --auth-local=trust \
+              --auth-host=md5 \
+              --encoding=UTF8 \
+              --locale=en_US.UTF-8 \
+              --username=$(whoami) \
+              --pwfile=<(echo "postgres")
+            
+            # Debian/Linux-specific PostgreSQL configuration
+            cat >> "$PGDATA/postgresql.conf" << 'EOF'
+# Debian 12 optimized settings
+port = 5432
+unix_socket_directories = '$PWD/.postgres'
+max_connections = 200
+shared_buffers = 256MB
+effective_cache_size = 1GB
+maintenance_work_mem = 64MB
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+default_statistics_target = 100
+random_page_cost = 1.1
+effective_io_concurrency = 200
+work_mem = 4MB
+min_wal_size = 1GB
+max_wal_size = 4GB
+max_worker_processes = 8
+max_parallel_workers_per_gather = 4
+max_parallel_workers = 8
+max_parallel_maintenance_workers = 4
+
+# Logging configuration
+log_destination = 'stderr'
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_statement = 'none'
+log_min_duration_statement = -1
+log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+
+# Linux-specific optimizations
+dynamic_shared_memory_type = posix
+EOF
+            
+            # Set up client authentication for local development
+            cat > "$PGDATA/pg_hba.conf" << 'EOF'
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+host    all             all             0.0.0.0/0               md5
+EOF
           fi
           
           # Start PostgreSQL
-          if ! pg_ctl status > /dev/null 2>&1; then
-            test -d "$HOME/.postgres" || mkdir "$HOME/.postgres"
-            echo "🐘 Starting PostgreSQL..."
-            pg_ctl start -l "$PGDATA/postgres.log" -o "-F -p 5432"
-            sleep 3
+          if ! pg_ctl status -D "$PGDATA" > /dev/null 2>&1; then
+            echo "🚀 Starting PostgreSQL..."
+            
+            # Ensure log directory exists
+            mkdir -p "$PGDATA/log"
+            
+            pg_ctl start \
+              -D "$PGDATA" \
+              -l "$PGDATA/log/postgresql.log" \
+              -o "-F -p 5432"
             
             # Wait for PostgreSQL to be ready
+            echo "⏳ Waiting for PostgreSQL to start..."
             timeout=30
             while ! pg_isready -h localhost -p 5432 > /dev/null 2>&1 && [ $timeout -gt 0 ]; do
               sleep 1
               timeout=$((timeout - 1))
+              echo -n "."
             done
+            echo ""
             
             if [ $timeout -eq 0 ]; then
               echo "❌ PostgreSQL failed to start within 30 seconds"
+              echo "📋 Check logs: cat $PGDATA/log/postgresql.log"
               exit 1
             fi
+            
+            echo "✅ PostgreSQL started successfully"
+          else
+            echo "✅ PostgreSQL is already running"
           fi
           
-          # Create database and user if they don't exist
-          # Connect as the default user (usually your macOS username)
+          # Database setup
           DEFAULT_USER=$(whoami)
           
-          # Check if development user exists
-          if ! psql -h localhost -p 5432 -d postgres -U "$DEFAULT_USER" -c "SELECT 1 FROM pg_user WHERE usename = 'development';" | grep -q 1; then
+          echo "👤 Setting up database users and permissions..."
+          
+          # Create development user if it doesn't exist
+          if ! psql -h localhost -p 5432 -d postgres -U "$DEFAULT_USER" \
+               -c "SELECT 1 FROM pg_user WHERE usename = 'development';" 2>/dev/null | grep -q 1; then
             echo "🔧 Creating development user..."
-            psql -h localhost -p 5432 -d postgres -U "$DEFAULT_USER" -c "CREATE USER development WITH PASSWORD 'development' CREATEDB;"
+            psql -h localhost -p 5432 -d postgres -U "$DEFAULT_USER" \
+              -c "CREATE USER development WITH PASSWORD 'development' CREATEDB CREATEROLE;"
           fi
           
-          # Check if development database exists
-          if ! psql -h localhost -p 5432 -d postgres -U "$DEFAULT_USER" -lqt | cut -d \| -f 1 | grep -qw development; then
-            echo "🔧 Creating development database..."
-            createdb -h localhost -p 5432 -U "$DEFAULT_USER" -O development development
+          # Create development database if it doesn't exist
+          if ! psql -h localhost -p 5432 -d postgres -U "$DEFAULT_USER" \
+               -lqt | cut -d \| -f 1 | grep -qw development; then
+            echo "🏗️  Creating development database..."
+            createdb -h localhost -p 5432 -U "$DEFAULT_USER" \
+              -O development development \
+              -E UTF8 -l en_US.UTF-8
           fi
           
-          # Grant necessary permissions
-          psql -h localhost -p 5432 -d development -U "$DEFAULT_USER" -c "GRANT ALL PRIVILEGES ON DATABASE development TO development;" || true
-          psql -h localhost -p 5432 -d development -U "$DEFAULT_USER" -c "GRANT ALL ON SCHEMA public TO development;" || true
+          # Set up permissions
+          echo "🔐 Configuring permissions..."
+          psql -h localhost -p 5432 -d development -U "$DEFAULT_USER" << 'EOF'
+GRANT ALL PRIVILEGES ON DATABASE development TO development;
+GRANT ALL ON SCHEMA public TO development;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO development;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO development;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO development;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO development;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO development;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO development;
+EOF
           
-          # Create .env.local if it doesn't exist
+          # Test connection
+          echo "🧪 Testing database connection..."
+          psql -h localhost -p 5432 -d development -U development \
+            -c "SELECT 'Database connection successful!' as status, version();" \
+            || echo "⚠️  Database connection test failed"
+          
+          # Create environment file
           if [ ! -f ".env.local" ] && [ -f ".env.example" ]; then
-            echo "📝 Creating .env.local from .env.example..."
+            echo "📝 Creating .env.local from template..."
             cp .env.example .env.local
             echo "DATABASE_URL=postgresql://development:development@localhost:5432/development" >> .env.local
+          elif [ ! -f ".env.local" ]; then
+            echo "📝 Creating basic .env.local..."
+            cat > .env.local << 'EOF'
+# Database
+DATABASE_URL=postgresql://development:development@localhost:5432/development
+
+# Development
+NODE_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Add your environment variables here
+EOF
           fi
           
-          # macOS notification
-          if command -v terminal-notifier &> /dev/null; then
-            terminal-notifier -title "Development Environment" -message "Setup complete! Ready to code 🚀"
+          # Linux desktop notification
+          if command -v notify-send &> /dev/null; then
+            notify-send "Development Environment" \
+              "Debian 12 setup complete! 🚀" \
+              --icon=dialog-information \
+              --expire-time=5000 || true
           fi
           
-          echo "✅ Development environment ready!"
           echo ""
-          echo "📝 Available commands:"
-          echo "  npm run dev       - Start development server (with Turbopack)"
-          echo "  npm run build     - Build for production"
-          echo "  npm run test      - Run unit tests"
-          echo "  npm run test:e2e  - Run E2E tests (Playwright)"
-          echo "  npm run db:studio - Open Drizzle Studio"
-          echo "  npm run storybook - Run Storybook"
-          echo "  dev-stop          - Stop development services"
-          echo "  dev-logs          - View PostgreSQL logs"
-          echo "  dev-reset         - Reset database (removes all data)"
+          echo "🎉 Debian 12 development environment ready!"
           echo ""
-          echo "🔧 Development tools:"
-          echo "  Node.js: $(node --version)"
-          echo "  npm: $(npm --version)"
-          echo "  PostgreSQL: Running on port 5432"
-          echo "  Database: postgresql://development:development@localhost:5432/development"
-          echo "  Super user: $(whoami) (for admin tasks)"
+          echo "📊 System Information:"
+          echo "  • OS: $(lsb_release -d 2>/dev/null | cut -f2 || uname -o)"
+          echo "  • Kernel: $(uname -r)"
+          echo "  • Architecture: $(uname -m)"
+          echo "  • CPU: $(nproc) cores"
+          echo "  • Memory: $(free -h | awk '/^Mem:/ {print $2}') total"
+          echo ""
+          echo "🔧 Development Stack:"
+          echo "  • Node.js: $(node --version)"
+          echo "  • npm: $(npm --version)"
+          echo "  • pnpm: $(pnpm --version)"
+          echo "  • PostgreSQL: $(postgres --version | head -n1 | cut -d' ' -f3)"
+          echo "  • Database: development@localhost:5432"
+          echo ""
+          echo "🚀 Quick Start:"
+          echo "  1. npm install                 # Install dependencies"
+          echo "  2. npm run dev                 # Start development server"
+          echo "  3. npm run db:push             # Push database schema (if using Drizzle)"
+          echo ""
+          echo "🛠️  Available Commands:"
+          echo "  • dev-stop          - Stop all services"
+          echo "  • dev-logs          - View PostgreSQL logs"
+          echo "  • dev-status        - Check service status"
+          echo "  • dev-reset         - Reset database (⚠️  destroys data)"
+          echo ""
+          echo "🔗 Connection URL:"
+          echo "  postgresql://development:development@localhost:5432/development"
           echo ""
           echo "🧪 Test connection:"
-          echo "  psql -h localhost -p 5432 -d development -U development"
+          echo "  psql 'postgresql://development:development@localhost:5432/development'"
         '';
 
+        # Stop services script
         stopScript = pkgs.writeShellScriptBin "dev-stop" ''
+          #!/bin/bash
           echo "🛑 Stopping development services..."
           
-          if pg_ctl status > /dev/null 2>&1; then
-            echo "📦 Stopping PostgreSQL..."
-            pg_ctl stop -m fast
+          # Stop PostgreSQL
+          if pg_ctl status -D "$PGDATA" > /dev/null 2>&1; then
+            echo "🐘 Stopping PostgreSQL..."
+            pg_ctl stop -D "$PGDATA" -m fast
             echo "✅ PostgreSQL stopped"
           else
             echo "ℹ️  PostgreSQL was not running"
           fi
           
-          # Kill any remaining Node.js processes (be careful with this)
-          pkill -f "next" 2>/dev/null || true
+          # Stop Node.js development servers
+          echo "🔍 Stopping Node.js processes..."
+          pkill -f "next-server" 2>/dev/null || true
           pkill -f "turbopack" 2>/dev/null || true
+          pkill -f "webpack" 2>/dev/null || true
           
-          # macOS notification
-          if command -v terminal-notifier &> /dev/null; then
-            terminal-notifier -title "Development Environment" -message "Services stopped 🛑"
+          # Notification
+          if command -v notify-send &> /dev/null; then
+            notify-send "Development Environment" \
+              "Services stopped 🛑" \
+              --icon=dialog-information || true
           fi
           
-          echo "✅ Development services stopped"
+          echo "✅ All development services stopped"
         '';
 
-        logsScript = pkgs.writeShellScriptBin "dev-logs" ''
-          echo "📋 Development logs..."
+        # Status check script
+        statusScript = pkgs.writeShellScriptBin "dev-status" ''
+          #!/bin/bash
+          echo "📊 Development Environment Status"
+          echo "=================================="
           echo ""
-          echo "=== PostgreSQL Logs ==="
-          if [ -f "$PGDATA/postgres.log" ]; then
-            tail -n 50 "$PGDATA/postgres.log"
+          
+          # System info
+          echo "🖥️  System:"
+          echo "  • OS: $(lsb_release -d 2>/dev/null | cut -f2 || uname -o)"
+          echo "  • Kernel: $(uname -r)"
+          echo "  • Uptime: $(uptime -p 2>/dev/null || uptime)"
+          echo "  • Load: $(uptime | awk -F'load average:' '{print $2}')"
+          echo ""
+          
+          # PostgreSQL status
+          echo "🐘 PostgreSQL:"
+          if pg_ctl status -D "$PGDATA" > /dev/null 2>&1; then
+            echo "  • Status: ✅ Running"
+            echo "  • Port: 5432"
+            echo "  • Data Dir: $PGDATA"
+            echo "  • Version: $(postgres --version | cut -d' ' -f3)"
+            
+            # Connection test
+            if psql -h localhost -p 5432 -d development -U development -c "SELECT 1;" > /dev/null 2>&1; then
+              echo "  • Connection: ✅ OK"
+            else
+              echo "  • Connection: ❌ Failed"
+            fi
+          else
+            echo "  • Status: ❌ Stopped"
+          fi
+          echo ""
+          
+          # Node.js processes
+          echo "🟢 Node.js Processes:"
+          NODE_PROCS=$(pgrep -f "node" 2>/dev/null || true)
+          if [ -n "$NODE_PROCS" ]; then
+            ps aux | head -n1
+            ps aux | grep -E "(node|next|turbo)" | grep -v grep || echo "  • No Node.js processes running"
+          else
+            echo "  • No Node.js processes running"
+          fi
+          echo ""
+          
+          # Disk space
+          echo "💾 Disk Space:"
+          df -h . | tail -n1 | awk '{print "  • Available: " $4 " (" $5 " used)"}'
+          echo ""
+          
+          # Memory usage
+          echo "🧠 Memory:"
+          free -h | awk 'NR==2{print "  • Used: " $3 "/" $2 " (" $3/$2*100 "%)"}' 2>/dev/null || true
+          echo ""
+          
+          # Network ports
+          echo "🌐 Network:"
+          if command -v ss &> /dev/null; then
+            echo "  • Listening ports:"
+            ss -tlnp | grep -E ":(3000|5432|8080)" | awk '{print "    " $1 " " $4}' || echo "    No development ports active"
+          elif command -v netstat &> /dev/null; then
+            echo "  • Listening ports:"
+            netstat -tlnp 2>/dev/null | grep -E ":(3000|5432|8080)" | awk '{print "    " $1 " " $4}' || echo "    No development ports active"
+          fi
+        '';
+
+        # Logs viewing script
+        logsScript = pkgs.writeShellScriptBin "dev-logs" ''
+          #!/bin/bash
+          echo "📋 Development Environment Logs"
+          echo "==============================="
+          echo ""
+          
+          # PostgreSQL logs
+          echo "🐘 PostgreSQL Logs (last 30 lines):"
+          echo "-----------------------------------"
+          if [ -f "$PGDATA/log/postgresql.log" ]; then
+            tail -n 30 "$PGDATA/log/postgresql.log"
+          elif [ -f "$PGDATA/postgresql.log" ]; then
+            tail -n 30 "$PGDATA/postgresql.log"
           else
             echo "No PostgreSQL logs found"
+            echo "Expected locations:"
+            echo "  • $PGDATA/log/postgresql.log"
+            echo "  • $PGDATA/postgresql.log"
           fi
           echo ""
-          echo "=== PostgreSQL Status ==="
-          pg_ctl status || echo "PostgreSQL not running"
+          
+          # System logs related to our services
+          echo "🔍 Recent System Activity:"
+          echo "-------------------------"
+          if command -v journalctl &> /dev/null; then
+            journalctl --user -n 10 --no-pager 2>/dev/null || echo "No user journal available"
+          else
+            echo "journalctl not available"
+          fi
           echo ""
-          echo "=== PostgreSQL Users ==="
-          psql -h localhost -p 5432 -d postgres -U "$(whoami)" -c "SELECT usename, createdb, usesuper FROM pg_user;" 2>/dev/null || echo "Cannot connect to PostgreSQL"
-          echo ""
-          echo "=== PostgreSQL Databases ==="
-          psql -h localhost -p 5432 -d postgres -U "$(whoami)" -c "\l" 2>/dev/null || echo "Cannot connect to PostgreSQL"
+          
+          # Process information
+          echo "⚡ Active Processes:"
+          echo "------------------"
+          ps aux | head -n1
+          ps aux | grep -E "(postgres|node|next)" | grep -v grep || echo "No development processes running"
         '';
 
-        simpleSetupScript = pkgs.writeShellScriptBin "dev-setup-simple" ''
-          #!/bin/bash
-          # Simple PostgreSQL setup for development (alternative approach)
-          # Run this if dev-setup is having connection issues
-          
-          set -e
-          
-          echo "🍎 Simple macOS PostgreSQL setup..."
-          
-          # Temporarily unset problematic environment variables
-          unset PGUSER PGDATABASE
-          
-          # Get current user
-          CURRENT_USER=$(whoami)
-          PGDATA="$PWD/.postgres"
-          
-          echo "📦 Setting up PostgreSQL..."
-          
-          # Stop any running PostgreSQL
-          pg_ctl stop -D "$PGDATA" -m fast 2>/dev/null || true
-          
-          # Remove existing data directory if corrupted
-          if [ -d "$PGDATA" ]; then
-              echo "🗑️  Removing existing database..."
-              rm -rf "$PGDATA"
-          fi
-          
-          # Initialize fresh database
-          echo "🔧 Initializing new database..."
-          initdb -D "$PGDATA" --auth-local=trust --auth-host=md5 --encoding=UTF8 --username="$CURRENT_USER"
-          
-          # Configure PostgreSQL
-          echo "⚙️  Configuring PostgreSQL..."
-          cat >> "$PGDATA/postgresql.conf" << 'EOF'
-port = 5432
-unix_socket_directories = '$PWD/.postgres'
-max_connections = 100
-shared_buffers = 128MB
-dynamic_shared_memory_type = posix
-log_statement = 'none'
-log_min_duration_statement = -1
-EOF
-          
-          # Set up authentication - allow local connections without password
-          cat > "$PGDATA/pg_hba.conf" << 'EOF'
-# TYPE  DATABASE        USER            ADDRESS                 METHOD
-local   all             all                                     trust
-host    all             all             127.0.0.1/32            trust
-host    all             all             ::1/128                 trust
-EOF
-          
-          # Start PostgreSQL
-          echo "🚀 Starting PostgreSQL..."
-          pg_ctl start -D "$PGDATA" -l "$PGDATA/postgres.log" -o "-F -p 5432"
-          
-          # Wait for startup
-          sleep 3
-          
-          # Create development user and database
-          echo "👤 Creating development user..."
-          psql -h localhost -p 5432 -d postgres -U "$CURRENT_USER" << 'EOF'
-CREATE USER development WITH PASSWORD 'development' CREATEDB;
-CREATE DATABASE development OWNER development;
-GRANT ALL PRIVILEGES ON DATABASE development TO development;
-EOF
-          
-          # Test connections
-          echo "✅ Testing connections..."
-          psql -h localhost -p 5432 -d development -U development -c "SELECT 'Connection successful!' as status;"
-          
-          # Create .env.local if needed
-          if [ ! -f ".env.local" ] && [ -f ".env.example" ]; then
-              echo "📝 Creating .env.local..."
-              cp .env.example .env.local
-              echo "DATABASE_URL=postgresql://development:development@localhost:5432/development" >> .env.local
-          fi
-          
-          echo ""
-          echo "✅ Simple setup complete!"
-          echo "🔗 Database URL: postgresql://development:development@localhost:5432/development"
-          echo "🛠️  To stop: pg_ctl stop -D .postgres"
-        '';
-
+        # Database reset script
         resetScript = pkgs.writeShellScriptBin "dev-reset" ''
-          echo "🔄 Resetting development environment..."
-          echo "⚠️  This will delete all data in your development database!"
-          read -p "Are you sure? (y/N): " -n 1 -r
-          echo
-          if [[ $REPLY =~ ^[Yy]$ ]]; then
+          #!/bin/bash
+          echo "🔄 Development Database Reset"
+          echo "=============================="
+          echo ""
+          echo "⚠️  WARNING: This will completely destroy all data in your development database!"
+          echo "⚠️  This action cannot be undone!"
+          echo ""
+          echo "Database to be reset: development@localhost:5432"
+          echo ""
+          read -p "Are you absolutely sure? Type 'yes' to continue: " -r
+          echo ""
+          
+          if [[ $REPLY == "yes" ]]; then
             echo "🛑 Stopping services..."
             dev-stop
+            sleep 2
             
-            echo "🗑️  Removing database..."
-            rm -rf .postgres
+            echo "🗑️  Removing database directory..."
+            rm -rf "$PGDATA"
             
-            echo "🚀 Reinitializing..."
+            echo "🗑️  Removing environment file..."
+            rm -f .env.local
+            
+            echo "🚀 Reinitializing environment..."
             dev-setup
+            
+            echo ""
+            echo "✅ Database reset complete!"
           else
-            echo "❌ Reset cancelled"
+            echo "❌ Reset cancelled - no changes made"
           fi
         '';
 
       in
       {
         devShells.default = pkgs.mkShell {
-          buildInputs = systemDeps ++ [ devScripts stopScript logsScript resetScript simpleSetupScript ];
+          buildInputs = systemDeps ++ [ devScripts stopScript statusScript logsScript resetScript ];
           
           shellHook = ''
-            # Set environment variables
+            # Set environment variables for Debian 12
             ${builtins.concatStringsSep "\n" (
-              pkgs.lib.mapAttrsToList (name: value: "export ${name}=${value}") shellEnvVars
+              pkgs.lib.mapAttrsToList (name: value: "export ${name}=\"${value}\"") shellEnvVars
             )}
             
             # Create necessary directories
             mkdir -p .postgres
             mkdir -p .nix/bin
+            mkdir -p node_modules/.cache
             
-            # macOS-specific ulimit adjustments for development
+            # Linux-specific ulimit adjustments
             ulimit -n 65536 2>/dev/null || true
+            ulimit -u 32768 2>/dev/null || true
             
-            # Display welcome message
-            echo "🍎 Next.js 15 Full-Stack Development Environment"
-            echo "🖥️  Platform: macOS Intel (x86_64-darwin)"
+            # Set up proper locale if not set
+            if [ -z "$LANG" ]; then
+              export LANG=en_US.UTF-8
+            fi
+            
+            # Welcome message
+            echo "🐧 Next.js 15 Full-Stack Development Environment"
+            echo "🖥️  Platform: Debian 12 ($(uname -m))"
             echo "📁 Project: $(basename $PWD)"
+            echo "🏠 Home: $HOME"
             echo ""
-            echo "🔧 Development stack ready:"
+            echo "🔧 Development Stack:"
             echo "  • Node.js: $(node --version)"
-            echo "  • npm: $(npm --version) / pnpm: $(pnpm --version)"
+            echo "  • npm: $(npm --version)"
+            echo "  • pnpm: $(pnpm --version)"
             echo "  • PostgreSQL: $(postgres --version | head -n1 | cut -d' ' -f3)"
-            echo "  • Playwright: Browsers pre-installed"
-            echo "  • Turbopack: Enabled for faster builds"
+            echo "  • Platform: Linux $(uname -r)"
             echo ""
-            echo "🚀 Quick start:"
-            echo "  1. Run 'dev-setup' to initialize services"
-            echo "  2. Copy/edit .env.local with your configuration"
-            echo "  3. Run 'npm install' to install dependencies"
-            echo "  4. Run 'npm run dev' to start development"
+            echo "🚀 Getting Started:"
+            echo "  1. dev-setup              # Initialize development environment"
+            echo "  2. npm install            # Install project dependencies"
+            echo "  3. npm run dev            # Start development server"
             echo ""
-            echo "🛠️  Helper commands:"
-            echo "  • dev-setup        - Initialize development environment"
-            echo "  • dev-setup-simple - Alternative setup (if having connection issues)"
-            echo "  • dev-stop         - Stop all services"
-            echo "  • dev-logs         - View service logs"
-            echo "  • dev-reset        - Reset database (removes all data)"
+            echo "🛠️  Management Commands:"
+            echo "  • dev-setup       - Initialize/setup development environment"
+            echo "  • dev-status      - Check status of all services"
+            echo "  • dev-stop        - Stop all development services"
+            echo "  • dev-logs        - View service logs"
+            echo "  • dev-reset       - Reset database (⚠️  destroys all data)"
             echo ""
-            echo "💡 Run 'dev-setup' to get started!"
+            echo "💡 Run 'dev-setup' to initialize your development environment!"
           '';
           
-          # Enable experimental features for better development experience
           NIX_CONFIG = "experimental-features = nix-command flakes";
         };
 
-        # CI shell optimized for GitHub Actions or similar
+        # CI/CD shell for automated environments
         devShells.ci = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs
             nodePackages.npm
             git
             postgresql_15
-            # Minimal CI environment
+            bash
+            coreutils
+            gnused
+            gnugrep
           ];
           shellHook = ''
             export NODE_ENV=test
             export CI=true
+            export DEBIAN_FRONTEND=noninteractive
             export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
             export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
           '';
         };
 
-        # Production shell
+        # Production shell for deployment
         devShells.production = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs
             nodePackages.npm
             postgresql_15
             openssl
+            bash
+            coreutils
           ];
           shellHook = ''
             export NODE_ENV=production
-            export NODE_OPTIONS="--max-old-space-size=2048"
+            export NODE_OPTIONS="--max-old-space-size=4096"
           '';
-        };
-
-        # Package the application (for deployment)
-        packages.default = pkgs.buildNpmPackage {
-          pname = "nextjs-app";
-          version = "0.1.0";
-          
-          src = ./.;
-          
-          # You'll need to run `nix build` once and update this hash
-          npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-          
-          nativeBuildInputs = with pkgs; [
-            nodejs
-            python3  # For native module compilation
-          ] ++ pkgs.lib.optionals isDarwin [
-            darwin.apple_sdk.frameworks.Security
-          ];
-          
-          buildPhase = ''
-            export NODE_ENV=production
-            npm run build
-          '';
-          
-          installPhase = ''
-            mkdir -p $out
-            cp -r .next $out/
-            cp -r public $out/ 2>/dev/null || true
-            cp package.json $out/
-            cp next.config.* $out/ 2>/dev/null || true
-          '';
-          
-          meta = with pkgs.lib; {
-            description = "Next.js 15 Full-Stack Application";
-            platforms = platforms.darwin;
-          };
         };
       }
     );
