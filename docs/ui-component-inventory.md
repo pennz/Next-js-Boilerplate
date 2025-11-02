@@ -4,7 +4,7 @@
 
 This document provides a comprehensive catalog of all React components in the Next.js health management application. The components are classified by type, functionality, and usage patterns to help developers understand the architecture and reusability patterns.
 
-*Last updated: 2025-10-26T03:07:50.942Z*
+*Last updated: 2025-11-02T03:13:13.861Z*
 *Generated automatically from source code analysis*
 
 ## Component Classification
@@ -49,15 +49,6 @@ Interactive components marked with `'use client'`:
 
 - **CounterForm** - Interactive component
 
-### Exercise Management
-
-#### Client Components
-Interactive components marked with `'use client'`:
-
-- **ExerciseOverview** - Interactive component
-
-- **ExerciseOverviewProps** - Component description not available
-
 ### Health Management
 
 #### Server Components
@@ -89,6 +80,15 @@ Interactive components marked with `'use client'`:
 - **AddHealthRecordModal** - Interactive component
 
 - **ExerciseAnalyticsData** - Component description not available
+
+### Exercise Management
+
+#### Client Components
+Interactive components marked with `'use client'`:
+
+- **ExerciseOverview** - Interactive component
+
+- **ExerciseOverviewProps** - Component description not available
 
 ### Data Visualization
 
@@ -299,73 +299,6 @@ Interactive components marked with `'use client'`:
 **Dependencies**:
 - next-intl
 - next/link
-
----
-
-### ExerciseOverviewProps
-
-**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/exercise/index.ts`
-
-**Props Interface**: None (no props or props not detected)
-
----
-
-### ExerciseOverview (Client Component)
-
-**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/exercise/ExerciseOverview.tsx`
-
-**Props Interface**:
-```typescript
-type ExerciseOverviewProps = {
-  recentLogs: ExerciseLog[];
-  activeTrainingPlans: TrainingPlan[];
-  stats: ExerciseStats;
-  onAction?: (action: string) => void;
-};
-```
-
-**Dependencies**:
-- next-intl
-- @/hooks/useBehaviorTracking
-- @/components/ui/card
-- @/components/ui/button
-- @/components/ui/badge
-- @/components/ui/progress
-- date-fns
-- @/types/exercise
-
-**Storybook Stories**:
-- **Default** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **EmptyState** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **SingleItems** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **RichData** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **DifferentDifficultyLevels** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **VariousTrends** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **TimeVariations** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **ClickableElements** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **KeyboardNavigation** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **ResponsiveLayout** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **LongTextContent** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **LargeNumbers** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **MissingData** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **ErrorStates** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **HighContrast** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **ScreenReader** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **KeyboardOnly** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **LoadingState** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **MixedActiveInactivePlans** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **RecentWorkoutsOnly** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **PlansOnlyNoWorkouts** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **InteractiveDemo** (src/components/exercise/ExerciseOverview.stories.tsx)
-- **PerformanceTest** (src/components/exercise/ExerciseOverview.stories.tsx)
-
-**Test Coverage**:
-- Test file: `tests/visual/ExerciseOverview.visual.test.ts`
-- Test cases: 63
-- Test file: `src/components/exercise/ExerciseOverview.test.tsx`
-- Test cases: 61
-- Test file: `src/components/exercise/ExerciseOverview.integration.test.tsx`
-- Test cases: 45
 
 ---
 
@@ -937,6 +870,73 @@ type AddHealthRecordModalProps = {
 **Test Coverage**:
 - Test file: `src/components/health/AddHealthRecordModal.test.tsx`
 - Test cases: 46
+
+---
+
+### ExerciseOverviewProps
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/exercise/index.ts`
+
+**Props Interface**: None (no props or props not detected)
+
+---
+
+### ExerciseOverview (Client Component)
+
+**File**: `/home/runner/work/Next-js-Boilerplate/Next-js-Boilerplate/src/components/exercise/ExerciseOverview.tsx`
+
+**Props Interface**:
+```typescript
+type ExerciseOverviewProps = {
+  recentLogs: ExerciseLog[];
+  activeTrainingPlans: TrainingPlan[];
+  stats: ExerciseStats;
+  onAction?: (action: string) => void;
+};
+```
+
+**Dependencies**:
+- next-intl
+- @/hooks/useBehaviorTracking
+- @/components/ui/card
+- @/components/ui/button
+- @/components/ui/badge
+- @/components/ui/progress
+- date-fns
+- @/types/exercise
+
+**Storybook Stories**:
+- **Default** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **EmptyState** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **SingleItems** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **RichData** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **DifferentDifficultyLevels** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **VariousTrends** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **TimeVariations** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ClickableElements** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **KeyboardNavigation** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ResponsiveLayout** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **LongTextContent** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **LargeNumbers** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **MissingData** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ErrorStates** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **HighContrast** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **ScreenReader** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **KeyboardOnly** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **LoadingState** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **MixedActiveInactivePlans** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **RecentWorkoutsOnly** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **PlansOnlyNoWorkouts** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **InteractiveDemo** (src/components/exercise/ExerciseOverview.stories.tsx)
+- **PerformanceTest** (src/components/exercise/ExerciseOverview.stories.tsx)
+
+**Test Coverage**:
+- Test file: `tests/visual/ExerciseOverview.visual.test.ts`
+- Test cases: 63
+- Test file: `src/components/exercise/ExerciseOverview.test.tsx`
+- Test cases: 61
+- Test file: `src/components/exercise/ExerciseOverview.integration.test.tsx`
+- Test cases: 45
 
 ---
 
