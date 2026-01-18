@@ -2,7 +2,7 @@
 
 This document extracts comprehensive component behavior requirements from unit tests, Storybook stories, and TypeScript interfaces, providing detailed specifications for component implementation, validation, and integration patterns.
 
-*Last updated: 2026-01-11T03:46:55.423Z*
+*Last updated: 2026-01-18T03:43:14.407Z*
 *Generated automatically from source code analysis*
 
 ## 1. LocaleSwitcher Component Requirements
@@ -6690,14929 +6690,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 5. ExerciseOverview Component Requirements
+## 5. ReminderList Component Requirements
 
 ### 5.1 Props Requirements
-
-#### recentLogs Prop
-- **Type**: `ExerciseLog[]`
-- **Required**: Yes
-
-#### activeTrainingPlans Prop
-- **Type**: `TrainingPlan[]`
-- **Required**: Yes
-
-#### stats Prop
-- **Type**: `ExerciseStats`
-- **Required**: Yes
-
-#### onAction Prop
-- **Type**: `(action: string) => void`
-- **Required**: No
-
-### 5.2 Usage Requirements (from Storybook)
-
-#### Default Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### EmptyState Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### SingleItems Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### RichData Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### DifferentDifficultyLevels Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### VariousTrends Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### TimeVariations Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### ClickableElements Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### KeyboardNavigation Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### ResponsiveLayout Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### LongTextContent Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### LargeNumbers Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### MissingData Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### ErrorStates Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### HighContrast Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### ScreenReader Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### KeyboardOnly Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### LoadingState Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### MixedActiveInactivePlans Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### RecentWorkoutsOnly Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### PlansOnlyNoWorkouts Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### InteractiveDemo Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-#### PerformanceTest Story
-- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
-- **Example Props**: `{
-  "baseLog": {
-    "id": "Math.floor()",
-    "exercise": "exercises[Math.floor()]",
-    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "basePlan": {
-    "id": "Math.floor()",
-    "name": "planNames[Math.floor()]",
-    "difficulty": "difficulties[Math.floor()]",
-    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
-  },
-  "meta": {
-    "title": "Exercise/ExerciseOverview",
-    "component": "ExerciseOverview",
-    "parameters": {
-      "docs": {
-        "description": {
-          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
-        }
-      },
-      "actions": {
-        "handles": [
-          "click",
-          "keydown"
-        ]
-      }
-    },
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of recent exercise logs"
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Array of active training plans"
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        },
-        "description": "Exercise statistics object"
-      }
-    },
-    "tags": [
-      "autodocs"
-    ]
-  },
-  "Default": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)",
-        "generateRecentLog(24)",
-        "generateRecentLog(48)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats([object Object])"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
-        }
-      }
-    }
-  },
-  "EmptyState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
-        }
-      }
-    }
-  },
-  "SingleItems": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 1,
-        "activePlans": 1,
-        "completedSessions": 1,
-        "weeklyProgress": 1
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Minimal data scenario with single exercise log and training plan."
-        }
-      }
-    }
-  },
-  "RichData": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 342,
-        "activePlans": 3,
-        "completedSessions": 128,
-        "weeklyProgress": 12
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
-        }
-      }
-    }
-  },
-  "DifferentDifficultyLevels": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Training plans with different difficulty levels showing color-coded badges."
-        }
-      }
-    }
-  },
-  "VariousTrends": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 89,
-        "activePlans": 2,
-        "completedSessions": 34,
-        "weeklyProgress": 8
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
-        }
-      }
-    }
-  },
-  "TimeVariations": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(0.5)",
-        "generateRecentLog(3)",
-        "generateRecentLog(12)",
-        "generateRecentLog(36)",
-        "generateOldLog(3)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Recent logs with various timestamps to test time ago calculations and display."
-        }
-      }
-    }
-  },
-  "ClickableElements": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(8)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive elements demonstration with action logging for all clickable components."
-        }
-      }
-    }
-  },
-  "KeyboardNavigation": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard navigation focused story for testing accessibility and tab order."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-order-semantics",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ResponsiveLayout": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)",
-        "generateRecentLog(6)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Responsive layout demonstration across different viewport sizes."
-        }
-      },
-      "viewport": {
-        "viewports": {
-          "mobile": {
-            "name": "Mobile",
-            "styles": {
-              "width": "375px",
-              "height": "667px"
-            }
-          },
-          "tablet": {
-            "name": "Tablet",
-            "styles": {
-              "width": "768px",
-              "height": "1024px"
-            }
-          },
-          "desktop": {
-            "name": "Desktop",
-            "styles": {
-              "width": "1200px",
-              "height": "800px"
-            }
-          }
-        }
-      }
-    }
-  },
-  "LongTextContent": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Long text content testing for exercise names and training plan names."
-        }
-      }
-    }
-  },
-  "LargeNumbers": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 9999,
-        "activePlans": 25,
-        "completedSessions": 5000,
-        "weeklyProgress": 100
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Large numbers testing for statistics and exercise data formatting."
-        }
-      }
-    }
-  },
-  "MissingData": {
-    "args": {
-      "recentLogs": [
-        "generateExerciseLog([object Object])"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
-        }
-      }
-    }
-  },
-  "ErrorStates": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {}
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Error state simulation with invalid negative values."
-        }
-      }
-    }
-  },
-  "HighContrast": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(4)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "High contrast theme for accessibility testing."
-        }
-      },
-      "backgrounds": {
-        "default": "dark",
-        "values": [
-          {
-            "name": "dark",
-            "value": "#000000"
-          },
-          {
-            "name": "light",
-            "value": "#ffffff"
-          }
-        ]
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "color-contrast",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ScreenReader": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "aria-labels",
-              "enabled": true
-            },
-            {
-              "id": "aria-roles",
-              "enabled": true
-            },
-            {
-              "id": "screen-reader-only",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "KeyboardOnly": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(3)",
-        "generateRecentLog(7)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Keyboard-only interaction demonstration for accessibility testing."
-        }
-      },
-      "a11y": {
-        "config": {
-          "rules": [
-            {
-              "id": "keyboard-navigation",
-              "enabled": true
-            },
-            {
-              "id": "focus-visible",
-              "enabled": true
-            },
-            {
-              "id": "tab-order",
-              "enabled": true
-            }
-          ]
-        }
-      }
-    }
-  },
-  "LoadingState": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 0,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Simulated loading state with minimal data."
-        }
-      }
-    }
-  },
-  "MixedActiveInactivePlans": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(5)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Mixed active and inactive training plans to test status indicators."
-        }
-      }
-    }
-  },
-  "RecentWorkoutsOnly": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": [],
-      "stats": {
-        "totalExerciseLogs": 45,
-        "activePlans": 0,
-        "completedSessions": 30,
-        "weeklyProgress": 5
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with recent workouts but no active training plans."
-        }
-      }
-    }
-  },
-  "PlansOnlyNoWorkouts": {
-    "args": {
-      "recentLogs": [],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])",
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": {
-        "totalExerciseLogs": 0,
-        "activePlans": 2,
-        "completedSessions": 0,
-        "weeklyProgress": 0
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "User with active training plans but no workout history."
-        }
-      }
-    }
-  },
-  "InteractiveDemo": {
-    "args": {
-      "recentLogs": [
-        "generateRecentLog(2)"
-      ],
-      "activeTrainingPlans": [
-        "generateTrainingPlan([object Object])"
-      ],
-      "stats": "generateStats()"
-    },
-    "argTypes": {
-      "recentLogs": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "activeTrainingPlans": {
-        "control": {
-          "type": "object"
-        }
-      },
-      "stats": {
-        "control": {
-          "type": "object"
-        }
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Interactive demo with controls to modify data in real-time."
-        }
-      }
-    }
-  },
-  "PerformanceTest": {
-    "args": {
-      "recentLogs": "Array.from([object Object], )",
-      "activeTrainingPlans": "Array.from([object Object], )",
-      "stats": {
-        "totalExerciseLogs": 10000,
-        "activePlans": 20,
-        "completedSessions": 5000,
-        "weeklyProgress": 50
-      }
-    },
-    "parameters": {
-      "docs": {
-        "description": {
-          "story": "Performance testing with large datasets to test component rendering efficiency."
-        }
-      }
-    }
-  }
-}`
-
-### 5.3 Behavioral Requirements (from Tests)
-
-#### Test Suite: ExerciseOverview.visual.test.ts
-
-**Test Cases**:
-- full component - default state
-- full component - empty state
-- full component - minimal data state
-- full component - rich data state
-- full component - mobile view
-- full component - tablet view
-- full component - desktop view
-- stats grid - different trend indicators
-- stats grid - zero values
-- stats grid - high values
-- training plans - various difficulty levels
-- training plans - active vs inactive states
-- recent logs - different time stamps
-- recent logs - various exercise data formats
-- quick actions section
-- progress charts section
-- stat card hover state
-- training plan card hover state
-- recent log item hover state
-- quick action button hover state
-- progress chart hover state
-- keyboard focus states
-- active/pressed states
-- breakpoint - small mobile (320px)
-- breakpoint - large mobile (414px)
-- breakpoint - tablet portrait (768px)
-- breakpoint - tablet landscape (1024px)
-- breakpoint - desktop (1440px)
-- grid layout adaptation - stats grid
-- text wrapping - long exercise names
-- text wrapping - long training plan names
-- dark mode theme
-- high contrast mode
-- large text accessibility
-- reduced motion preferences
-- color-blind friendly - deuteranopia simulation
-- color-blind friendly - protanopia simulation
-- exercise overview consistency in ${browserName}
-- stats grid consistency in ${browserName}
-- network error state simulation
-- data corruption error state
-- permission error state
-- loading skeleton states
-- transition states - card expansion
-- focus ring animations
-- stat values display accuracy
-- time calculations accuracy
-- difficulty color mapping accuracy
-- trend indicator accuracy
-- large dataset rendering
-- memory usage with extensive data
-- zero values edge case
-- maximum values edge case
-- mixed null and valid data
-- unicode and special characters
-- focus ring visibility on all interactive elements
-- high contrast mode transitions
-- screen reader-only content positioning
-- keyboard navigation visual feedback
-- color-blind accessibility patterns
-- aria labels and roles visual verification
-- touch target size compliance
-- motion accessibility preferences
-
-**Expected Behaviors**:
-- Test suite: ExerciseOverview Visual Regression Tests
-- Test suite: Component Visual Tests
-- Test suite: Section-Specific Visual Tests
-- Test suite: Interactive State Visual Tests
-- Test suite: Responsive Visual Tests
-- Test suite: Theme and Accessibility Visual Tests
-- Test suite: Cross-Browser Visual Tests
-- Test suite: Error State Visual Tests
-- Test suite: Animation and Transition Visual Tests
-- Test suite: Data Visualization Accuracy Tests
-- Test suite: Performance Visual Tests
-- Test suite: Edge Cases and Boundary Tests
-- Test suite: Accessibility-Specific Visual Regression Tests
-
-#### Test Suite: ExerciseOverview.test.tsx
-
-**Test Cases**:
-- renders with all sections when data is provided
-- renders with empty data states
-- renders with single items
-- has proper data-testid attributes
-- renders stats values correctly
-- renders stat cards with correct data
-- displays trend indicators correctly
-- handles stat card clicks
-- supports keyboard navigation for stat cards
-- renders training plan cards with correct data
-- displays difficulty levels with correct colors
-- shows active status correctly
-- displays sessions per week
-- displays start dates when available
-- handles training plan card clicks
-- renders recent log items with correct data
-- calculates and displays time ago correctly
-- displays sets, reps, and weight correctly
-- handles recent log item clicks
-- renders all quick action buttons
-- has correct href attributes
-- handles quick action button clicks
-- renders progress charts section
-- displays chart placeholders
-- handles progress chart clicks
-- supports keyboard navigation for charts
-- tracks component view on mount
-- tracks component view with empty data
-- has proper ARIA labels and roles for interactive elements
-- supports keyboard navigation
-- has proper link accessibility
-- handles invalid data gracefully
-- handles missing required props gracefully
-- handles null and undefined values
-- calculates time ago correctly for different time periods
-- formats dates correctly
-- has correct navigation links in header
-- has correct section navigation links
-- should handle malformed tracking data gracefully
-- should handle network failures in tracking gracefully
-- should handle circular references in tracking context
-- should handle invalid tracking parameters without crashing
-- should handle tracking timeout scenarios
-- should handle concurrent tracking events without data corruption
-- should handle tracking with missing required context fields
-- should handle tracking service unavailability gracefully
-- should handle invalid entity IDs in tracking data
-- should handle deeply nested context data without stack overflow
-- should handle tracking data sanitization for sensitive information
-- calls useTranslations with correct keys for main content
-- calls useTranslations with correct keys for stats
-- calls useTranslations with correct keys for quick actions
-- calls useTranslations with correct keys for exercise data
-- calls useTranslations with correct keys for difficulty levels
-- calls useTranslations with correct keys for progress charts
-- calls useTranslations with correct keys for empty states
-- handles missing translations gracefully by returning key as fallback
-- handles translation function errors gracefully
-- supports dynamic translation keys with interpolation
-- maintains consistent translation key format across component
-- provides appropriate context for translation keys
-
-**Expected Behaviors**:
-- Test suite: ExerciseOverview
-- Test suite: Component Rendering
-- Test suite: StatCard Component
-- Test suite: TrainingPlanCard Component
-- Test suite: RecentLogItem Component
-- Test suite: QuickActionButton Component
-- Test suite: Progress Charts Section
-- Test suite: Behavioral Tracking Integration
-- Test suite: Accessibility Features
-- Test suite: Error Handling
-- Test suite: Data Transformation
-- Test suite: Navigation Links
-- Test suite: Behavioral Tracking Edge Cases
-- Test suite: Internationalization (i18n)
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveClass
-- Expects: toHaveClass
-- Expects: toHaveClass
-- Expects: toHaveLength
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveLength
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toBeGreaterThan
-- Expects: toHaveAttribute
-- Expects: toHaveAttribute
-- Expects: toBeGreaterThan
-- Expects: toHaveAttribute
-- Expects: toHaveBeenCalled
-- Expects: toHaveBeenCalled
-- Expects: resolves
-- Expects: toHaveBeenCalledTimes
-- Expects: toHaveProperty
-- Expects: toHaveProperty
-- Expects: toBe
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: not
-- Expects: not
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toMatch
-- Expects: toBeGreaterThan
-- Expects: not
-- Expects: toContain
-
-#### Test Suite: ExerciseOverview.integration.test.tsx
-
-**Test Cases**:
-- should render all sections with proper data flow
-- should handle prop drilling and data transformation correctly
-- should handle empty data states correctly
-- should handle interaction between different sections
-- should track complete behavioral flow from component mount to user interactions
-- should enrich tracking events with proper context data
-- should handle tracking event sequence for complex workflows
-- should handle tracking errors gracefully
-- should ensure stats calculations match displayed values
-- should ensure time calculations are consistent across components
-- should ensure data formatting consistency across different display contexts
-- should handle edge cases in data transformation
-- should support complete user journey through the overview
-- should handle navigation flow from overview to detail pages
-- should handle quick action workflows
-- should support accessibility workflow with keyboard-only navigation
-- should handle large datasets efficiently
-- should measure behavioral tracking performance impact
-- should detect memory leaks over multiple render cycles
-- should establish performance baselines and detect regressions
-- should monitor memory usage during behavioral tracking
-- should handle stress testing with rapid state changes
-- should measure component cleanup performance
-- should benchmark interaction performance with large datasets
-- should detect potential memory leaks in behavioral tracking
-- should handle memory usage and cleanup properly
-- should handle event propagation between sub-components
-- should maintain component isolation
-- should handle concurrent user interactions
-- should handle invalid data gracefully
-- should handle missing props gracefully
-- should handle component re-renders with changing data
-- should handle malformed tracking data in complex user workflows
-- should handle network failures in tracking during complex integration flows
-- should handle circular references in complex tracking context data
-- should handle invalid tracking parameters in integration scenarios without crashing
-- should handle tracking timeout scenarios in integration context
-- should handle concurrent tracking events during integration testing without data corruption
-- should handle tracking with missing required context fields in integration scenarios
-- should handle tracking service unavailability during integration testing
-- should handle invalid entity IDs in integration tracking data
-- should handle deeply nested context data in integration scenarios without stack overflow
-- should handle tracking data sanitization in integration environments
-- should handle tracking event batching and flushing in integration scenarios
-- should handle tracking event ordering and sequencing in complex integration flows
-
-**Expected Behaviors**:
-- Test suite: ExerciseOverview Integration Tests
-- Test suite: Component Integration Tests
-- Test suite: Behavioral Tracking Integration
-- Test suite: Data Consistency Tests
-- Test suite: User Workflow Integration
-- Test suite: Performance Integration
-- Test suite: Cross-Component Communication
-- Test suite: Error Handling and Edge Cases
-- Test suite: Behavioral Tracking Edge Cases Integration
-- Expects: toBeInTheDocument
-- Expects: getByText
-- Expects: getByText
-- Expects: getByText
-- Expects: getByText
-- Expects: toBeInTheDocument
-- Expects: getByText
-- Expects: toBeInTheDocument
-- Expects: getByText
-- Expects: toBeInTheDocument
-- Expects: getByText
-- Expects: toBeInTheDocument
-- Expects: getByText
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toContain
-- Expects: toContain
-- Expects: toContain
-- Expects: toContain
-- Expects: getByText
-- Expects: getByText
-- Expects: getByText
-- Expects: getByText
-- Expects: toBeInTheDocument
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveAttribute
-- Expects: toHaveAttribute
-- Expects: toHaveAttribute
-- Expects: toHaveAttribute
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveFocus
-- Expects: toHaveBeenCalled
-- Expects: toHaveBeenCalled
-- Expects: toHaveAttribute
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toHaveBeenCalledTimes
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toHaveBeenCalled
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toBeLessThan
-- Expects: toHaveBeenCalled
-- Expects: toBeLessThan
-- Expects: toHaveBeenCalled
-- Expects: toBeInTheDocument
-- Expects: toBeInTheDocument
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledTimes
-- Expects: toHaveBeenCalled
-- Expects: toHaveBeenCalled
-- Expects: resolves
-- Expects: toHaveBeenCalledTimes
-- Expects: toHaveProperty
-- Expects: toHaveProperty
-- Expects: toBe
-- Expects: toBeGreaterThan
-- Expects: toBeGreaterThan
-- Expects: toEqual
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: toHaveBeenCalledWith
-- Expects: not
-- Expects: not
-- Expects: not
-- Expects: not
-- Expects: not
-- Expects: not
-- Expects: toBeGreaterThan
-- Expects: toBeGreaterThan
-- Expects: toBe
-- Expects: toBeGreaterThanOrEqual
-- Expects: toEqual
-- Expects: toBeGreaterThanOrEqual
-- Expects: toBe
-
-### 5.4 Client Component Requirements
-
-- Must include `'use client'` directive
-- Can use React hooks and event handlers
-- Must handle client-side state management
-- Should implement proper error boundaries
-
-### 5.5 Accessibility Requirements
-
-- Must be keyboard navigable
-- Must provide appropriate ARIA labels and roles
-- Must support screen readers
-- Must meet WCAG 2.1 AA standards
-
-### 5.6 Performance Requirements
-
-- Must minimize re-renders
-- Should implement proper memoization where appropriate
-- Must handle loading and error states gracefully
-- Should support lazy loading if applicable
-
----
-
-## 6. ReminderList Component Requirements
-
-### 6.1 Props Requirements
 
 #### reminders Prop
 - **Type**: `HealthReminder[]`
@@ -21634,7 +6714,7 @@ This document extracts comprehensive component behavior requirements from unit t
 - **Type**: `boolean`
 - **Required**: No
 
-### 6.3 Behavioral Requirements (from Tests)
+### 5.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: ReminderList.test.tsx
 
@@ -21771,21 +6851,21 @@ This document extracts comprehensive component behavior requirements from unit t
 - Expects: toHaveBeenCalledTimes
 - Expects: toHaveBeenCalledTimes
 
-### 6.4 Client Component Requirements
+### 5.4 Client Component Requirements
 
 - Must include `'use client'` directive
 - Can use React hooks and event handlers
 - Must handle client-side state management
 - Should implement proper error boundaries
 
-### 6.5 Accessibility Requirements
+### 5.5 Accessibility Requirements
 
 - Must be keyboard navigable
 - Must provide appropriate ARIA labels and roles
 - Must support screen readers
 - Must meet WCAG 2.1 AA standards
 
-### 6.6 Performance Requirements
+### 5.6 Performance Requirements
 
 - Must minimize re-renders
 - Should implement proper memoization where appropriate
@@ -21794,9 +6874,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 7. HealthSummaryCards Component Requirements
+## 6. HealthSummaryCards Component Requirements
 
-### 7.2 Usage Requirements (from Storybook)
+### 6.2 Usage Requirements (from Storybook)
 
 #### Default Story
 - **File**: `src/components/health/HealthSummaryCards.stories.tsx`
@@ -28105,7 +13185,7 @@ This document extracts comprehensive component behavior requirements from unit t
   }
 }`
 
-### 7.3 Behavioral Requirements (from Tests)
+### 6.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: HealthSummaryCards.test.tsx
 
@@ -28199,21 +13279,21 @@ This document extracts comprehensive component behavior requirements from unit t
 - Expects: toEqual
 - Expects: toEqual
 
-### 7.4 Client Component Requirements
+### 6.4 Client Component Requirements
 
 - Must include `'use client'` directive
 - Can use React hooks and event handlers
 - Must handle client-side state management
 - Should implement proper error boundaries
 
-### 7.5 Accessibility Requirements
+### 6.5 Accessibility Requirements
 
 - Must be keyboard navigable
 - Must provide appropriate ARIA labels and roles
 - Must support screen readers
 - Must meet WCAG 2.1 AA standards
 
-### 7.6 Performance Requirements
+### 6.6 Performance Requirements
 
 - Must minimize re-renders
 - Should implement proper memoization where appropriate
@@ -28222,9 +13302,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 8. HealthRecordsFilters Component Requirements
+## 7. HealthRecordsFilters Component Requirements
 
-### 8.3 Behavioral Requirements (from Tests)
+### 7.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: HealthRecordsFilters.test.tsx
 
@@ -28396,21 +13476,21 @@ This document extracts comprehensive component behavior requirements from unit t
 - Expects: toHaveTextContent
 - Expects: toHaveTextContent
 
-### 8.4 Client Component Requirements
+### 7.4 Client Component Requirements
 
 - Must include `'use client'` directive
 - Can use React hooks and event handlers
 - Must handle client-side state management
 - Should implement proper error boundaries
 
-### 8.5 Accessibility Requirements
+### 7.5 Accessibility Requirements
 
 - Must be keyboard navigable
 - Must provide appropriate ARIA labels and roles
 - Must support screen readers
 - Must meet WCAG 2.1 AA standards
 
-### 8.6 Performance Requirements
+### 7.6 Performance Requirements
 
 - Must minimize re-renders
 - Should implement proper memoization where appropriate
@@ -28419,9 +13499,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 9. HealthRecordForm Component Requirements
+## 8. HealthRecordForm Component Requirements
 
-### 9.1 Props Requirements
+### 8.1 Props Requirements
 
 #### initialData Prop
 - **Type**: `Partial<{ type_id: number; value: number; unit: string; recorded_at: string; }>`
@@ -28443,7 +13523,7 @@ This document extracts comprehensive component behavior requirements from unit t
 - **Type**: `HealthType[]`
 - **Required**: No
 
-### 9.3 Behavioral Requirements (from Tests)
+### 8.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: HealthRecordForm.test.tsx
 
@@ -28494,21 +13574,21 @@ This document extracts comprehensive component behavior requirements from unit t
 - Expects: toHaveAttribute
 - Expects: toHaveClass
 
-### 9.4 Client Component Requirements
+### 8.4 Client Component Requirements
 
 - Must include `'use client'` directive
 - Can use React hooks and event handlers
 - Must handle client-side state management
 - Should implement proper error boundaries
 
-### 9.5 Accessibility Requirements
+### 8.5 Accessibility Requirements
 
 - Must be keyboard navigable
 - Must provide appropriate ARIA labels and roles
 - Must support screen readers
 - Must meet WCAG 2.1 AA standards
 
-### 9.6 Performance Requirements
+### 8.6 Performance Requirements
 
 - Must minimize re-renders
 - Should implement proper memoization where appropriate
@@ -28517,9 +13597,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 10. HealthRadarChart Component Requirements
+## 9. HealthRadarChart Component Requirements
 
-### 10.2 Usage Requirements (from Storybook)
+### 9.2 Usage Requirements (from Storybook)
 
 #### Default Story
 - **File**: `src/components/health/HealthRadarChart.stories.tsx`
@@ -46227,7 +31307,7 @@ This document extracts comprehensive component behavior requirements from unit t
   }
 }`
 
-### 10.3 Behavioral Requirements (from Tests)
+### 9.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: HealthRadarChart.test.tsx
 
@@ -46314,21 +31394,21 @@ This document extracts comprehensive component behavior requirements from unit t
 - Expects: not
 - Expects: not
 
-### 10.4 Client Component Requirements
+### 9.4 Client Component Requirements
 
 - Must include `'use client'` directive
 - Can use React hooks and event handlers
 - Must handle client-side state management
 - Should implement proper error boundaries
 
-### 10.5 Accessibility Requirements
+### 9.5 Accessibility Requirements
 
 - Must be keyboard navigable
 - Must provide appropriate ARIA labels and roles
 - Must support screen readers
 - Must meet WCAG 2.1 AA standards
 
-### 10.6 Performance Requirements
+### 9.6 Performance Requirements
 
 - Must minimize re-renders
 - Should implement proper memoization where appropriate
@@ -46337,9 +31417,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 11. HealthChart Component Requirements
+## 10. HealthChart Component Requirements
 
-### 11.1 Props Requirements
+### 10.1 Props Requirements
 
 #### data Prop
 - **Type**: `HealthDataPoint[]`
@@ -46425,7 +31505,7 @@ This document extracts comprehensive component behavior requirements from unit t
 - **Type**: `(value: number) => string`
 - **Required**: No
 
-### 11.2 Usage Requirements (from Storybook)
+### 10.2 Usage Requirements (from Storybook)
 
 #### Default Story
 - **File**: `src/components/health/HealthChart.stories.tsx`
@@ -51962,7 +37042,7 @@ This document extracts comprehensive component behavior requirements from unit t
   }
 }`
 
-### 11.3 Behavioral Requirements (from Tests)
+### 10.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: HealthCharts.visual.test.ts
 
@@ -52055,21 +37135,21 @@ This document extracts comprehensive component behavior requirements from unit t
 - Test suite: Cross-Browser Visual Consistency
 - Test suite: Theme and Styling Tests
 
-### 11.4 Client Component Requirements
+### 10.4 Client Component Requirements
 
 - Must include `'use client'` directive
 - Can use React hooks and event handlers
 - Must handle client-side state management
 - Should implement proper error boundaries
 
-### 11.5 Accessibility Requirements
+### 10.5 Accessibility Requirements
 
 - Must be keyboard navigable
 - Must provide appropriate ARIA labels and roles
 - Must support screen readers
 - Must meet WCAG 2.1 AA standards
 
-### 11.6 Performance Requirements
+### 10.6 Performance Requirements
 
 - Must minimize re-renders
 - Should implement proper memoization where appropriate
@@ -52078,9 +37158,9 @@ This document extracts comprehensive component behavior requirements from unit t
 
 ---
 
-## 12. AddHealthRecordModal Component Requirements
+## 11. AddHealthRecordModal Component Requirements
 
-### 12.1 Props Requirements
+### 11.1 Props Requirements
 
 #### isOpen Prop
 - **Type**: `boolean`
@@ -52094,7 +37174,7 @@ This document extracts comprehensive component behavior requirements from unit t
 - **Type**: `() => void`
 - **Required**: Yes
 
-### 12.3 Behavioral Requirements (from Tests)
+### 11.3 Behavioral Requirements (from Tests)
 
 #### Test Suite: AddHealthRecordModal.test.tsx
 
@@ -52208,6 +37288,14926 @@ This document extracts comprehensive component behavior requirements from unit t
 - Expects: toHaveClass
 - Expects: toHaveClass
 - Expects: toHaveClass
+
+### 11.4 Client Component Requirements
+
+- Must include `'use client'` directive
+- Can use React hooks and event handlers
+- Must handle client-side state management
+- Should implement proper error boundaries
+
+### 11.5 Accessibility Requirements
+
+- Must be keyboard navigable
+- Must provide appropriate ARIA labels and roles
+- Must support screen readers
+- Must meet WCAG 2.1 AA standards
+
+### 11.6 Performance Requirements
+
+- Must minimize re-renders
+- Should implement proper memoization where appropriate
+- Must handle loading and error states gracefully
+- Should support lazy loading if applicable
+
+---
+
+## 12. ExerciseOverview Component Requirements
+
+### 12.1 Props Requirements
+
+#### recentLogs Prop
+- **Type**: `ExerciseLog[]`
+- **Required**: Yes
+
+#### activeTrainingPlans Prop
+- **Type**: `TrainingPlan[]`
+- **Required**: Yes
+
+#### stats Prop
+- **Type**: `ExerciseStats`
+- **Required**: Yes
+
+#### onAction Prop
+- **Type**: `(action: string) => void`
+- **Required**: No
+
+### 12.2 Usage Requirements (from Storybook)
+
+#### Default Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### EmptyState Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### SingleItems Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### RichData Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### DifferentDifficultyLevels Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### VariousTrends Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### TimeVariations Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### ClickableElements Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### KeyboardNavigation Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### ResponsiveLayout Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### LongTextContent Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### LargeNumbers Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### MissingData Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### ErrorStates Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### HighContrast Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### ScreenReader Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### KeyboardOnly Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### LoadingState Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### MixedActiveInactivePlans Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### RecentWorkoutsOnly Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### PlansOnlyNoWorkouts Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### InteractiveDemo Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+#### PerformanceTest Story
+- **File**: `src/components/exercise/ExerciseOverview.stories.tsx`
+- **Example Props**: `{
+  "baseLog": {
+    "id": "Math.floor()",
+    "exercise": "exercises[Math.floor()]",
+    "logged_at": "new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "basePlan": {
+    "id": "Math.floor()",
+    "name": "planNames[Math.floor()]",
+    "difficulty": "difficulties[Math.floor()]",
+    "start_date": "new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()"
+  },
+  "meta": {
+    "title": "Exercise/ExerciseOverview",
+    "component": "ExerciseOverview",
+    "parameters": {
+      "docs": {
+        "description": {
+          "component": "Exercise overview component displaying workout statistics, recent exercise logs, active training plans, and quick actions. Features behavioral tracking, responsive design, and accessibility support."
+        }
+      },
+      "actions": {
+        "handles": [
+          "click",
+          "keydown"
+        ]
+      }
+    },
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of recent exercise logs"
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Array of active training plans"
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        },
+        "description": "Exercise statistics object"
+      }
+    },
+    "tags": [
+      "autodocs"
+    ]
+  },
+  "Default": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)",
+        "generateRecentLog(24)",
+        "generateRecentLog(48)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats([object Object])"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Default view showing typical exercise data with multiple logs, active plans, and positive statistics."
+        }
+      }
+    }
+  },
+  "EmptyState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Empty state when user has no exercise data, showing empty sections and zero statistics."
+        }
+      }
+    }
+  },
+  "SingleItems": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 1,
+        "activePlans": 1,
+        "completedSessions": 1,
+        "weeklyProgress": 1
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Minimal data scenario with single exercise log and training plan."
+        }
+      }
+    }
+  },
+  "RichData": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 342,
+        "activePlans": 3,
+        "completedSessions": 128,
+        "weeklyProgress": 12
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Rich data scenario with extensive exercise logs, multiple training plans, and high statistics."
+        }
+      }
+    }
+  },
+  "DifferentDifficultyLevels": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Training plans with different difficulty levels showing color-coded badges."
+        }
+      }
+    }
+  },
+  "VariousTrends": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 89,
+        "activePlans": 2,
+        "completedSessions": 34,
+        "weeklyProgress": 8
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Statistics with different trend indicators (up, down, neutral) for testing trend display."
+        }
+      }
+    }
+  },
+  "TimeVariations": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(0.5)",
+        "generateRecentLog(3)",
+        "generateRecentLog(12)",
+        "generateRecentLog(36)",
+        "generateOldLog(3)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Recent logs with various timestamps to test time ago calculations and display."
+        }
+      }
+    }
+  },
+  "ClickableElements": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(8)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive elements demonstration with action logging for all clickable components."
+        }
+      }
+    }
+  },
+  "KeyboardNavigation": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard navigation focused story for testing accessibility and tab order."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-order-semantics",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ResponsiveLayout": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)",
+        "generateRecentLog(6)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Responsive layout demonstration across different viewport sizes."
+        }
+      },
+      "viewport": {
+        "viewports": {
+          "mobile": {
+            "name": "Mobile",
+            "styles": {
+              "width": "375px",
+              "height": "667px"
+            }
+          },
+          "tablet": {
+            "name": "Tablet",
+            "styles": {
+              "width": "768px",
+              "height": "1024px"
+            }
+          },
+          "desktop": {
+            "name": "Desktop",
+            "styles": {
+              "width": "1200px",
+              "height": "800px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "LongTextContent": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Long text content testing for exercise names and training plan names."
+        }
+      }
+    }
+  },
+  "LargeNumbers": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 9999,
+        "activePlans": 25,
+        "completedSessions": 5000,
+        "weeklyProgress": 100
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Large numbers testing for statistics and exercise data formatting."
+        }
+      }
+    }
+  },
+  "MissingData": {
+    "args": {
+      "recentLogs": [
+        "generateExerciseLog([object Object])"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Partial data scenario with missing optional fields (reps, weight, start_date)."
+        }
+      }
+    }
+  },
+  "ErrorStates": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {}
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Error state simulation with invalid negative values."
+        }
+      }
+    }
+  },
+  "HighContrast": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(4)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "High contrast theme for accessibility testing."
+        }
+      },
+      "backgrounds": {
+        "default": "dark",
+        "values": [
+          {
+            "name": "dark",
+            "value": "#000000"
+          },
+          {
+            "name": "light",
+            "value": "#ffffff"
+          }
+        ]
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "color-contrast",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "ScreenReader": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Screen reader optimized story with enhanced ARIA labels and descriptions."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "aria-labels",
+              "enabled": true
+            },
+            {
+              "id": "aria-roles",
+              "enabled": true
+            },
+            {
+              "id": "screen-reader-only",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "KeyboardOnly": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(3)",
+        "generateRecentLog(7)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Keyboard-only interaction demonstration for accessibility testing."
+        }
+      },
+      "a11y": {
+        "config": {
+          "rules": [
+            {
+              "id": "keyboard-navigation",
+              "enabled": true
+            },
+            {
+              "id": "focus-visible",
+              "enabled": true
+            },
+            {
+              "id": "tab-order",
+              "enabled": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "LoadingState": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 0,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Simulated loading state with minimal data."
+        }
+      }
+    }
+  },
+  "MixedActiveInactivePlans": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(5)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Mixed active and inactive training plans to test status indicators."
+        }
+      }
+    }
+  },
+  "RecentWorkoutsOnly": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": [],
+      "stats": {
+        "totalExerciseLogs": 45,
+        "activePlans": 0,
+        "completedSessions": 30,
+        "weeklyProgress": 5
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with recent workouts but no active training plans."
+        }
+      }
+    }
+  },
+  "PlansOnlyNoWorkouts": {
+    "args": {
+      "recentLogs": [],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])",
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": {
+        "totalExerciseLogs": 0,
+        "activePlans": 2,
+        "completedSessions": 0,
+        "weeklyProgress": 0
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "User with active training plans but no workout history."
+        }
+      }
+    }
+  },
+  "InteractiveDemo": {
+    "args": {
+      "recentLogs": [
+        "generateRecentLog(2)"
+      ],
+      "activeTrainingPlans": [
+        "generateTrainingPlan([object Object])"
+      ],
+      "stats": "generateStats()"
+    },
+    "argTypes": {
+      "recentLogs": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "activeTrainingPlans": {
+        "control": {
+          "type": "object"
+        }
+      },
+      "stats": {
+        "control": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Interactive demo with controls to modify data in real-time."
+        }
+      }
+    }
+  },
+  "PerformanceTest": {
+    "args": {
+      "recentLogs": "Array.from([object Object], )",
+      "activeTrainingPlans": "Array.from([object Object], )",
+      "stats": {
+        "totalExerciseLogs": 10000,
+        "activePlans": 20,
+        "completedSessions": 5000,
+        "weeklyProgress": 50
+      }
+    },
+    "parameters": {
+      "docs": {
+        "description": {
+          "story": "Performance testing with large datasets to test component rendering efficiency."
+        }
+      }
+    }
+  }
+}`
+
+### 12.3 Behavioral Requirements (from Tests)
+
+#### Test Suite: ExerciseOverview.visual.test.ts
+
+**Test Cases**:
+- full component - default state
+- full component - empty state
+- full component - minimal data state
+- full component - rich data state
+- full component - mobile view
+- full component - tablet view
+- full component - desktop view
+- stats grid - different trend indicators
+- stats grid - zero values
+- stats grid - high values
+- training plans - various difficulty levels
+- training plans - active vs inactive states
+- recent logs - different time stamps
+- recent logs - various exercise data formats
+- quick actions section
+- progress charts section
+- stat card hover state
+- training plan card hover state
+- recent log item hover state
+- quick action button hover state
+- progress chart hover state
+- keyboard focus states
+- active/pressed states
+- breakpoint - small mobile (320px)
+- breakpoint - large mobile (414px)
+- breakpoint - tablet portrait (768px)
+- breakpoint - tablet landscape (1024px)
+- breakpoint - desktop (1440px)
+- grid layout adaptation - stats grid
+- text wrapping - long exercise names
+- text wrapping - long training plan names
+- dark mode theme
+- high contrast mode
+- large text accessibility
+- reduced motion preferences
+- color-blind friendly - deuteranopia simulation
+- color-blind friendly - protanopia simulation
+- exercise overview consistency in ${browserName}
+- stats grid consistency in ${browserName}
+- network error state simulation
+- data corruption error state
+- permission error state
+- loading skeleton states
+- transition states - card expansion
+- focus ring animations
+- stat values display accuracy
+- time calculations accuracy
+- difficulty color mapping accuracy
+- trend indicator accuracy
+- large dataset rendering
+- memory usage with extensive data
+- zero values edge case
+- maximum values edge case
+- mixed null and valid data
+- unicode and special characters
+- focus ring visibility on all interactive elements
+- high contrast mode transitions
+- screen reader-only content positioning
+- keyboard navigation visual feedback
+- color-blind accessibility patterns
+- aria labels and roles visual verification
+- touch target size compliance
+- motion accessibility preferences
+
+**Expected Behaviors**:
+- Test suite: ExerciseOverview Visual Regression Tests
+- Test suite: Component Visual Tests
+- Test suite: Section-Specific Visual Tests
+- Test suite: Interactive State Visual Tests
+- Test suite: Responsive Visual Tests
+- Test suite: Theme and Accessibility Visual Tests
+- Test suite: Cross-Browser Visual Tests
+- Test suite: Error State Visual Tests
+- Test suite: Animation and Transition Visual Tests
+- Test suite: Data Visualization Accuracy Tests
+- Test suite: Performance Visual Tests
+- Test suite: Edge Cases and Boundary Tests
+- Test suite: Accessibility-Specific Visual Regression Tests
+
+#### Test Suite: ExerciseOverview.test.tsx
+
+**Test Cases**:
+- renders with all sections when data is provided
+- renders with empty data states
+- renders with single items
+- has proper data-testid attributes
+- renders stats values correctly
+- renders stat cards with correct data
+- displays trend indicators correctly
+- handles stat card clicks
+- supports keyboard navigation for stat cards
+- renders training plan cards with correct data
+- displays difficulty levels with correct colors
+- shows active status correctly
+- displays sessions per week
+- displays start dates when available
+- handles training plan card clicks
+- renders recent log items with correct data
+- calculates and displays time ago correctly
+- displays sets, reps, and weight correctly
+- handles recent log item clicks
+- renders all quick action buttons
+- has correct href attributes
+- handles quick action button clicks
+- renders progress charts section
+- displays chart placeholders
+- handles progress chart clicks
+- supports keyboard navigation for charts
+- tracks component view on mount
+- tracks component view with empty data
+- has proper ARIA labels and roles for interactive elements
+- supports keyboard navigation
+- has proper link accessibility
+- handles invalid data gracefully
+- handles missing required props gracefully
+- handles null and undefined values
+- calculates time ago correctly for different time periods
+- formats dates correctly
+- has correct navigation links in header
+- has correct section navigation links
+- should handle malformed tracking data gracefully
+- should handle network failures in tracking gracefully
+- should handle circular references in tracking context
+- should handle invalid tracking parameters without crashing
+- should handle tracking timeout scenarios
+- should handle concurrent tracking events without data corruption
+- should handle tracking with missing required context fields
+- should handle tracking service unavailability gracefully
+- should handle invalid entity IDs in tracking data
+- should handle deeply nested context data without stack overflow
+- should handle tracking data sanitization for sensitive information
+- calls useTranslations with correct keys for main content
+- calls useTranslations with correct keys for stats
+- calls useTranslations with correct keys for quick actions
+- calls useTranslations with correct keys for exercise data
+- calls useTranslations with correct keys for difficulty levels
+- calls useTranslations with correct keys for progress charts
+- calls useTranslations with correct keys for empty states
+- handles missing translations gracefully by returning key as fallback
+- handles translation function errors gracefully
+- supports dynamic translation keys with interpolation
+- maintains consistent translation key format across component
+- provides appropriate context for translation keys
+
+**Expected Behaviors**:
+- Test suite: ExerciseOverview
+- Test suite: Component Rendering
+- Test suite: StatCard Component
+- Test suite: TrainingPlanCard Component
+- Test suite: RecentLogItem Component
+- Test suite: QuickActionButton Component
+- Test suite: Progress Charts Section
+- Test suite: Behavioral Tracking Integration
+- Test suite: Accessibility Features
+- Test suite: Error Handling
+- Test suite: Data Transformation
+- Test suite: Navigation Links
+- Test suite: Behavioral Tracking Edge Cases
+- Test suite: Internationalization (i18n)
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveClass
+- Expects: toHaveClass
+- Expects: toHaveClass
+- Expects: toHaveLength
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveLength
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toBeGreaterThan
+- Expects: toHaveAttribute
+- Expects: toHaveAttribute
+- Expects: toBeGreaterThan
+- Expects: toHaveAttribute
+- Expects: toHaveBeenCalled
+- Expects: toHaveBeenCalled
+- Expects: resolves
+- Expects: toHaveBeenCalledTimes
+- Expects: toHaveProperty
+- Expects: toHaveProperty
+- Expects: toBe
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: not
+- Expects: not
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toMatch
+- Expects: toBeGreaterThan
+- Expects: not
+- Expects: toContain
+
+#### Test Suite: ExerciseOverview.integration.test.tsx
+
+**Test Cases**:
+- should render all sections with proper data flow
+- should handle prop drilling and data transformation correctly
+- should handle empty data states correctly
+- should handle interaction between different sections
+- should track complete behavioral flow from component mount to user interactions
+- should enrich tracking events with proper context data
+- should handle tracking event sequence for complex workflows
+- should handle tracking errors gracefully
+- should ensure stats calculations match displayed values
+- should ensure time calculations are consistent across components
+- should ensure data formatting consistency across different display contexts
+- should handle edge cases in data transformation
+- should support complete user journey through the overview
+- should handle navigation flow from overview to detail pages
+- should handle quick action workflows
+- should support accessibility workflow with keyboard-only navigation
+- should handle large datasets efficiently
+- should measure behavioral tracking performance impact
+- should detect memory leaks over multiple render cycles
+- should establish performance baselines and detect regressions
+- should monitor memory usage during behavioral tracking
+- should handle stress testing with rapid state changes
+- should measure component cleanup performance
+- should benchmark interaction performance with large datasets
+- should detect potential memory leaks in behavioral tracking
+- should handle memory usage and cleanup properly
+- should handle event propagation between sub-components
+- should maintain component isolation
+- should handle concurrent user interactions
+- should handle invalid data gracefully
+- should handle missing props gracefully
+- should handle component re-renders with changing data
+- should handle malformed tracking data in complex user workflows
+- should handle network failures in tracking during complex integration flows
+- should handle circular references in complex tracking context data
+- should handle invalid tracking parameters in integration scenarios without crashing
+- should handle tracking timeout scenarios in integration context
+- should handle concurrent tracking events during integration testing without data corruption
+- should handle tracking with missing required context fields in integration scenarios
+- should handle tracking service unavailability during integration testing
+- should handle invalid entity IDs in integration tracking data
+- should handle deeply nested context data in integration scenarios without stack overflow
+- should handle tracking data sanitization in integration environments
+- should handle tracking event batching and flushing in integration scenarios
+- should handle tracking event ordering and sequencing in complex integration flows
+
+**Expected Behaviors**:
+- Test suite: ExerciseOverview Integration Tests
+- Test suite: Component Integration Tests
+- Test suite: Behavioral Tracking Integration
+- Test suite: Data Consistency Tests
+- Test suite: User Workflow Integration
+- Test suite: Performance Integration
+- Test suite: Cross-Component Communication
+- Test suite: Error Handling and Edge Cases
+- Test suite: Behavioral Tracking Edge Cases Integration
+- Expects: toBeInTheDocument
+- Expects: getByText
+- Expects: getByText
+- Expects: getByText
+- Expects: getByText
+- Expects: toBeInTheDocument
+- Expects: getByText
+- Expects: toBeInTheDocument
+- Expects: getByText
+- Expects: toBeInTheDocument
+- Expects: getByText
+- Expects: toBeInTheDocument
+- Expects: getByText
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toContain
+- Expects: toContain
+- Expects: toContain
+- Expects: toContain
+- Expects: getByText
+- Expects: getByText
+- Expects: getByText
+- Expects: getByText
+- Expects: toBeInTheDocument
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveAttribute
+- Expects: toHaveAttribute
+- Expects: toHaveAttribute
+- Expects: toHaveAttribute
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveFocus
+- Expects: toHaveBeenCalled
+- Expects: toHaveBeenCalled
+- Expects: toHaveAttribute
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toHaveBeenCalledTimes
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toHaveBeenCalled
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toBeLessThan
+- Expects: toHaveBeenCalled
+- Expects: toBeLessThan
+- Expects: toHaveBeenCalled
+- Expects: toBeInTheDocument
+- Expects: toBeInTheDocument
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledTimes
+- Expects: toHaveBeenCalled
+- Expects: toHaveBeenCalled
+- Expects: resolves
+- Expects: toHaveBeenCalledTimes
+- Expects: toHaveProperty
+- Expects: toHaveProperty
+- Expects: toBe
+- Expects: toBeGreaterThan
+- Expects: toBeGreaterThan
+- Expects: toEqual
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: toHaveBeenCalledWith
+- Expects: not
+- Expects: not
+- Expects: not
+- Expects: not
+- Expects: not
+- Expects: not
+- Expects: toBeGreaterThan
+- Expects: toBeGreaterThan
+- Expects: toBe
+- Expects: toBeGreaterThanOrEqual
+- Expects: toEqual
+- Expects: toBeGreaterThanOrEqual
+- Expects: toBe
 
 ### 12.4 Client Component Requirements
 
