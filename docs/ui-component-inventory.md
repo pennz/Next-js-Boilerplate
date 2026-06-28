@@ -4,7 +4,7 @@
 
 This document provides a comprehensive catalog of all React components in the Next.js health management application. The components are classified by type, functionality, and usage patterns to help developers understand the architecture and reusability patterns.
 
-*Last updated: 2026-06-21T06:50:18.586Z*
+*Last updated: 2026-06-28T06:16:00.418Z*
 *Generated automatically from source code analysis*
 
 ## Component Classification
